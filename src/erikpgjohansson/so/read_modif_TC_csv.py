@@ -15,7 +15,7 @@ SHOULD PRINT
 ~uploaded sweep tables
 ~bias current settings.
 
-Initially created 2020-11-26 by Erik P G Johansson.
+Initially created 2020-11-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 '''
 BOGIQ

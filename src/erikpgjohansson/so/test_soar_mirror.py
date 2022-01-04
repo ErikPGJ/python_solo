@@ -2,7 +2,9 @@
 '''
 Code for implementing a test SOAR data mirror.
 
-Initially created 2021-04-23 by Erik P G Johansson, IRF Uppsala.
+This is not generic code, but can be seen as de facto example code.
+
+Initially created 2021-04-23 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 '''
 BOGIQ
@@ -26,6 +28,7 @@ Parameters
 ----------
 instrument : String
 level      : String
+
 
 Returns
 -------

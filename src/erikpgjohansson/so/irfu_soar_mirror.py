@@ -5,7 +5,7 @@ Code for implementing the "official" IRFU-internal SOAR data mirror.
 This module is intended to only contain code for that particular mirror, i.e.
 only code that "configures" that particular mirror.
 
-Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala.
+Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 '''
 BOGIQ

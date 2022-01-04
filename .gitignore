@@ -1,5 +1,6 @@
 __pycache__/
 .vscode/
+src/*.egg-info/
 
 init_env
 src/erikpgjohansson/test.py

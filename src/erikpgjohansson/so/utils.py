@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 '''
-Initially created by Erik P G Johansson 2020-10-16.
+Initially created by Erik P G Johansson 2020-10-16, IRF Uppsala, Sweden.
 '''
 '''
 BOGIQ

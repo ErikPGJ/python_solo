@@ -15,7 +15,7 @@ DTDN = Data Type Directory Name
     Ex: lfr_wf_e
 
 
-Initially created 2020-10-26 by Erik P G Johansson.
+Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 '''
 BOGIQ

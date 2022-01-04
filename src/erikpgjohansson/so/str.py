@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 '''
 ==============================================================================
-Created by Erik P G Johansson 2020-10-13.
+Initially created by Erik P G Johansson 2020-10-13.
 
 
 Module for generic string functions. Not for printing.
