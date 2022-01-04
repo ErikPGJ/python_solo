@@ -426,12 +426,12 @@ dst
     for (dirPath, subDirNames, fileNames) in os.walk(rootDir):
         for fileName in fileNames:
 
-            di = erikpgjohansson.so.parse_dataset_filename(fileName)
+            di = erikpgjohansson.so.utils.parse_dataset_filename(fileName)
             # IMPLEMENTATION NOTE: parse_dataset_filename() returns None for
             # non-parsable filenames.
             if di:
                 (_dataSrc, level, instrument, _descriptor
-                 ) = erikpgjohansson.so.parse_DATASET_ID(di['DATASET_ID'])
+                 ) = erikpgjohansson.so.utils.parse_DATASET_ID(di['DATASET_ID'])
 
                 filePath = os.path.join(dirPath, fileName)
                 filePathList    += [filePath]

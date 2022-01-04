@@ -46,7 +46,7 @@ PROPOSAL: Remove dependence on erikpgjohansson.so, dataset filenaming
 
 import codetiming
 import datetime
-import erikpgjohansson.so
+import erikpgjohansson.so.utils
 import erikpgjohansson.so.soar_utils
 import json
 import numpy as np
@@ -245,7 +245,7 @@ dst : Dictionary of numpy arrays.
                         dtype='datetime64[ms]')
     for iRow in range(nRows):
         fileName = filenameArray[iRow]
-        di = erikpgjohansson.so.parse_dataset_filename(fileName)
+        di = erikpgjohansson.so.utils.parse_dataset_filename(fileName)
         # IMPORTANT NOTE: parse_dataset_filename() might fail for datasets
         # which have a valid non-null begin_time. Is therefore dependent on how
         # well-implemented that function is.

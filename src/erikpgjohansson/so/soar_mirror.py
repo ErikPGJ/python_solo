@@ -135,7 +135,7 @@ BUG: Does not correct the locations of misplaced datasets.
 BUG: Can not handle multiple identical datasets.
 
 ~BUG: Not sure about behaviour for datasets (mistakenly) not recognized by
-    erikpgjohansson.so.parse_dataset_filename among the SOAR datasets.
+    erikpgjohansson.so.utils.parse_dataset_filename among the SOAR datasets.
         NOTE: Should only happen if datasetsSubsetFunc() uses time.
 
 BUG: Gets frequent error messages when calling from bash/python wrapper script

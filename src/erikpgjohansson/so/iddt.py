@@ -85,13 +85,13 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         PRO: Entire filename is not used (version, cdag)
     '''
 
-    d = erikpgjohansson.so.parse_dataset_filename(filename)
+    d = erikpgjohansson.so.utils.parse_dataset_filename(filename)
     if not d:
         return None
     datasetId = d['DATASET_ID']
     tv1       = d['time vector 1']
 
-    (junk, level, instrument, descriptor) = erikpgjohansson.so.parse_DATASET_ID(datasetId)
+    (junk, level, instrument, descriptor) = erikpgjohansson.so.utils.parse_DATASET_ID(datasetId)
 
     yearStr  = '{:04}'.format(tv1[0])
     monthStr = '{:02}'.format(tv1[1])
@@ -218,7 +218,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
 
 
     (dataSrc, level, instrument, descriptor
-     ) = erikpgjohansson.so.parse_DATASET_ID(datasetId)
+     ) = erikpgjohansson.so.utils.parse_DATASET_ID(datasetId)
 
 
 
