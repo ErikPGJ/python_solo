@@ -36,7 +36,7 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
 
 
 import erikpgjohansson.so.utils
-import erikpgjohansson.str
+import erikpgjohansson.so.str
 import os.path
 import shutil
 
@@ -194,7 +194,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     # CASE: No special case DATASET_ID --> DTDN
 
     # Derive DTDN from DATASET_ID descriptor.
-    (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.str.regexp_str_parts(
+    (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.so.str.regexp_str_parts(
         descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match')
 
     if not isPerfectMatch:
@@ -321,10 +321,10 @@ None.
     if dirCreationPermissions > 0o777:
         # Useful for catch if mistakenly using hex literal instead of octal.
         raise Exception('Illegal dirCreationPermissions.')
-    erikpgjohansson.asserts.is_dir(sourceDir)
+    erikpgjohansson.so.asserts.is_dir(sourceDir)
     # NOTE: Without this assertion, the function will create the destination
     # directory (not just all the subdirectories)
-    erikpgjohansson.asserts.is_dir(destDir)
+    erikpgjohansson.so.asserts.is_dir(destDir)
 
 
 

@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
-
+'''
+NOTE: Copy of subset of other module outside distribution package.
+'''
 
 
 import os

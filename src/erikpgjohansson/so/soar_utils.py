@@ -61,7 +61,7 @@ PROPOSAL: DST filtering functions should accept DST+relevant column names.
 
 import codetiming
 import datetime
-import erikpgjohansson.asserts
+import erikpgjohansson.so.asserts
 import erikpgjohansson.so.soar
 import numpy as np
 import os
@@ -221,7 +221,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
     # ASSERTIONS
     erikpgjohansson.so.soar_utils.assert_col_array(itemIdArray,   np.dtype('O'))
     erikpgjohansson.so.soar_utils.assert_col_array(fileSizeArray, np.dtype('int64'))
-    erikpgjohansson.asserts.is_dir(outputDirPath)
+    erikpgjohansson.so.asserts.is_dir(outputDirPath)
 
 
 
@@ -381,7 +381,7 @@ Returns
 -------
 dst
 '''
-    erikpgjohansson.asserts.is_dir(rootDir)
+    erikpgjohansson.so.asserts.is_dir(rootDir)
 
     fileNameList    = []
     filePathList    = []

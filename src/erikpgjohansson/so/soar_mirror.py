@@ -176,8 +176,8 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
                          somehow?
     '''
     # ASSERTIONS
-    erikpgjohansson.asserts.is_dir(syncDir)
-    erikpgjohansson.asserts.is_dir(tempDownloadDir)
+    erikpgjohansson.so.asserts.is_dir(syncDir)
+    erikpgjohansson.so.asserts.is_dir(tempDownloadDir)
     assert callable(datasetsSubsetFunc)
     assert type(nMaxNetDatasetsToRemove) in [int, float]
 

@@ -414,7 +414,7 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
 
     filePath = os.path.join(fileParentPath, fileName)
 
-    erikpgjohansson.asserts.path_is_available(filePath)
+    erikpgjohansson.so.asserts.path_is_available(filePath)
 
     if debugCreateEmptyFile:
         pathlib.Path(filePath).touch()

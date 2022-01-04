@@ -5,6 +5,7 @@ Created by Erik P G Johansson 2020-10-13.
 
 
 Module for generic string functions. Not for printing.
+NOTE: Copy of subset of other module outside distribution package.
 
 
 BOGIQ:
@@ -20,7 +21,7 @@ import re
 
 def read_token(s, regexp_list, search_dir):
     '''
-Intended to be analogous to MATLAB code erikpgjohansson.str.read_token().
+Intended to be analogous to MATLAB code erikpgjohansson.so.str.read_token().
 
 
 Utility function for parsing char string, one regular expression-defined
@@ -104,7 +105,7 @@ PROPOSAL: Return string indices to remaining string, not entire remaining string
 
 def regexp_str_parts(s, regexp_list, search_dir, nonmatch_policy):
     '''
-Intended to be analogous to MATLAB code erikpgjohansson.str.regexp_str_parts().
+Intended to be analogous to MATLAB code erikpgjohansson.so.str.regexp_str_parts().
 
 Split a string into consecutive parts, each one corresponding to a regexp
 match.
