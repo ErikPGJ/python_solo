@@ -1,0 +1,5 @@
+__pycache__/
+.vscode/
+
+init_env
+src/erikpgjohansson/test.py
