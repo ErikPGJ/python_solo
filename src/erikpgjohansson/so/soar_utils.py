@@ -62,7 +62,6 @@ PROPOSAL: DST filtering functions should accept DST+relevant column names.
 import codetiming
 import datetime
 import erikpgjohansson.asserts
-import erikpgjohansson.atest
 import erikpgjohansson.so.soar
 import numpy as np
 import os
@@ -360,37 +359,6 @@ bLvArray : 1D numpy bool array.
     assert np.unique(itemIdArray2).size == itemIdArray2.size
 
     return bLvArray
-
-
-
-
-
-
-
-def find_latest_versions___ATEST():
-    def add_test(itemIdArray, itemVerNbrArray, bLvArray):
-        tl.append(erikpgjohansson.atest.FunctionCallTest(
-            find_latest_versions,
-            args=(),
-            kwargs={'itemIdArray':     np.array(itemIdArray,     dtype=object),
-                    'itemVerNbrArray': np.array(itemVerNbrArray, dtype=int)},
-            expResult=np.array(bLvArray, dtype=bool)))
-
-    tl = []
-    add_test([], [], [])
-    add_test(['A'], [1], [1])
-    add_test(['A', 'B'], [1, 1], [1, 1])
-    add_test(
-        ['A', 'A'], [1,2],
-        [0, 1])
-    add_test(
-        ['A', 'B', 'A', 'C', 'B'], [1,2,3,5,4],
-        [0,0,1,1,1])
-    add_test(
-        ['C', 'B', 'A'], [1,2,3],
-        [1,1,1])
-
-    erikpgjohansson.atest.run_tests(tl)
 
 
 

@@ -35,11 +35,10 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
 
 
 
+import erikpgjohansson.so.utils
 import erikpgjohansson.str
-#import math
 import os.path
 import shutil
-#import erikpgjohansson.so.iddt
 
 
 
@@ -84,6 +83,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     PROPOSAL: DATASET_ID+time (year+month) as argument?
         PRO: Entire filename is not used (version, cdag)
     '''
+    assert type(dtdnInclInstrument) == bool
 
     d = erikpgjohansson.so.utils.parse_dataset_filename(filename)
     if not d:
@@ -114,58 +114,6 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     else:
         # NOTE: Includes HK.
         raise Exception('Can not generate IDDT subdirectory for level={0}.'.format(level))
-
-
-
-
-
-
-
-def get_IDDT_subdir___ATEST():
-
-    def add_test(filename, kwargs, expResult):
-        tl.append(
-            erikpgjohansson.atest.FunctionCallTest(
-                erikpgjohansson.so.iddt.get_IDDT_subdir, (filename,),
-                kwargs=kwargs, expResult=expResult))
-    def add_test_exc(filename):
-        tl.append(
-            erikpgjohansson.atest.FunctionCallTest(
-                erikpgjohansson.so.iddt.get_IDDT_subdir, (filename,),
-                expExcType=Exception))
-
-    tl = []
-    add_test('SOLO_L2_RPW-LFR-SBM2-CWF-E_20200401_V01.cdf',
-        {}, 'rpw/L2/lfr_wf_e/2020/04')
-    add_test('solo_L2_rpw-lfr-surv-bp1_20201001_V02.cdf',
-        {}, 'rpw/L2/lfr_bp/2020/10')
-    add_test('solo_L2_rpw-lfr-surv-bp1-cdag_20201001_V02.cdf',
-        {}, 'rpw/L2/lfr_bp/2020/10')
-
-    add_test('solo_L2_mag-rtn-normal-1-minute_20200601_V02.cdf',
-        {'dtdnInclInstrument':False},
-        'mag/L2/rtn-normal-1-minute/2020/06')
-    add_test('solo_L2_mag-rtn-normal-1-minute_20200601_V02.cdf',
-        {'dtdnInclInstrument':True},
-        'mag/L2/mag-rtn-normal-1-minute/2020/06')
-
-    add_test('solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf',
-        {}, 'epd/L2/epd-step-burst/2020/07')
-
-    add_test(
-        'solo_L2_swa-eas1-nm3d-psd_20200708T060012-20200708T120502_V01.cdf',
-        {}, 'swa/L2/swa-eas1-nm3d-psd/2020/07')
-    add_test(
-        'solo_L1_swa-eas-OnbPartMoms_20200820T000000-20200820T235904_V01.cdf', {}, 'swa/L1/2020/08/20')
-
-    # Non-datasets (according to filename).
-    add_test('solo_L2_rpw-lfr-surv-bp1-cdag_20201001_V02.CDF', {}, None)
-    add_test('SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG',                {}, None)
-
-    # Datasets (according to filename) that can not be handled.
-    add_test_exc('solo_HK_rpw-bia_20201209_V01.cdf')
-
-    erikpgjohansson.atest.run_tests(tl)
 
 
 
@@ -257,53 +205,6 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     else:
         dtdn = substrList[2].lower()
     return dtdn
-
-
-
-
-
-
-
-def convert_DATASET_ID_to_DTDN___ATEST():
-    import erikpgjohansson.atest
-
-    def add_test(args, kwargs, expResult):
-        tl.append(
-            erikpgjohansson.atest.FunctionCallTest(
-                erikpgjohansson.so.iddt.convert_DATASET_ID_to_DTDN,
-                args, kwargs=kwargs, expResult=expResult))
-    def add_test_exc(args):
-        tl.append(
-            erikpgjohansson.atest.FunctionCallTest(
-                erikpgjohansson.so.iddt.convert_DATASET_ID_to_DTDN,
-                args, expExcType=Exception))
-
-    tl = []
-    add_test(    ('SOLO_L2_RPW-LFR-SBM2-CWF-E',),          {}, 'lfr_wf_e')
-    add_test(    ('SOLO_L2_RPW-LFR-SURV-CWF-E',),          {}, 'lfr_wf_e')
-    add_test(    ('SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',), {}, 'lfr_wf_e')
-    add_test(    ('SOLO_L2_MAG-SRF-BURST',),               {}, 'srf-burst')
-    add_test(    ('SOLO_L2_MAG-RTN-NORMAL-1-MINUTE',),     {},
-        'rtn-normal-1-minute')
-
-    if 0:
-        add_test(    ('SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',), {}, 'bia-efield-10-seconds')
-        add_test(    ('SOLO_L3_RPW-BIA-EFIELD',), {'includeInstrument':False}, 'bia-efield')
-        add_test(    ('SOLO_L3_RPW-BIA-EFIELD',), {'includeInstrument':True},  'rpw-bia-efield')
-    else:
-        add_test(    ('SOLO_L3_RPW-BIA-DENSITY-10-SECONDS',), {}, 'lfr_density')
-        add_test(    ('SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',),   {}, 'lfr_scpot')
-        add_test(    ('SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',),  {}, 'lfr_efield')
-        add_test(    ('SOLO_L3_RPW-TNR-FP',),                 {}, 'tnr_fp')
-        add_test(    ('SOLO_L3_RPW-BIA-EFIELD',), {'includeInstrument':False}, 'lfr_efield')
-        add_test(    ('SOLO_L3_RPW-BIA-EFIELD',), {'includeInstrument':True},  'lfr_efield')
-
-
-    add_test_exc(('SOLO_L1_EPD-SIS-B-HEHIST',))
-    add_test_exc(('SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG',))
-    add_test_exc(('solo_l2_rpw-lfr-sbm2-cwf-e',))
-
-    erikpgjohansson.atest.run_tests(tl)
 
 
 
