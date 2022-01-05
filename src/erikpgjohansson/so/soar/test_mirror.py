@@ -2,7 +2,8 @@
 '''
 Code for implementing a test SOAR data mirror.
 
-This is not generic code, but can be seen as de facto example code.
+This module is intended to only contain code for that particular mirror, i.e.
+only code that "configures" that particular mirror.
 
 Initially created 2021-04-23 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
@@ -13,8 +14,8 @@ BOGIQ
 
 
 import erikpgjohansson.so.soar.mirror
-import os
 import numpy
+import os
 
 
 
@@ -59,11 +60,11 @@ def sync():
     #print('PYTHONPATH = '+os.environ['PYTHONPATH'])
     #print('-'*80)
 
-    rootDir = '/home/erjo/temp/soar_mirror'
+    ROOT_DIR = '/home/erjo/temp/soar_mirror'
 
     erikpgjohansson.so.soar.mirror.sync(
-        syncDir                 = os.path.join(rootDir, 'mirror'),
-        tempDownloadDir         = os.path.join(rootDir, 'download'),
+        syncDir                 = os.path.join(ROOT_DIR, 'mirror'),
+        tempDownloadDir         = os.path.join(ROOT_DIR, 'download'),
         datasetsSubsetFunc      = _datasets_include_func,
         downloadLogFormat       = 'long',
         deleteOutsideSubset     = True,

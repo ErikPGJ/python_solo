@@ -61,8 +61,10 @@ FILE_SUFFIX_IGNORE_LIST = ['.zip', '.jp2', '.h5', '.bin', '.fits']
 '''File suffixes of SOAR files whose dataset filenames are permitted to not be
 recognized (parsable) by the code. These files will effectively be ignored.
 
-NOTE: It is assumed that all filenames with any other file suffix can be
-handled. This means effectively that all file types are explicitly "listed" and in case a new file type is add .
+NOTE: It is assumed that all filenames with any other file suffix than listed
+here can be handled. This means effectively that all file types are explicitly
+"listed" one way or another. In case a new file type which this code can not
+handle is added to SOAR, then that file type must be added to the list.
 '''
 
 
@@ -272,19 +274,12 @@ dst : Dictionary of numpy arrays.
             # CASE: Can NOT parse filename.
             # ASSERTION: Assert that file is any of the known cases that
             # erikpgjohansson.so.parse_dataset_filename() can not handle.
-            # try:
-                    #or (dst['processing_level'][iRow] in ['LL02']) \
             fileNameSuffix = pathlib.Path(fileName).suffix
-            assert (fileNameSuffix in FILE_SUFFIX_IGNORE_LIST), \
-                f'Can neither parse SOAR file name "{fileName}", nor recognize the file suffix "{fileNameSuffix}" as a file type that should be ignored.'
-                    #or (np.isnat(dst['begin_time'][iRow]))
-            # except Exception as E:
-            #     pass   # For setting breakpoints
-            #     raise E
-
-            #print('Note: Can not parse filename "{0}"'.format(filenameArray[iRow]))
-            # pass
-            # pass
+            assert (fileNameSuffix in FILE_SUFFIX_IGNORE_LIST), (
+                f'Can neither parse SOAR file name "{fileName}", nor recognize'
+                f' the file suffix "{fileNameSuffix}" as a file type'
+                ' that should be ignored.'
+            )
 
     dst['begin_time_FN'] = beginTimeFnArray
 

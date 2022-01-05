@@ -84,7 +84,8 @@ PROPOSAL: Return string indices to remaining string, not entire remaining string
     elif search_dir == -1:
         regexp_modif_func  = lambda s:        s+'$'
         # IMPLEMENTATION NOTE: Can not use s[:-len(token)] since it does NOT
-        # generalize to len(token)==0. ==> Return empty string instead of entire string.
+        # generalize to len(token)==0. ==> Return empty string instead of
+        # entire string.
         remaining_str_func = lambda s, token: s[:len(s)-len(token)]
     else:
         raise Exception('Illegal argument search_dir.')
@@ -105,7 +106,8 @@ PROPOSAL: Return string indices to remaining string, not entire remaining string
 
 def regexp_str_parts(s, regexp_list, search_dir, nonmatch_policy):
     '''
-Intended to be analogous to MATLAB code erikpgjohansson.so.str.regexp_str_parts().
+Intended to be analogous to MATLAB code
+erikpgjohansson.so.str.regexp_str_parts().
 
 Split a string into consecutive parts, each one corresponding to a regexp
 match.
@@ -152,8 +154,8 @@ nonmatch_policy : String constant determining what happens in the event of a
 RETURN VALUE
 ============
 (substr_list, remaining_str, is_perfect_match)
-substr_list      : Cell array of strings, each being a match for the corresponding
-                   string in regexpList.
+substr_list      : Cell array of strings, each being a match for the
+                   corresponding string in regexpList.
                    Always ordered in the same order as the substrings in "s".
 remaining_str    : The remainder of argument str that was not matched.
 is_perfect_match : Whether matched all regular expressions to entire

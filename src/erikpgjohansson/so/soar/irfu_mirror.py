@@ -7,10 +7,7 @@ only code that "configures" that particular mirror.
 
 Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
-'''
-BOGIQ
-=====
-'''
+
 
 
 import erikpgjohansson.so.soar.mirror

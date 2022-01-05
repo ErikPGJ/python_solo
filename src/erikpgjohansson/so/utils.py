@@ -189,7 +189,8 @@ def parse_DATASET_ID(datasetId):
     PROPOSAL: Return dictionary instead.
         TODO-DEC: Term for last segment.
             NOTE: "descriptor" could be bad term.
-    BUG?: Can not handle LL01 (does not exist?), LL03 (can not find any example yet).
+    BUG?: Can not handle LL01 (does not exist?), LL03 (can not find any example
+          yet).
     '''
     if not datasetId.upper() == datasetId:
         raise Exception('Not uppercase datasetId="{}"'.format(datasetId))
