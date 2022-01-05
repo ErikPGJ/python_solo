@@ -1,4 +1,4 @@
-import erikpgjohansson.so.soar.utils
+import erikpgjohansson.solo.soar.utils
 import numpy as np
 
 
@@ -8,7 +8,7 @@ def test_find_latest_versions():
     def test(itemIdArray, itemVerNbrArray, exp_bLvArray):
         expResult = np.array(exp_bLvArray, dtype=bool)
 
-        actResult = erikpgjohansson.so.soar.utils.find_latest_versions(
+        actResult = erikpgjohansson.solo.soar.utils.find_latest_versions(
             np.array(itemIdArray,     dtype=object),
             np.array(itemVerNbrArray, dtype=int),
         )

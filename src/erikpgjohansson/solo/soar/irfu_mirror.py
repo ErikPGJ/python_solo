@@ -10,7 +10,7 @@ Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 
-import erikpgjohansson.so.soar.mirror
+import erikpgjohansson.solo.soar.mirror
 import os
 
 
@@ -55,7 +55,7 @@ def sync():
         assert os.uname().nodename in ['brain', 'spis', 'irony'],\
             'This code is not meant to run on this machine.'
 
-    erikpgjohansson.so.soar.mirror.sync(
+    erikpgjohansson.solo.soar.mirror.sync(
         syncDir                 = '/data/solo/soar',
         tempDownloadDir         = '/data/solo/soar/downloads',
         datasetsSubsetFunc      = _IRFU_datasets_include_func,

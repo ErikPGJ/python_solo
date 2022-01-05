@@ -36,7 +36,7 @@ Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 '''
 BOGIQ
 =====
-PROPOSAL: Remove dependence on erikpgjohansson.so, dataset filenaming
+PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
           conventions, and FILE_SUFFIX_IGNORE_LIST.
     PRO: Makes module handle ONLY communication with SOAR. More pure.
     PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
@@ -46,8 +46,8 @@ PROPOSAL: Remove dependence on erikpgjohansson.so, dataset filenaming
 
 import codetiming
 import datetime
-import erikpgjohansson.so.utils
-import erikpgjohansson.so.soar.utils
+import erikpgjohansson.solo.utils
+import erikpgjohansson.solo.soar.utils
 import json
 import numpy as np
 import os.path
@@ -161,7 +161,7 @@ dst : Dictionary of numpy arrays.
                 Ex: Numeric (instead of string), time format.
 
     PROPOSAL: Assert that files not recognized by
-        erikpgjohansson.so.parse_dataset_filename() are really not datasets.
+        erikpgjohansson.solo.parse_dataset_filename() are really not datasets.
         PROPOSAL: Assert that there is a non-null begin_time.
     '''
     # Columns that should be converted string-->int
@@ -247,7 +247,7 @@ dst : Dictionary of numpy arrays.
                         dtype='datetime64[ms]')
     for iRow in range(nRows):
         fileName = filenameArray[iRow]
-        di = erikpgjohansson.so.utils.parse_dataset_filename(fileName)
+        di = erikpgjohansson.solo.utils.parse_dataset_filename(fileName)
         # IMPORTANT NOTE: parse_dataset_filename() might fail for datasets
         # which have a valid non-null begin_time. Is therefore dependent on how
         # well-implemented that function is.
@@ -273,7 +273,7 @@ dst : Dictionary of numpy arrays.
         else:
             # CASE: Can NOT parse filename.
             # ASSERTION: Assert that file is any of the known cases that
-            # erikpgjohansson.so.parse_dataset_filename() can not handle.
+            # erikpgjohansson.solo.parse_dataset_filename() can not handle.
             fileNameSuffix = pathlib.Path(fileName).suffix
             assert (fileNameSuffix in FILE_SUFFIX_IGNORE_LIST), (
                 f'Can neither parse SOAR file name "{fileName}", nor recognize'
@@ -285,7 +285,7 @@ dst : Dictionary of numpy arrays.
 
 
 
-    erikpgjohansson.so.soar.utils.assert_DST(dst)
+    erikpgjohansson.solo.soar.utils.assert_DST(dst)
     return dst
 
 
@@ -409,7 +409,7 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
 
     filePath = os.path.join(fileParentPath, fileName)
 
-    erikpgjohansson.so.asserts.path_is_available(filePath)
+    erikpgjohansson.solo.asserts.path_is_available(filePath)
 
     if debugCreateEmptyFile:
         pathlib.Path(filePath).touch()

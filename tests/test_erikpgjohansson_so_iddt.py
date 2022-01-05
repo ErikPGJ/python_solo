@@ -1,4 +1,4 @@
-import erikpgjohansson.so.iddt
+import erikpgjohansson.solo.iddt
 import pytest
 
 
@@ -10,7 +10,7 @@ import pytest
 def test_get_IDDT_subdir():
 
     def test(filename, kwargs, expResult):
-        actResult = erikpgjohansson.so.iddt.get_IDDT_subdir(filename, **kwargs)
+        actResult = erikpgjohansson.solo.iddt.get_IDDT_subdir(filename, **kwargs)
         assert actResult == expResult
 
     test('SOLO_L2_RPW-LFR-SBM2-CWF-E_20200401_V01.cdf',
@@ -45,7 +45,7 @@ def test_get_IDDT_subdir():
 
     # Datasets (according to filename) that can not be handled.
     with pytest.raises(Exception):
-        erikpgjohansson.so.iddt.get_IDDT_subdir('solo_HK_rpw-bia_20201209_V01.cdf')
+        erikpgjohansson.solo.iddt.get_IDDT_subdir('solo_HK_rpw-bia_20201209_V01.cdf')
 
 
 
@@ -56,13 +56,13 @@ def test_get_IDDT_subdir():
 def test_convert_DATASET_ID_to_DTDN():
 
     def test(datasetId, kwargs, expResult):
-        actResult = erikpgjohansson.so.iddt.convert_DATASET_ID_to_DTDN(
+        actResult = erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
             datasetId, **kwargs)
         assert actResult == expResult
 
     def test_exc(datasetId, kwargs):
         with pytest.raises(Exception):
-            erikpgjohansson.so.iddt.convert_DATASET_ID_to_DTDN(datasetId, **kwargs)
+            erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(datasetId, **kwargs)
 
     tl = []
     test(    'SOLO_L2_RPW-LFR-SBM2-CWF-E',          {}, 'lfr_wf_e')

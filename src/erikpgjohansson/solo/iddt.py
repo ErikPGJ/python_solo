@@ -35,8 +35,8 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
 
 
 
-import erikpgjohansson.so.utils
-import erikpgjohansson.so.str
+import erikpgjohansson.solo.utils
+import erikpgjohansson.solo.str
 import os.path
 import shutil
 
@@ -85,13 +85,13 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     '''
     assert type(dtdnInclInstrument) == bool
 
-    d = erikpgjohansson.so.utils.parse_dataset_filename(filename)
+    d = erikpgjohansson.solo.utils.parse_dataset_filename(filename)
     if not d:
         return None
     datasetId = d['DATASET_ID']
     tv1       = d['time vector 1']
 
-    (junk, level, instrument, descriptor) = erikpgjohansson.so.utils.parse_DATASET_ID(datasetId)
+    (junk, level, instrument, descriptor) = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
     yearStr  = '{:04}'.format(tv1[0])
     monthStr = '{:02}'.format(tv1[1])
@@ -106,7 +106,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
 
 
     if level in ['L2', 'L3']:
-        dtdn = erikpgjohansson.so.iddt.convert_DATASET_ID_to_DTDN(
+        dtdn = erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
             datasetId, includeInstrument=dtdnInclInstrument)
         return os.path.join(instrDirName, level, dtdn, yearStr, monthStr)
     elif level in ['L1', 'L1R']:
@@ -166,7 +166,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
 
 
     (dataSrc, level, instrument, descriptor
-     ) = erikpgjohansson.so.utils.parse_DATASET_ID(datasetId)
+     ) = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
 
 
@@ -194,7 +194,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     # CASE: No special case DATASET_ID --> DTDN
 
     # Derive DTDN from DATASET_ID descriptor.
-    (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.so.str.regexp_str_parts(
+    (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
         descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match')
 
     if not isPerfectMatch:
@@ -321,10 +321,10 @@ None.
     if dirCreationPermissions > 0o777:
         # Useful for catch if mistakenly using hex literal instead of octal.
         raise Exception('Illegal dirCreationPermissions.')
-    erikpgjohansson.so.asserts.is_dir(sourceDir)
+    erikpgjohansson.solo.asserts.is_dir(sourceDir)
     # NOTE: Without this assertion, the function will create the destination
     # directory (not just all the subdirectories)
-    erikpgjohansson.so.asserts.is_dir(destDir)
+    erikpgjohansson.solo.asserts.is_dir(destDir)
 
 
 
@@ -396,7 +396,7 @@ None.
             oldPath = os.path.join(oldDirPath, filename)
             maxLenOp = max(len(oldPath), maxLenOp)
 
-            relDirPath = erikpgjohansson.so.iddt.get_IDDT_subdir(
+            relDirPath = erikpgjohansson.solo.iddt.get_IDDT_subdir(
                 filename,
                 dtdnInclInstrument=dtdnInclInstrument,
                 instrDirCase=instrDirCase)

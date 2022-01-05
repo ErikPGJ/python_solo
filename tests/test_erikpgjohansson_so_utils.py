@@ -1,4 +1,4 @@
-import erikpgjohansson.so.utils
+import erikpgjohansson.solo.utils
 import pytest
 
 
@@ -6,7 +6,7 @@ import pytest
 def test_parse_dataset_filename():
 
     def test(filename, expResult):
-        actResult = erikpgjohansson.so.utils.parse_dataset_filename(filename)
+        actResult = erikpgjohansson.solo.utils.parse_dataset_filename(filename)
         assert actResult == expResult
 
     test(
@@ -56,7 +56,7 @@ def test_parse_dataset_filename():
     # NOTE: ".fits"
     # solo_L1_eui-fsi174-image_20200806T083130185_V01.fits
     # NOTE: Case needs to be supported for making
-    # erikpgjohansson.so.download_SOAR_DST() more rigorous.
+    # erikpgjohansson.solo.download_SOAR_DST() more rigorous.
     test('solo_L1_eui-fsi174-image_20200806T083130185_V01.fits', {
         'DATASET_ID':'SOLO_L1_EUI-FSI174-IMAGE',
         'time interval string':'20200806T083130185',
@@ -75,7 +75,7 @@ def test_parse_dataset_filename():
 def test_parse_DATASET_ID():
 
     def test(datasetId, expResult):
-        actResult = erikpgjohansson.so.utils.parse_DATASET_ID(datasetId)
+        actResult = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
         assert actResult == expResult
 
     test(
@@ -87,10 +87,10 @@ def test_parse_DATASET_ID():
         ('SOLO', 'LL02', 'EPD', 'EPD-HET-SOUTH-RATES'),
     )
     with pytest.raises(Exception):
-        erikpgjohansson.so.utils.parse_DATASET_ID(
+        erikpgjohansson.solo.utils.parse_DATASET_ID(
             'SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG')
     with pytest.raises(Exception):
-        erikpgjohansson.so.utils.parse_DATASET_ID(
+        erikpgjohansson.solo.utils.parse_DATASET_ID(
             'solo_l2_rpw-lfr-sbm2-cwf-e')
 
 
