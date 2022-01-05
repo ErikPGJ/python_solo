@@ -35,6 +35,7 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
 
 
 
+import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.utils
 import erikpgjohansson.solo.str
 import os.path
