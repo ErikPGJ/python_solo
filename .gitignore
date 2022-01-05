@@ -1,5 +1,6 @@
 __pycache__/
 .vscode/
+build/
 src/*.egg-info/
 
 init_env
