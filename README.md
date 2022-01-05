@@ -2,7 +2,7 @@
 
 This directory constitutes a git repo and Python distribution package for miscellaneous Solar Orbiter (SolO) code.
 
-In particular, it contains code for mirroring datasets from SOAR (Solar Orbiter Archive; `http://soar.esac.esa.int/soar/`). See `README_SOAR_MIRROR.md`.
+In particular, it contains code for mirroring datasets from SOAR (Solar Orbiter Archive; `http://soar.esac.esa.int/soar/`). See `src/erikpgjohansson/solo/README_SOAR_MIRROR.md`.
 
 Code written by Erik P G Johansson, IRF Uppsala, Sweden.
 
