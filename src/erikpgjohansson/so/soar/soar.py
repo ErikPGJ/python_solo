@@ -47,7 +47,7 @@ PROPOSAL: Remove dependence on erikpgjohansson.so, dataset filenaming
 import codetiming
 import datetime
 import erikpgjohansson.so.utils
-import erikpgjohansson.so.soar_utils
+import erikpgjohansson.so.soar.soar_utils
 import json
 import numpy as np
 import os.path
@@ -290,7 +290,7 @@ dst : Dictionary of numpy arrays.
 
 
 
-    erikpgjohansson.so.soar_utils.assert_DST(dst)
+    erikpgjohansson.so.soar.soar_utils.assert_DST(dst)
     return dst
 
 

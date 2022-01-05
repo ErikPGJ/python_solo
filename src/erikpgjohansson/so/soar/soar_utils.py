@@ -62,7 +62,7 @@ PROPOSAL: DST filtering functions should accept DST+relevant column names.
 import codetiming
 import datetime
 import erikpgjohansson.so.asserts
-import erikpgjohansson.so.soar
+import erikpgjohansson.so.soar.soar
 import numpy as np
 import os
 
@@ -89,7 +89,7 @@ None.
     nRows = None
     for (k,v) in dst.items():
         assert type(k) == str
-        erikpgjohansson.so.soar_utils.assert_col_array(v)
+        erikpgjohansson.so.soar.soar_utils.assert_col_array(v)
         #assert type(v) == np.ndarray
         #assert v.ndim == 1
 
@@ -219,8 +219,8 @@ PROPOSAL: Keyword argument for file-size sorted download.
     '''
 
     # ASSERTIONS
-    erikpgjohansson.so.soar_utils.assert_col_array(itemIdArray,   np.dtype('O'))
-    erikpgjohansson.so.soar_utils.assert_col_array(fileSizeArray, np.dtype('int64'))
+    erikpgjohansson.so.soar.soar_utils.assert_col_array(itemIdArray,   np.dtype('O'))
+    erikpgjohansson.so.soar.soar_utils.assert_col_array(fileSizeArray, np.dtype('int64'))
     erikpgjohansson.so.asserts.is_dir(outputDirPath)
 
 
@@ -242,7 +242,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
         print('{0}: Downloading: {1:.2f} [MiB], {2}'.format(
             nowStr, fileSize/2**20, itemId))
         if debugDownloadingEnabled:
-            erikpgjohansson.so.soar.download_latest_dataset(
+            erikpgjohansson.so.soar.soar.download_latest_dataset(
                 itemId,
                 outputDirPath,
                 debugCreateEmptyFile=debugCreateEmptyFiles)
@@ -318,9 +318,9 @@ bLvArray : 1D numpy bool array.
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
     #import pdb; pdb.set_trace()
-    erikpgjohansson.so.soar_utils.assert_col_array(
+    erikpgjohansson.so.soar.soar_utils.assert_col_array(
         itemIdArray,     np.dtype('O'))
-    erikpgjohansson.so.soar_utils.assert_col_array(
+    erikpgjohansson.so.soar.soar_utils.assert_col_array(
         itemVerNbrArray, np.dtype('int64'))
     assert itemIdArray.shape == itemVerNbrArray.shape
 
@@ -428,7 +428,7 @@ dst
         'processing_level':np.array(levelList,       dtype=object)
         }
     # NOTE: Column name "processing_level" chose to be in agreement with
-    # erikpgjohansson.so.soar.download_SOAR_DST().
+    # erikpgjohansson.so.soar.soar.download_SOAR_DST().
 
 
 
@@ -523,7 +523,7 @@ def download_batch___MTEST(fileParentPath):
     # print('dirDst:')
     # log_DST(dirDst)
 
-    (dst, _JsonDict) = erikpgjohansson.so.soar.download_SOAR_DST()
+    (dst, _JsonDict) = erikpgjohansson.so.soar.soar.download_SOAR_DST()
     bLv = find_latest_versions(dst['item_ID'], dst['item_version'])
     dst = index_DST(dst, bLv)
     dst = filter_DST(dst,
@@ -550,7 +550,7 @@ def download_batch___MANUAL():
     #intervalTimeStrs=('2020-07-01', '2020-07-02')
     #intervalTimeStrs=('2020-01-01', '2020-12-31')
 
-    (dst, _JsonDict)  = erikpgjohansson.so.soar.download_SOAR_DST()
+    (dst, _JsonDict)  = erikpgjohansson.so.soar.soar.download_SOAR_DST()
     bLv = find_latest_versions(dst['item_id'], dst['item_version'])
     dst = index_DST(dst, bLv)
 
