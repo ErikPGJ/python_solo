@@ -89,7 +89,7 @@ None.
     nRows = None
     for (k,v) in dst.items():
         assert type(k) == str
-        erikpgjohansson.so.soar.soar_utils.assert_col_array(v)
+        erikpgjohansson.so.soar.utils.assert_col_array(v)
         #assert type(v) == np.ndarray
         #assert v.ndim == 1
 
@@ -219,8 +219,8 @@ PROPOSAL: Keyword argument for file-size sorted download.
     '''
 
     # ASSERTIONS
-    erikpgjohansson.so.soar.soar_utils.assert_col_array(itemIdArray,   np.dtype('O'))
-    erikpgjohansson.so.soar.soar_utils.assert_col_array(fileSizeArray, np.dtype('int64'))
+    erikpgjohansson.so.soar.utils.assert_col_array(itemIdArray,   np.dtype('O'))
+    erikpgjohansson.so.soar.utils.assert_col_array(fileSizeArray, np.dtype('int64'))
     erikpgjohansson.so.asserts.is_dir(outputDirPath)
 
 
@@ -318,9 +318,9 @@ bLvArray : 1D numpy bool array.
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
     #import pdb; pdb.set_trace()
-    erikpgjohansson.so.soar.soar_utils.assert_col_array(
+    erikpgjohansson.so.soar.utils.assert_col_array(
         itemIdArray,     np.dtype('O'))
-    erikpgjohansson.so.soar.soar_utils.assert_col_array(
+    erikpgjohansson.so.soar.utils.assert_col_array(
         itemVerNbrArray, np.dtype('int64'))
     assert itemIdArray.shape == itemVerNbrArray.shape
 

@@ -13,7 +13,7 @@ BOGIQ
 '''
 
 
-import erikpgjohansson.so.soar.soar_mirror
+import erikpgjohansson.so.soar.mirror
 import os
 
 
@@ -58,7 +58,7 @@ def sync():
         assert os.uname().nodename in ['brain', 'spis', 'irony'],\
             'This code is not meant to run on this machine.'
 
-    erikpgjohansson.so.soar.soar_mirror.sync(
+    erikpgjohansson.so.soar.mirror.sync(
         syncDir                 = '/data/solo/soar',
         tempDownloadDir         = '/data/solo/soar/downloads',
         datasetsSubsetFunc      = _IRFU_datasets_include_func,

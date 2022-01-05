@@ -12,7 +12,7 @@ BOGIQ
 '''
 
 
-import erikpgjohansson.so.soar.soar_mirror
+import erikpgjohansson.so.soar.mirror
 import os
 import numpy
 
@@ -61,7 +61,7 @@ def sync():
 
     rootDir = '/home/erjo/temp/soar_mirror'
 
-    erikpgjohansson.so.soar.soar_mirror.sync(
+    erikpgjohansson.so.soar.mirror.sync(
         syncDir                 = os.path.join(rootDir, 'mirror'),
         tempDownloadDir         = os.path.join(rootDir, 'download'),
         datasetsSubsetFunc      = _datasets_include_func,
