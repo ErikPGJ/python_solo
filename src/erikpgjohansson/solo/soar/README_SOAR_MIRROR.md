@@ -2,8 +2,6 @@
 
 This import package (directory) is intended for code related to mirroring SOAR data.
 
-
-
 # "Description" of code and implementation
 
 The code uses SOAR's own interface for access:
@@ -19,14 +17,10 @@ The code is designed to DELETE local datasets when necessary, but contains a
 safety variable that specifies the net max number of datasets to delete at
 once.
 
-
-
 # Known requirements
 
- * Works for Python 3.6, 3.9, but probably other versions too.
- * Works on Linux, but should in principle work on other platforms too with minimal changes.
-
-
+- Works for Python 3.6, 3.9, but probably other versions too.
+- Works on Linux, but should in principle work on other platforms too with minimal changes.
 
 # Procedure for setting up a mirror
 
@@ -37,15 +31,11 @@ In theory, to set up one's own mirror, one only needs to
 3. Create a modified and customized version of e.g. `irfu_mirror.py` to configure your own mirror.
 4. Periodaically call the `sync()` function in the modified module to mirror data (triggers one synchronization against SOAR).
 
-
-
 # Notes
 
-SOAR downloads can be quite slow, about ~0.7 MiB/s! Initial batch downloads can take *several days*. Logging (stdout) for the progress of downloads is therefore detailed.
+SOAR downloads can be quite slow, about ~0.7 MiB/s! Initial batch downloads can take _several days_. Logging (stdout) for the progress of downloads is therefore detailed.
 
 Caveat: As it stands, the SOAR mirror code can only handle CDF datasets, and only ones that follow those official filenaming conventions that are already supported by `erikpgjohansson.solo.parse_dataset_filename()`.
-
-
 
 ## Important source code files
 
