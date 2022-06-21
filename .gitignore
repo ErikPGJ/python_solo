@@ -1,7 +1,14 @@
+*.pyc
 __pycache__/
-.vscode/
 build/
 src/*.egg-info/
+
+# PyCharm
+.idea/
+# VS Code
+.vscode/
+
+venv/
 
 init_env
 src/erikpgjohansson/test.py
