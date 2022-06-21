@@ -2,15 +2,12 @@ import erikpgjohansson.solo.iddt
 import pytest
 
 
-
-
-
-
-
 def test_get_IDDT_subdir():
 
     def test(filename, kwargs, expResult):
-        actResult = erikpgjohansson.solo.iddt.get_IDDT_subdir(filename, **kwargs)
+        actResult = erikpgjohansson.solo.iddt.get_IDDT_subdir(
+            filename, **kwargs
+        )
         assert actResult == expResult
 
     test(
@@ -55,16 +52,11 @@ def test_get_IDDT_subdir():
     test('solo_L2_rpw-lfr-surv-bp1-cdag_20201001_V02.CDF', {}, None)
     test('SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG',                {}, None)
 
-
-
     # Datasets (according to filename) that can not be handled.
     with pytest.raises(Exception):
-        erikpgjohansson.solo.iddt.get_IDDT_subdir('solo_HK_rpw-bia_20201209_V01.cdf')
-
-
-
-
-
+        erikpgjohansson.solo.iddt.get_IDDT_subdir(
+            'solo_HK_rpw-bia_20201209_V01.cdf'
+        )
 
 
 def test_convert_DATASET_ID_to_DTDN():
@@ -77,35 +69,35 @@ def test_convert_DATASET_ID_to_DTDN():
 
     def test_exc(datasetId, kwargs):
         with pytest.raises(Exception):
-            erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(datasetId, **kwargs)
+            erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
+                datasetId, **kwargs
+            )
 
-    tl = []
-    test(    'SOLO_L2_RPW-LFR-SBM2-CWF-E',          {}, 'lfr_wf_e')
-    test(    'SOLO_L2_RPW-LFR-SURV-CWF-E',          {}, 'lfr_wf_e')
-    test(    'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND', {}, 'lfr_wf_e')
-    test(    'SOLO_L2_MAG-SRF-BURST',               {}, 'srf-burst')
-    test(    'SOLO_L2_MAG-RTN-NORMAL-1-MINUTE',     {}, 'rtn-normal-1-minute')
+    test('SOLO_L2_RPW-LFR-SBM2-CWF-E',          {}, 'lfr_wf_e')
+    test('SOLO_L2_RPW-LFR-SURV-CWF-E',          {}, 'lfr_wf_e')
+    test('SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND', {}, 'lfr_wf_e')
+    test('SOLO_L2_MAG-SRF-BURST',               {}, 'srf-burst')
+    test('SOLO_L2_MAG-RTN-NORMAL-1-MINUTE',     {}, 'rtn-normal-1-minute')
 
     if 0:
-        test(    'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS', {}, 'bia-efield-10-seconds')
-        test(    'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': False}, 'bia-efield')
-        test(    'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': True},  'rpw-bia-efield')
+        test('SOLO_L3_RPW-BIA-EFIELD-10-SECONDS', {}, 'bia-efield-10-seconds')
+        test('SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': False},
+             'bia-efield')
+        test('SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': True},
+             'rpw-bia-efield')
     else:
-        test(    'SOLO_L3_RPW-BIA-DENSITY-10-SECONDS', {}, 'lfr_density')
-        test(    'SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',   {}, 'lfr_scpot')
-        test(    'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',  {}, 'lfr_efield')
-        test(    'SOLO_L3_RPW-TNR-FP',                 {}, 'tnr_fp')
-        test(    'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': False}, 'lfr_efield')
-        test(    'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': True},  'lfr_efield')
-
+        test('SOLO_L3_RPW-BIA-DENSITY-10-SECONDS', {}, 'lfr_density')
+        test('SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',   {}, 'lfr_scpot')
+        test('SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',  {}, 'lfr_efield')
+        test('SOLO_L3_RPW-TNR-FP',                 {}, 'tnr_fp')
+        test('SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': False},
+             'lfr_efield')
+        test('SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': True},
+             'lfr_efield')
 
     test_exc('SOLO_L1_EPD-SIS-B-HEHIST', {})
     test_exc('SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG', {})
     test_exc('solo_l2_rpw-lfr-sbm2-cwf-e', {})
-
-
-
-
 
 
 if __name__ == '__main__':

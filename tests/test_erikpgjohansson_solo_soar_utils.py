@@ -2,7 +2,6 @@ import erikpgjohansson.solo.soar.utils
 import numpy as np
 
 
-
 def test_find_latest_versions():
 
     def test(itemIdArray, itemVerNbrArray, exp_bLvArray):
@@ -21,18 +20,17 @@ def test_find_latest_versions():
     test(['A'], [1], [1])
     test(['A', 'B'], [1, 1], [1, 1])
     test(
-        ['A', 'A'], [1,2],
+        ['A', 'A'], [1, 2],
         [0, 1],
     )
     test(
-        ['A', 'B', 'A', 'C', 'B'], [1,2,3,5,4],
-        [0,0,1,1,1],
+        ['A', 'B', 'A', 'C', 'B'], [1, 2, 3, 5, 4],
+        [0, 0, 1, 1, 1],
     )
     test(
-        ['C', 'B', 'A'], [1,2,3],
-        [1,1,1],
+        ['C', 'B', 'A'], [1, 2, 3],
+        [1, 1, 1],
     )
-
 
 
 if __name__ == '__main__':
