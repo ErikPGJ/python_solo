@@ -6,16 +6,17 @@ only code that "configures" that particular mirror.
 
 Initially created 2021-04-23 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
-'''
-BOGIQ
-=====
-'''
 
 
 import erikpgjohansson.solo.soar.mirror
 import numpy
 import os
 
+
+'''
+BOGIQ
+=====
+'''
 
 
 def _datasets_include_func(instrument, level, beginTime):
@@ -39,14 +40,13 @@ include: bool
     START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
     STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
 
-    if (instrument=='EPD') \
-        and (level in [      'L1']) \
-        and (START_TIME <= beginTime) \
-        and (beginTime < STOP_TIME):
+    if (instrument == 'EPD') \
+            and (level in ['L1']) \
+            and (START_TIME <= beginTime) \
+            and (beginTime < STOP_TIME):
         return True
 
     return False
-
 
 
 def sync():
@@ -54,9 +54,9 @@ def sync():
         'This code is not meant to run on this machine.'
 
     # TEMP
-    #print('-'*80)
-    #print('PYTHONPATH = '+os.environ['PYTHONPATH'])
-    #print('-'*80)
+    # print('-'*80)
+    # print('PYTHONPATH = '+os.environ['PYTHONPATH'])
+    # print('-'*80)
 
     ROOT_DIR = '/home/erjo/temp/soar_mirror'
 

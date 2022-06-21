@@ -5,7 +5,8 @@ Functionality for handling IDDT.
 SHORTENINGS
 ===========
 IDDT = IRFU (SolO) Datasets Directory Tree.
-    "SolO" is excluded from the name since it is implicit from parent package "so".
+    "SolO" is excluded from the name since it is implicit from parent package
+    "so".
     The way datasets are organized for SolO L2 & L3 datasets at IRFU.
     Directory paths: <instrument>/<DTDN>/<year>/<month>/<dataset file>.
 DTDN = Data Type Directory Name
@@ -16,22 +17,6 @@ DTDN = Data Type Directory Name
 
 Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
-'''
-BOGIQ
-=====
-PROPOSAL: Better module name (so.*) or shortening for IDDT.
-    PROPOSAL: irfudirtree
-    PROPOSAL: irfudirstruct
-    PROPOSAL: idds/iddt irfu datasets dir struct/tree
-    ~irfu,~org,~data,~structure,~dir,~dir tree, ~format,~instrument data,~datasets
-    PROPOSAL: Something that implies that it does not imply the directory
-        trees that follow other convention: L1, L1R.
-        PROPOSAL: ~type-sorted
-        PROPOSAL: Module should (in principle) cover how all directory trees
-            are organized, but have a separate acronym for the ~type-sorted
-            directory trees L2, L3.
-'''
-
 
 
 import erikpgjohansson.solo.asserts
@@ -40,6 +25,23 @@ import erikpgjohansson.solo.str
 import os.path
 import shutil
 
+
+'''
+BOGIQ
+=====
+PROPOSAL: Better module name (so.*) or shortening for IDDT.
+    PROPOSAL: irfudirtree
+    PROPOSAL: irfudirstruct
+    PROPOSAL: idds/iddt irfu datasets dir struct/tree
+        ~irfu, ~org, ~data, ~structure, ~dir, ~dir tree, ~format, ~instrument
+        ~datasets
+    PROPOSAL: Something that implies that it does not imply the directory
+        trees that follow other convention: L1, L1R.
+        PROPOSAL: ~type-sorted
+        PROPOSAL: Module should (in principle) cover how all directory trees
+            are organized, but have a separate acronym for the ~type-sorted
+            directory trees L2, L3.
+'''
 
 
 def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
@@ -91,19 +93,18 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     datasetId = d['DATASET_ID']
     tv1       = d['time vector 1']
 
-    (junk, level, instrument, descriptor) = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
+    junk, level, instrument, descriptor = \
+        erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
     yearStr  = f'{tv1[0]:04}'
     monthStr = f'{tv1[1]:02}'
     domStr   = f'{tv1[2]:02}'
-    if   instrDirCase == 'upper':
+    if instrDirCase == 'upper':
         instrDirName = instrument.upper()    # .lower() really unnecessary.
     elif instrDirCase == 'lower':
         instrDirName = instrument.lower()
     else:
         raise Exception(f'Illegal argument value instrDirCase={instrDirCase}')
-
-
 
     if level in ['L2', 'L3']:
         dtdn = erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
@@ -114,12 +115,9 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         return os.path.join(instrDirName, level, yearStr, monthStr, domStr)
     else:
         # NOTE: Includes HK.
-        raise Exception(f'Can not generate IDDT subdirectory for level={level}.')
-
-
-
-
-
+        raise Exception(
+            f'Can not generate IDDT subdirectory for level={level}.',
+        )
 
 
 def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
@@ -135,7 +133,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
             {
                 'SOLO_L2_RPW-LFR-SURV-CWF-B',
                 'SOLO_L2_RPW-LFR-SURV-SWF-B',
-            },  'lfr_wf_b',
+            }, 'lfr_wf_b',
         ),
         (
             {
@@ -144,14 +142,14 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
                 'SOLO_L2_RPW-LFR-SURV-CWF-E',
                 'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',
                 'SOLO_L2_RPW-LFR-SURV-SWF-E',
-            },  'lfr_wf_e',
+            }, 'lfr_wf_e',
         ),
-        ({'SOLO_L2_RPW-LFR-SURV-ASM'},    'lfr_asm'),
+        ({'SOLO_L2_RPW-LFR-SURV-ASM'}, 'lfr_asm'),
         (
             {
                 'SOLO_L2_RPW-LFR-SURV-BP1',
                 'SOLO_L2_RPW-LFR-SURV-BP2',
-            },    'lfr_bp',
+            }, 'lfr_bp',
         ),
         (
             {
@@ -164,8 +162,8 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
         ),   # AMBIGUOUS for some: tds_lfm or tds_wf_b/e
         ({'SOLO_L2_RPW-TDS-SURV-HIST1D'}, 'tds_hist1d'),
         ({'SOLO_L2_RPW-TDS-SURV-HIST2D'}, 'tds_hist2d'),
-        ({'SOLO_L2_RPW-TDS-SURV-MAMP'},   'tds_mamp'),
-        ({'SOLO_L2_RPW-TDS-SURV-STAT'},   'tds_stat'),
+        ({'SOLO_L2_RPW-TDS-SURV-MAMP'}, 'tds_mamp'),
+        ({'SOLO_L2_RPW-TDS-SURV-STAT'}, 'tds_stat'),
         (
             {
                 'SOLO_L2_RPW-TDS-SURV-RSWF-B',
@@ -182,20 +180,20 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
             {
                 'SOLO_L2_RPW-HFR-SURV',
                 'SOLO_L2_RPW-TNR-SURV',
-            },        'thr',
+            }, 'thr',
         ),
-        ({'SOLO_L3_RPW-TNR-FP'},          'tnr_fp'),
+        ({'SOLO_L3_RPW-TNR-FP'}, 'tnr_fp'),
         (
             {
                 'SOLO_L3_RPW-BIA-EFIELD',
                 'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',
-            },  'lfr_efield',
+            }, 'lfr_efield',
         ),
         (
             {
                 'SOLO_L3_RPW-BIA-SCPOT',
                 'SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',
-            },   'lfr_scpot',
+            }, 'lfr_scpot',
         ),
         (
             {
@@ -205,29 +203,16 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
         ),
     )
 
-
-
-    (
-        dataSrc, level, instrument, descriptor,
-    ) = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
-
-
+    dataSrc, level, instrument, descriptor = \
+        erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
     # ASSERTIONS
     if not datasetId.upper() == datasetId:
+        raise Exception(f'Not uppercase datasetId="{datasetId}"')
+    if level not in {'L2', 'L3'}:
         raise Exception(
-            'Not uppercase datasetId="{}"'.format(
-            datasetId,
-            ),
+            'Can not generate DTDN for level={level}, datasetId="{datasetId}"',
         )
-    if not level in {'L2', 'L3'}:
-        raise Exception(
-            'Can not generate DTDN for level={}, datasetId="{}"'.format(
-            level, datasetId,
-            ),
-        )
-
-
 
     # __IF__ a special case applies (RPW L2, L3), then handle that.
     for (dsiSet, dtdn) in L2_L3_DSI_TO_DTDN:
@@ -238,14 +223,13 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     if instrument == 'RPW' and level in ['L2', 'L3']:
         raise Exception(f'Can not handle datasetId="{datasetId}".')
 
-
-
     # CASE: No special case DATASET_ID --> DTDN
 
     # Derive DTDN from DATASET_ID descriptor.
-    (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-        descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match',
-    )
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match',
+        )
 
     if not isPerfectMatch:
         raise Exception(f'Can not handle datasetId="{datasetId}".')
@@ -255,11 +239,6 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     else:
         dtdn = substrList[2].lower()
     return dtdn
-
-
-
-
-
 
 
 def copy_move_datasets_to_irfu_dir_tree(
@@ -293,26 +272,39 @@ POSSIBLE ~BUG
 Can not copy files in large numbers on (at least) brain. Moving seems to always
 work.
 --
-Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/solo_L3_rpw-bia-efield-10-seconds_20200802_V01.cdf              --> /data/solo/data_irfu/latest/RPW/L3/bia-efield-10-seconds/2020/08
-Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf               --> /data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08
+Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/
+solo_L3_rpw-bia-efield-10-seconds_20200802_V01.cdf
+--> /data/solo/data_irfu/latest/RPW/L3/bia-efield-10-seconds/2020/08
+Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/
+solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf
+--> /data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08
 Traceback (most recent call last):
-  File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py", line 49, in <module>
-    main(sys.argv[1:])   # sys.argv[1:]        # NOTE: sys.argv[0] är inget CLI-argument. ==> Ignorera
-  File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py", line 45, in main
+  File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py",
+  line 49, in <module>
+    main(sys.argv[1:])   # sys.argv[1:]
+    # NOTE: sys.argv[0] är inget CLI-argument. ==> Ignorera
+  File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py",
+  line 45, in main
     erikpgjohansson.so.iddt.copy_move_datasets_to_irfu_dir_tree(*argument_list)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 344, in copy_move_datasets_to_irfu_dir_tree
+  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 344,
+  in copy_move_datasets_to_irfu_dir_tree
     copy_move_file_fh(old_path, new_dir_path)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 307, in <lambda>
+  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 307,
+  in <lambda>
     copy_file, 'Copying', old_path, new_dir_path)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 301, in copy_move_file
+  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 301,
+  in copy_move_file
     cm_func(old_path, new_dir_path)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 288, in copy_file
+  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 288,
+  in copy_file
     shutil.copy(old_path, new_dir_path)
   File "/usr/lib/python3.5/shutil.py", line 235, in copy
     copyfile(src, dst, follow_symlinks=follow_symlinks)
   File "/usr/lib/python3.5/shutil.py", line 115, in copyfile
     with open(dst, 'wb') as fdst:
-PermissionError: [Errno 13] Permission denied: '/data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08/solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf'
+PermissionError: [Errno 13] Permission denied:
+'/data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08/
+solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf'
 --
 THEORY: NAS24 does not permit writing at random times.
 NOTE: "Starting from Python 3.8 all functions involving a file copy
@@ -360,12 +352,16 @@ None.
             Ex: RPW/
     PROPOSAL: Sort the copying order. Can be random (at least for real cases).
 
-    BUG: 2020-11-06: Has failed twice when trying to copy and overwrite (not move and overwrite
-    many datasets BIAS L2 & L3 (entire mission) on brain:nas24. Used shutil.copy().
+    BUG: 2020-11-06: Has failed twice when trying to copy and overwrite (not
+                     move and overwrite
+    many datasets BIAS L2 & L3 (entire mission) on brain:nas24. Used
+    shutil.copy().
         PROPOSAL: Detect failure.
             PROPOSAL: Wait and try again.
-            PROPOSAL: Try copying that file later. Continue copying other files.
-            PROPOSAL: Ultimately general timeout for max time waiting (truly idle).
+            PROPOSAL: Try copying that file later. Continue copying other
+                      files.
+            PROPOSAL: Ultimately general timeout for max time waiting (truly
+                      idle).
         PROPOSAL: ~General function that copies with tricks.
         PROPOSAL: Temporary copy which is then moved.
     '''
@@ -377,8 +373,6 @@ None.
     # NOTE: Without this assertion, the function will create the destination
     # directory (not just all the subdirectories)
     erikpgjohansson.solo.asserts.is_dir(destDir)
-
-
 
     def copy_file(oldPath, newDirPath):
         # Should be able to handle:
@@ -395,7 +389,7 @@ None.
         if 0:
             # Can not handle copying to itself (is that bad?!).
             shutil.copy(oldPath, newDirPath)
-            #shutil.copy(oldPath, newPath)
+            # shutil.copy(oldPath, newPath)
         else:
             # EXPERIMENTAL: Attemp at bugfix for failing randomly when copying
             # many datasets (brain:nas24).
@@ -421,21 +415,25 @@ None.
     def copy_move_file(cmFunc, verbStr, oldPath, newDirPath):
         print(
             '{0} file: {1:<{3}} --> {2}'.format(
-            verbStr, oldPath, newDirPath, maxLenOp,
+                verbStr, oldPath, newDirPath, maxLenOp,
             ),
         )
         cmFunc(oldPath, newDirPath)
 
-
-
     if mode == 'copy':
-        copyMoveFileFh = lambda oldPath, newDirPath : copy_move_file(
-            copy_file, 'Copying', oldPath, newDirPath,
-        )
+        # copyMoveFileFh = lambda oldPath, newDirPath : copy_move_file(
+        #     copy_file, 'Copying', oldPath, newDirPath,
+        # )
+        def copyMoveFileFh(oldPath, newDirPath):
+            copy_move_file(
+                copy_file, 'Copying', oldPath, newDirPath,
+            )
     elif mode == 'move':
-        copyMoveFileFh = lambda oldPath, newDirPath : copy_move_file(
-            move_file, 'Moving', oldPath, newDirPath,
-        )
+        # copyMoveFileFh = lambda oldPath, newDirPath : copy_move_file(
+        #     move_file, 'Moving', oldPath, newDirPath,
+        # )
+        def copyMoveFileFh(oldPath, newDirPath):
+            copy_move_file(move_file, 'Moving', oldPath, newDirPath)
     else:
         raise Exception(f'Illegal mode="{mode}".')
 
@@ -466,9 +464,8 @@ None.
 
             else:
                 print(
-                    'Can not identify file and therefore not copy/move it: {}'.format(
-                    oldPath,
-                    ),
+                    'Can not identify file and therefore'
+                    ' not copy/move it: {oldPath}',
                 )
 
     '''==============================

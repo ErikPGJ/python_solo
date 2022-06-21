@@ -32,15 +32,6 @@ DST = DataSets Tables
 
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 '''
-'''
-BOGIQ
-=====
-PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
-          conventions, and FILE_SUFFIX_IGNORE_LIST.
-    PRO: Makes module handle ONLY communication with SOAR. More pure.
-    PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
-'''
-
 
 
 import codetiming
@@ -54,6 +45,15 @@ import pathlib
 import shutil
 import urllib.request
 
+
+'''
+BOGIQ
+=====
+PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
+          conventions, and FILE_SUFFIX_IGNORE_LIST.
+    PRO: Makes module handle ONLY communication with SOAR. More pure.
+    PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
+'''
 
 
 FILE_SUFFIX_IGNORE_LIST = ['.zip', '.jp2', '.h5', '.bin', '.fits']
@@ -94,13 +94,7 @@ PROPOSAL: Do not return JsonDict.
     JsonDict = _download_raw_SOAR_datasets_table()
     dst      = _convert_raw_SOAR_datasets_table(JsonDict)
 
-    #return dst
-    return (dst, JsonDict)
-
-
-
-
-
+    return dst, JsonDict
 
 
 @codetiming.Timer('_download_raw_SOAR_datasets_table')
@@ -119,17 +113,13 @@ Returns
 -------
 JsonDict : Representation of SOAR data list.
 '''
-    URL = 'http://soar.esac.esa.int/soar-sl-tap/tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
+    URL = 'http://soar.esac.esa.int/soar-sl-tap/tap/sync?REQUEST=doQuery' \
+          '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
 
     HttpResponse = urllib.request.urlopen(URL)
     JsonDict = json.loads(HttpResponse.read().decode())
 
     return JsonDict
-
-
-
-
-
 
 
 @codetiming.Timer('_convert_raw_SOAR_datasets_table')
@@ -174,7 +164,9 @@ dst : Dictionary of numpy arrays.
     TIME_STR_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
     metadataList   = JsonDict['metadata']
-    columnNameList = [columnMetadataDict['name'] for columnMetadataDict in metadataList]
+    columnNameList = [
+        columnMetadataDict['name'] for columnMetadataDict in metadataList
+    ]
     dataTuples     = JsonDict['data']
 
     dst = dict()
@@ -185,7 +177,7 @@ dst : Dictionary of numpy arrays.
 
         # Convert data to numpy array, depending on column.
 
-        if   colName in INT_COLUMN_NAMES:
+        if colName in INT_COLUMN_NAMES:
             columnArray = np.array(columnList, dtype=np.int)
 
         elif colName in STRING2INT_COLUMN_NAMES:
@@ -238,16 +230,14 @@ dst : Dictionary of numpy arrays.
 
         dst[columnNameList[iCol]] = columnArray
 
-
-
-    #==================================
+    # =================================
     # Add extra column "begin_time_FN"
-    #==================================
+    # =================================
     filenameArray   = dst['file_name']
     beginTimeFnArray = np.full(
-                        nRows,
-                        np.datetime64('nat'),
-                        dtype='datetime64[ms]',
+        nRows,
+        np.datetime64('nat'),
+        dtype='datetime64[ms]',
     )
     for iRow in range(nRows):
         fileName = filenameArray[iRow]
@@ -269,7 +259,8 @@ dst : Dictionary of numpy arrays.
 
             # NOTE: Ex: solo_LL02_eui-fsi174-image_20201021T100259_V01C.fits
             # has begin_time = null, despite having a begin_time_FN.
-            # ==> Can therefore not assert that there should be a begin_time_FN.
+            # ==> Can therefore not assert that there should be a
+            #     begin_time_FN.
             #     assert not np.isnat(dst['begin_time'][iRow])
             # except Exception as E:
             #     pass   # For setting breakpoints
@@ -287,15 +278,8 @@ dst : Dictionary of numpy arrays.
 
     dst['begin_time_FN'] = beginTimeFnArray
 
-
-
     erikpgjohansson.solo.soar.utils.assert_DST(dst)
     return dst
-
-
-
-
-
 
 
 def _extract_HTTP_response_filename(HttpResponse):
@@ -315,7 +299,8 @@ likely good enough.
     #  ('X-Frame-Options', 'SAMEORIGIN'),
     #  ('X-Content-Type-Options', 'nosniff'),
     #  ('Set-Cookie',
-    #   'JSESSIONID=6156F42C0A6DFF76D0E80EAB71146709; Path=/soar-sl-tap; HttpOnly'),
+    #   'JSESSIONID=6156F42C0A6DFF76D0E80EAB71146709;'
+    #   ' Path=/soar-sl-tap; HttpOnly'),
     #  ('Content-Disposition',
     #   'attachment;filename="solo_L2_mag-rtn-normal-1-minute_20200603_V02.cdf"'),
     #  ('Content-Type', 'application/octet-stream'),
@@ -325,7 +310,7 @@ likely good enough.
 
     FILENAME_PREFIX = 'filename='
     header_value = HttpResponse.getheader('Content-Disposition')
-    assert header_value != None
+    assert header_value is not None
 
     for sv in header_value.split(';'):
         if str.startswith(sv, FILENAME_PREFIX):
@@ -335,11 +320,6 @@ likely good enough.
             return fileName
 
     raise Exception('Failed to derive filename from HTTP response.')
-
-
-
-
-
 
 
 def download_latest_dataset(
@@ -396,7 +376,9 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
 '''
 
     # NOTE: Not a real constant since a string is inserted into it.
-    URL=f'http://soar.esac.esa.int/soar-sl-tap/data?data_item_id={dataItemId}&retrieval_type=LAST_PRODUCT&product_type=SCIENCE'
+    URL = f'http://soar.esac.esa.int/soar-sl-tap/data?' \
+        f'data_item_id={dataItemId}' \
+        f'&retrieval_type=LAST_PRODUCT&product_type=SCIENCE'
 
     assert type(dataItemId) == str
 
@@ -410,10 +392,8 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
     if expectedFileName:
         if expectedFileName != fileName:
             raise Exception(
-                (
-                    'Filename returned from HTTP response "{0}" is not equal to'+
-                    ' expected filenames "{1}".'
-                ).format(fileName, expectedFileName),
+                f'Filename returned from HTTP response "{fileName}" is '
+                f'not equal to expected filenames "{expectedFileName}".',
             )
 
     filePath = os.path.join(fileParentPath, fileName)
@@ -436,12 +416,9 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
             fileSize = os.stat(filePath).st_size
             if fileSize != expectedFileSize:
                 raise Exception(
-                    (
-                        'Size of downloaded file ("{0}"; {1} bytes) is not equal to'+
-                        ' expected file size ({2} bytes.'
-                    ).format(
-                        fileName, fileSize, expectedFileSize,
-                    ),
+                    f'Size of downloaded file '
+                    f'("{fileName}"; {fileSize} bytes) is not equal to'
+                    f' expected file size ({expectedFileSize} bytes.',
                 )
 
     return filePath

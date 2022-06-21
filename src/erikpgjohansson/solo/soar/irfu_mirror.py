@@ -8,10 +8,8 @@ Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 
 
-
 import erikpgjohansson.solo.soar.mirror
 import os
-
 
 
 def _IRFU_datasets_include_func(instrument, level, beginTime):
@@ -36,15 +34,14 @@ include: bool
 '''
     # NOTE: Include all time periods. ==> Do not check beginTime (for now).
 
-    if   instrument=='MAG' and level in [      'L2']:
+    if instrument == 'MAG' and level in ['L2']:
         return True
-    elif instrument=='EPD' and level in ['L1', 'L2']:
+    elif instrument == 'EPD' and level in ['L1', 'L2']:
         return True
-    elif instrument=='SWA' and level in ['L1', 'L2']:
+    elif instrument == 'SWA' and level in ['L1', 'L2']:
         return True
 
     return False
-
 
 
 def sync():
@@ -65,7 +62,6 @@ def sync():
 
     # 2021-12-17: "AssertionError: Net number of datasets to remove (25) is
     #              larger than permitted (20). "
-
 
 
 if __name__ == '__main__':
