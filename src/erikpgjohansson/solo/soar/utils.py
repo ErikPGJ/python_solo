@@ -83,7 +83,7 @@ dst : A DST
 
 Returns
 -------
-None.
+Number of rows in DST.
 '''
     assert type(dst == dict)
 
@@ -154,6 +154,7 @@ bi : numpy array
     return {k: v[bi] for k, v in dst.items()}
 
 
+@codetiming.Timer('download_latest_datasets_batch')
 def download_latest_datasets_batch(
     itemIdArray,
     fileSizeArray,
@@ -363,6 +364,7 @@ bLvArray : 1D numpy bool array.
     return bLvArray
 
 
+@codetiming.Timer('derive_DST_from_dir')
 def derive_DST_from_dir(rootDir):
     '''
 Derive a DST from a directory tree datasets. Searches directory recursively.
@@ -500,10 +502,11 @@ def log_codetiming():
     '''Quick-and-dirty function for logging codetiming results.
     '''
     print('')
-    print('Time used for various labelled parts of code (codetiming)')
-    print('-' * 50)
+    TITLE = 'Time used for various labelled parts of code (codetiming)'
+    print(TITLE)
+    print('-' * len(TITLE))
     for key, value in codetiming.Timer.timers.items():
-        print(f'{key:40s} {value:f} [s]')
+        print(f'{key:40s} {value:10.2f} [s]')
     print('')
 
 

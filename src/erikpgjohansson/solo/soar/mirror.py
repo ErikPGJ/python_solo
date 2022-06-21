@@ -209,7 +209,9 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # NOTE: Explicitly includes ALL versions, i.e. also NON-LATEST versions.
     # There should theoretically only be one version of each dataset locally,
     # but if there are more, then they should be included so that they can be
-    # removed (or kept in unlikely case of SOAR downversioning datasets).
+    # removed (or kept in the rare but possible case of SOAR
+    # downversioning datasets).
+    print('Producing table of pre-existing local datasets.')
     localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
     # NOTE: Not logging this to reduce amount of logging.
     # NOTE: Identical to later logging when deleteOutsideSubset=False.
@@ -227,10 +229,10 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     erikpgjohansson.solo.soar.utils.log_DST(soarDst)
     # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
-    # ASSERTION: SOAR DST not empty.
-    # IMPLEMENTATION NOTE: Just a hunch that SOAR might one day return a DST
-    # with zero datasets by mistake. This could in turn lead to deleting all
-    # local datasets.
+    # ASSERTION: SOAR DST is not empty
+    # --------------------------------
+    # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero datasets
+    # by mistake. This could in turn lead to deleting all local datasets.
     nRows = erikpgjohansson.solo.soar.utils.nRows_DST(soarDst)
     assert nRows > 0, (
         'SOAR returns a zero-size datasets table.'
@@ -246,12 +248,14 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
         levelArray     =soarDst['processing_level'],
         beginTimeArray =soarDst['begin_time_FN'],
     )
-    soarDst = erikpgjohansson.solo.soar.utils.index_DST(soarDst, bSoarSubset)
+    soarSubsetDst = erikpgjohansson.solo.soar.utils.index_DST(
+        soarDst, bSoarSubset,
+    )
     print(
         'Subset of online SOAR datasets that should be synced with local'
         ' datasets:',
     )
-    erikpgjohansson.solo.soar.utils.log_DST(soarDst)
+    erikpgjohansson.solo.soar.utils.log_DST(soarSubsetDst)
     # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # =========================================================================
@@ -260,22 +264,24 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # IMPLEMENTATION NOTE: This can be slow. Therefore doing this first AFTER
     # selecting subset of datasets. Particularly useful for small test subsets.
     # =========================================================================
-    bLv     = erikpgjohansson.solo.soar.utils.find_latest_versions(
-        soarDst['item_id'],
-        soarDst['item_version'],
+    bLv = erikpgjohansson.solo.soar.utils.find_latest_versions(
+        soarSubsetDst['item_id'],
+        soarSubsetDst['item_version'],
     )
-    soarDst = erikpgjohansson.solo.soar.utils.index_DST(soarDst, bLv)
+    soarSubsetLvDst = erikpgjohansson.solo.soar.utils.index_DST(
+        soarSubsetDst, bLv,
+    )
 
     print(
         'Latest versions of all online SOAR datasets (synced and non-synced):',
     )
-    erikpgjohansson.solo.soar.utils.log_DST(soarDst)
+    erikpgjohansson.solo.soar.utils.log_DST(soarSubsetLvDst)
     # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # ASSERT: The subset of SOAR is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
     # files due to faulty datasetsSubsetFunc.
-    assert erikpgjohansson.solo.soar.utils.nRows_DST(soarDst) > 0, (
+    assert erikpgjohansson.solo.soar.utils.nRows_DST(soarSubsetLvDst) > 0, (
         'Trying to sync with empty subset of SOAR datasets.'
         ' datasetsSubsetFunc could be faulty.'
     )
@@ -310,14 +316,14 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
     (bSoarMissing, bLocalExcess) = find_DST_difference(
-        soarDst['file_name'],
+        soarSubsetLvDst['file_name'],
         localDst['file_name'],
-        soarDst['file_size'],
+        soarSubsetLvDst['file_size'],
         localDst['file_size'],
     )
 
     soarMissingDst = erikpgjohansson.solo.soar.utils.index_DST(
-        soarDst,  bSoarMissing,
+        soarSubsetLvDst, bSoarMissing,
     )
     localExcessDst = erikpgjohansson.solo.soar.utils.index_DST(
         localDst, bLocalExcess,
@@ -329,8 +335,8 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     erikpgjohansson.solo.soar.utils.log_DST(localExcessDst)
 
     # ASSERTION
-    # NOTE: Deliberately doing this after logging datasets to download
-    # and delete.
+    # NOTE: Deliberately doing this first after logging which datasets to
+    # download and delete.
     nNetDatasetsToRemove = \
         erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst) \
         - erikpgjohansson.solo.soar.utils.nRows_DST(soarMissingDst)
@@ -433,10 +439,6 @@ Returns
 PROPOSAL: Use filenames, not itemId+version.
 PROPOSAL: Include file sizes.
     '''
-    # assert type(fileNameArray1) == np.ndarray
-    # assert type(fileNameArray2) == np.ndarray
-    # assert fileNameArray1.dtype == np.dtype('object')
-    # assert fileNameArray2.dtype == np.dtype('object')
     erikpgjohansson.solo.soar.utils.assert_col_array(
         fileNameArray1, np.dtype('O'),
     )
@@ -444,10 +446,6 @@ PROPOSAL: Include file sizes.
         fileNameArray2, np.dtype('O'),
     )
 
-    # assert type(fileSizeArray1) == np.ndarray
-    # assert type(fileSizeArray2) == np.ndarray
-    # assert fileSizeArray1.dtype == np.dtype('int64')
-    # assert fileSizeArray2.dtype == np.dtype('int64')
     erikpgjohansson.solo.soar.utils.assert_col_array(
         fileSizeArray1, np.dtype('int64'),
     )
@@ -455,8 +453,8 @@ PROPOSAL: Include file sizes.
         fileSizeArray2, np.dtype('int64'),
     )
 
-    # NOTE: Suspect there is some way of doing this using numpy functionality
-    # but has not found it.
+    # NOTE: It is suspect that there is not some way of doing this using numpy
+    # functionality I have not yet managed to find it.
     # FNS = File Name & Size
     fnsArray1 = np.array(
         list(zip(fileNameArray1, fileSizeArray1)),
@@ -537,7 +535,7 @@ bSubset : numpy array
 
 def test_datasets_include_func(instrument, level, beginTime):
     '''
-Function that determines whether dataset is included/excluded in syncing.
+Function that determines whether a dataset is included/excluded in syncing.
 
 NOTE: For testing purposes.
 

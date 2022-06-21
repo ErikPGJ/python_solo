@@ -90,6 +90,7 @@ NOTE: Same dataset may have multiple versions in list.
     '''
 PROPOSAL: Do not return JsonDict.
     PRO: Wrong data structure for debugging.
+PROPOSAL: Cache.
 '''
     JsonDict = _download_raw_SOAR_datasets_table()
     dst      = _convert_raw_SOAR_datasets_table(JsonDict)
@@ -108,6 +109,7 @@ It does include LL02 and ANC.
 
 NOTE: begin_time may contain string "null".
 NOTE: item_version == string, e.g. "V02".
+NOTE: This call is SLOW.
 
 Returns
 -------
@@ -331,7 +333,7 @@ def download_latest_dataset(
 Download the latest version of a particular dataset.
 
 NOTE: I have not been able to figure out how to download a dataset of a
-specified version. /2021-01-11
+specified version. /Erik P G Johansson 2021-01-11
 
 
 

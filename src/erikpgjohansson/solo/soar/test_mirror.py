@@ -50,7 +50,7 @@ include: bool
 
 
 def sync():
-    assert os.uname().nodename in ['brain', 'irony'],\
+    assert os.uname().nodename in ['brain', 'spis', 'irony'],\
         'This code is not meant to run on this machine.'
 
     # TEMP
@@ -70,5 +70,8 @@ def sync():
     )
 
 
+# IMPLEMENTATION NOTE: This code makes it possible to execute the sync from
+# the bash command line:
+# >> python -m 'erikpgjohansson.solo.soar.test_mirror'
 if __name__ == '__main__':
     sync()

@@ -48,8 +48,10 @@ def sync():
     if 1:
         # NOTE: Script can be used on irony if SO directories have been
         # mounted.
-        assert os.uname().nodename in ['brain', 'spis', 'irony'],\
-            'This code is not meant to run on this machine.'
+        assert os.uname().nodename in ['brain', 'spis', 'irony'], (
+            'This code is not intended to run on this machine (not'
+            ' configured for it.'
+        )
 
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                 = '/data/solo/soar',
@@ -64,5 +66,8 @@ def sync():
     #              larger than permitted (20). "
 
 
+# IMPLEMENTATION NOTE: This code makes it possible to execute the sync from
+# the bash command line:
+# >> python -m 'erikpgjohansson.solo.soar.irfu_mirror'
 if __name__ == '__main__':
     sync()
