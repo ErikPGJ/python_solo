@@ -4,10 +4,21 @@ Includes functionality for syncing SOAR data (for now).
 
 Initially created 2020-12-17 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
+
+
+import codetiming
+import datetime
+import erikpgjohansson.solo.asserts
+import erikpgjohansson.solo.soar.soar
+import numpy as np
+import os
+
+
 '''
 BOGIQ
 =====
-PROPOSAL: Assertion function: table on format dictionary, with same-length arrays as values.
+PROPOSAL: Assertion function: table on format dictionary, with same-length
+          arrays as values.
 PROPOSAL: Class for dataset tables/DSTs. Constant set of columns.
         Use "None"/NaN for unknown values.
 
@@ -15,7 +26,8 @@ NOTE: download_latest_dataset() downloads latest dataset
           version, not specified dataset version?
     PROPOSAL: Compare downloaded datasets with online list.
         PROPOSAL: Assertion.
-        PROPOSAL: If disagreeing, re-download online list and compare again (once).
+        PROPOSAL: If disagreeing, re-download online list and compare again
+                  (once).
 
 PROPOSAL: Function: Difference between DSTs.
     Find differences between datasets in in two DSTs.
@@ -29,9 +41,12 @@ PROPOSAL: Function: Difference between DSTs.
     PROPOSAL: Function for doing this for exactly one column.
         Construct same operation for multiple columns through multiple calls.
         CON: Strange to compare anything without involving item ID.
-            Ex: Set operation between sets of file sizes (mixing item IDs together).
-            Ex: Set operation between sets of versions (mixing item IDs together).
-        CON: DST is list, not set. May have duplicates (e.g. versions, file sizes, item IDs)
+            Ex: Set operation between sets of file sizes (mixing item IDs
+                together).
+            Ex: Set operation between sets of versions (mixing item IDs
+                together).
+        CON: DST is list, not set. May have duplicates (e.g. versions, file
+             sizes, item IDs)
     PROPOSAL: Difference between DSTs for selected columns.
         In practice: item ID, item ID+version, item ID+version+file size (?)
 
@@ -43,7 +58,8 @@ PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
     TODO-DEC: Should functionality for managing DSTs be considered ~SOAR?
     TODO-DEC: Should separate SOAR and mirroring code?
         PROPOSAL: so.soar + so.soar_mirror
-            PRO: so.soar_mirror USES so.soar, but is not PART of SOAR-functionality.
+            PRO: so.soar_mirror USES so.soar, but is not PART of
+                 SOAR functionality.
     PROPOSAL: so.filter, so.filterdst
     PROPOSAL: so.soar.download/connect/network/access or so.soar (only)
     PROPOSAL: so.soar.mirror, so.soar_mirror, so.soar_utils
@@ -55,20 +71,6 @@ PROPOSAL: DST filtering functions should accept arrays (not DST) and return
 PROPOSAL: DST filtering functions should accept DST+relevant column names.
     PRO: Can handle different column names.
 '''
-
-
-
-import codetiming
-import datetime
-import erikpgjohansson.solo.asserts
-import erikpgjohansson.solo.soar.soar
-import numpy as np
-import os
-
-
-
-
-
 
 
 def assert_DST(dst):
@@ -86,11 +88,11 @@ None.
     assert type(dst == dict)
 
     nRows = None
-    for (k,v) in dst.items():
+    for (k, v) in dst.items():
         assert type(k) == str
         erikpgjohansson.solo.soar.utils.assert_col_array(v)
-        #assert type(v) == np.ndarray
-        #assert v.ndim == 1
+        # assert type(v) == np.ndarray
+        # assert v.ndim == 1
 
         if nRows is None:
             nRows = v.size
@@ -103,18 +105,8 @@ None.
     return nRows
 
 
-
-
-
-
-
 def nRows_DST(dst):
     return assert_DST(dst)
-
-
-
-
-
 
 
 def assert_col_array(v, dtype=None):
@@ -128,23 +120,18 @@ def assert_col_array(v, dtype=None):
     # used 0-dim arrays which causes hard-to-understand errors.
     # ==> Want assertion against this.
     assert type(v) == np.ndarray
-    assert v.ndim  == 1
+    assert v.ndim == 1
 
     if dtype:
         # ASSERTION: Correct ARGUMENT type: dtype (not the array)
-        #assert type(dtype) == np.dtype, \
+        # assert type(dtype) == np.dtype, \
         assert isinstance(dtype, np.dtype), \
             'Argument dtype has the wrong type.'
 
         # ASSERTION: Array type
         assert v.dtype == dtype
 
-    #return v.size   # Exclude?
-
-
-
-
-
+    # return v.size   # Exclude?
 
 
 def index_DST(dst, bi):
@@ -164,12 +151,7 @@ bi : numpy array
     assert_DST(dst)
     assert type(bi) == np.ndarray
 
-    return {k:v[bi] for k,v in dst.items()}
-
-
-
-
-
+    return {k: v[bi] for k, v in dst.items()}
 
 
 def download_latest_datasets_batch(
@@ -201,8 +183,8 @@ debugDownloadingEnabled : bool
 debugCreateEmptyFiles : bool
     True: Create empty files instead of downloading them.
         NOTE: The filename is still fetched from a HTTP request which still
-        takes some time, but which is still much faster than actually downloading
-        the file.
+        takes some time, but which is still much faster than actually
+        downloading the file.
     Useful for testing/debugging.
 
 
@@ -220,11 +202,13 @@ PROPOSAL: Keyword argument for file-size sorted download.
     '''
 
     # ASSERTIONS
-    erikpgjohansson.solo.soar.utils.assert_col_array(itemIdArray,   np.dtype('O'))
-    erikpgjohansson.solo.soar.utils.assert_col_array(fileSizeArray, np.dtype('int64'))
+    erikpgjohansson.solo.soar.utils.assert_col_array(
+        itemIdArray, np.dtype('O'),
+    )
+    erikpgjohansson.solo.soar.utils.assert_col_array(
+        fileSizeArray, np.dtype('int64'),
+    )
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
-
-
 
     if downloadByIncrFileSize:
         iSort         = np.argsort(fileSizeArray)
@@ -242,7 +226,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(
             '{}: Downloading: {:.2f} [MiB], {}'.format(
-            nowStr, fileSize/2**20, itemId,
+                nowStr, fileSize / 2**20, itemId,
             ),
         )
         if debugDownloadingEnabled:
@@ -261,49 +245,44 @@ PROPOSAL: Keyword argument for file-size sorted download.
 
         remainingBytes   = totalBytes - soFarBytes
         # Predictions (using plain linear extrapolation).
-        remainingTimeSec = (totalBytes-soFarBytes) / soFarBytes * soFarSec
+        remainingTimeSec = (totalBytes - soFarBytes) / soFarBytes * soFarSec
         RemainingTimeTd  = datetime.timedelta(seconds=remainingTimeSec)
         completionDt     = StartDt + SoFarTd + RemainingTimeTd
 
         if logFormat == 'long':
             print(
                 'So far:        {:.2f} [MiB] of {:.2f} [MiB]'.format(
-                soFarBytes / 2**20,
-                totalBytes / 2**20,
+                    soFarBytes / 2**20,
+                    totalBytes / 2**20,
                 ),
             )
             print(
                 '               {:.2f} [s] = {}'.format(
-                soFarSec,
-                SoFarTd,
+                    soFarSec,
+                    SoFarTd,
                 ),
             )
             print(
                 '               {:.2f} [MiB/s], on average'.format(
-                soFarBytes/soFarSec / 2**20,
+                    (soFarBytes / soFarSec) / 2**20,
                 ),
             )
 
             print(
                 'Remainder:     {:.2f} [MiB] of {:.2f} [MiB]'.format(
-                remainingBytes / 2**20,
-                totalBytes     / 2**20,
+                    remainingBytes / 2**20,
+                    totalBytes     / 2**20,
                 ),
             )
             print(
                 '               {:.0f} [s] = {} (prediction)'.format(
-                remainingTimeSec,
-                RemainingTimeTd,
+                    remainingTimeSec,
+                    RemainingTimeTd,
                 ),
             )
             print(f'Expected completion at: {completionDt} (prediction)')
         else:
             assert logFormat == 'short'
-
-
-
-
-
 
 
 @codetiming.Timer('find_latest_versions')
@@ -337,7 +316,7 @@ bLvArray : 1D numpy bool array.
     # IMPLEMENTATION NOTE: Automatic tests have historically mistakenly used
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     erikpgjohansson.solo.soar.utils.assert_col_array(
         itemIdArray,     np.dtype('O'),
     )
@@ -345,8 +324,6 @@ bLvArray : 1D numpy bool array.
         itemVerNbrArray, np.dtype('int64'),
     )
     assert itemIdArray.shape == itemVerNbrArray.shape
-
-
 
     # NOTE: itemIdArray[iUniques] == uniqItemIdArray
     (uniqItemIdArray, iUniques, jInverse, uniqueCounts) = np.unique(
@@ -372,7 +349,7 @@ bLvArray : 1D numpy bool array.
 
             assert i.size == 1, (
                 'Found multiple datasets with itemId = {0}'
-                +' with the same highest version number V{2:d}.'
+                ' with the same highest version number V{1:d}.'
             ).format(
                 uii, uiiLv,
             )
@@ -384,11 +361,6 @@ bLvArray : 1D numpy bool array.
     assert np.unique(itemIdArray2).size == itemIdArray2.size
 
     return bLvArray
-
-
-
-
-
 
 
 def derive_DST_from_dir(rootDir):
@@ -425,7 +397,9 @@ dst
             if di:
                 (
                     _dataSrc, level, instrument, _descriptor,
-                ) = erikpgjohansson.solo.utils.parse_DATASET_ID(di['DATASET_ID'])
+                ) = erikpgjohansson.solo.utils.parse_DATASET_ID(
+                    di['DATASET_ID'],
+                )
 
                 filePath = os.path.join(dirPath, fileName)
                 filePathList    += [filePath]
@@ -444,22 +418,17 @@ dst
                 beginTimeFnList += [datetime.datetime(*tv1)]
 
     return {
-        'file_name'       :np.array(fileNameList,    dtype=object),
-        'file_path'       :np.array(filePathList,    dtype=object),
-        'item_version'    :np.array(fileVerList,     dtype=np.int),
-        'item_id'         :np.array(itemIdList,      dtype=object),
-        'file_size'       :np.array(fileSizeList,    dtype=np.int),
-        'begin_time_FN'   :np.array(beginTimeFnList, dtype='datetime64[ms]'),
-        'instrument'      :np.array(instrumentList,  dtype=object),
-        'processing_level':np.array(levelList,       dtype=object),
+        'file_name'       : np.array(fileNameList,    dtype=object),
+        'file_path'       : np.array(filePathList,    dtype=object),
+        'item_version'    : np.array(fileVerList,     dtype=np.int),
+        'item_id'         : np.array(itemIdList,      dtype=object),
+        'file_size'       : np.array(fileSizeList,    dtype=np.int),
+        'begin_time_FN'   : np.array(beginTimeFnList, dtype='datetime64[ms]'),
+        'instrument'      : np.array(instrumentList,  dtype=object),
+        'processing_level': np.array(levelList,       dtype=object),
     }
     # NOTE: Column name "processing_level" chose to be in agreement with
     # erikpgjohansson.solo.soar.soar.download_SOAR_DST().
-
-
-
-
-
 
 
 def filter_DST(
@@ -488,7 +457,7 @@ dict
     if levelsSet:
         b = b & np.isin(dst['processing_level'], np.array(list(levelsSet)))
     if instrumentsSet:
-        b = b & np.isin(dst['instrument'],       np.array(list(instrumentsSet)))
+        b = b & np.isin(dst['instrument'], np.array(list(instrumentsSet)))
 
     if intervalTimeStrs:
         assert len(intervalTimeStrs) == 2
@@ -500,11 +469,6 @@ dict
     return index_DST(dst, b)
 
 
-
-
-
-
-
 def log_DST(dst):
     assert_DST(dst)
 
@@ -513,26 +477,23 @@ def log_DST(dst):
     assert bta.dtype == np.dtype('datetime64[ms]')
     nonNullBta = bta[~np.isnat(bta)]
 
-    print('='*80)
-    print(    'Totals: Unique instruments:       ' + str(set(dst['instrument'])))
-    print(    '        Unique processing levels: ' + str(set(dst['processing_level'])))
-    print(    '                                  {:d} datasets'.format(
+    print('=' * 80)
+    print('Totals: Unique instruments:       ' + str(set(dst['instrument'])))
+    print('        Unique processing levels: ' + str(
+        set(dst['processing_level'])
+    ))
+    print('                                  {:d} datasets'.format(
         dst['file_size'].size,
     ),
     )
-    print(    '                                  {:.2f} [GiB]'.format(
+    print('                                  {:.2f} [GiB]'.format(
         totalBytes / 2**30,
     ),
     )
     if nonNullBta.size > 0:
         print('   begin_time_FN (non-null): Min: ' + str(nonNullBta.min()))
         print('                             Max: ' + str(nonNullBta.max()))
-    print('='*80)
-
-
-
-
-
+    print('=' * 80)
 
 
 def log_codetiming():
@@ -540,15 +501,10 @@ def log_codetiming():
     '''
     print('')
     print('Time used for various labelled parts of code (codetiming)')
-    print('-'*50)
+    print('-' * 50)
     for key, value in codetiming.Timer.timers.items():
         print(f'{key:40s} {value:f} [s]')
     print('')
-
-
-
-
-
 
 
 def download_batch___MTEST(fileParentPath):
@@ -569,8 +525,9 @@ def download_batch___MTEST(fileParentPath):
         intervalTimeStrs=('2020-07-01', '2020-07-01 12:00:00'),
     )
 
-    download_latest_datasets_batch(dst['item_id'], dst['file_size'], fileParentPath)
-
+    download_latest_datasets_batch(
+        dst['item_id'], dst['file_size'], fileParentPath,
+    )
 
 
 def download_batch___MANUAL():
@@ -580,19 +537,19 @@ def download_batch___MANUAL():
     # def print_bytes():
     #     totalBytes = dst['file_size'].sum()
     #     print('Number of datasets:     {0:d}'.format(dst['file_size'].size))
-    #     print('Total size of datasets: {0:.2f} [GiB]'.format(totalBytes / 2**30))
+    # print('Total size of datasets: {0:.2f} [GiB]'.format(totalBytes / 2**30))
 
-    #OUTPUT_DIR = '/home/erjo/temp/soar/download'
+    # OUTPUT_DIR = '/home/erjo/temp/soar/download'
     OUTPUT_DIR = '/data/solo/soar/download'
-    #OUTPUT_DIR = '/homelocal/erjo/SOLAR_ORBITER/SOAR_download'
-    #intervalTimeStrs=('2020-07-01', '2020-07-02')
-    #intervalTimeStrs=('2020-01-01', '2020-12-31')
+    # OUTPUT_DIR = '/homelocal/erjo/SOLAR_ORBITER/SOAR_download'
+    # intervalTimeStrs=('2020-07-01', '2020-07-02')
+    # intervalTimeStrs=('2020-01-01', '2020-12-31')
 
     (dst, _JsonDict)  = erikpgjohansson.solo.soar.soar.download_SOAR_DST()
     bLv = find_latest_versions(dst['item_id'], dst['item_version'])
     dst = index_DST(dst, bLv)
 
-    #dst  = filter_DST_dir(dst, OUTPUT_DIR)   # Remove already downloaded files.
+    # dst  = filter_DST_dir(dst, OUTPUT_DIR) # Remove already downloaded files.
 
     ######################
     intervalTimeStrs = ('2020-09-01', '2021-07-01 12:00:00')
