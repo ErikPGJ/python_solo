@@ -13,7 +13,7 @@ import os
 # Follows symlinks.
 def is_dir(path):
     assert os.path.isdir(path), \
-        '"{}" is not a path to a pre-existing directory.'.format(path)
+        f'"{path}" is not a path to a pre-existing directory.'.format(path)
 
 
 

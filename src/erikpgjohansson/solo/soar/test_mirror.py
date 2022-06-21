@@ -37,13 +37,12 @@ include: bool
     Whether datasets should be included or not
 '''
     # NOTE: Should be configured to match only ONE dataset (file)
-    if 1:
-        START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
-        STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
+    START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
+    STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
 
     if (instrument=='EPD') \
         and (level in [      'L1']) \
-        and (START_TIME < beginTime) \
+        and (START_TIME <= beginTime) \
         and (beginTime < STOP_TIME):
         return True
 
