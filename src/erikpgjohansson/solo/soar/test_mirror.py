@@ -67,7 +67,8 @@ def sync():
         datasetsSubsetFunc      = _datasets_include_func,
         downloadLogFormat       = 'long',
         deleteOutsideSubset     = True,
-        nMaxNetDatasetsToRemove = 20)
+        nMaxNetDatasetsToRemove = 20,
+    )
 
 
 if __name__ == '__main__':

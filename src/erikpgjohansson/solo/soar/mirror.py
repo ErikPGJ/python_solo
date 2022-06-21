@@ -79,10 +79,12 @@ import subprocess
 
 
 @codetiming.Timer('sync')
-def sync(syncDir, tempDownloadDir, datasetsSubsetFunc,
-         deleteOutsideSubset=False,
-         downloadLogFormat='short',
-         nMaxNetDatasetsToRemove=10):
+def sync(
+    syncDir, tempDownloadDir, datasetsSubsetFunc,
+    deleteOutsideSubset=False,
+    downloadLogFormat='short',
+    nMaxNetDatasetsToRemove=10,
+):
     '''
 Sync local directory with subset of online SOAR datasets.
 
@@ -219,7 +221,7 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
     (soarDst, _JsonDict) = erikpgjohansson.solo.soar.soar.download_SOAR_DST()
     print(
         'All online SOAR datasets'
-        ' (synced and non-synced; all dataset versions):'
+        ' (synced and non-synced; all dataset versions):',
     )
     erikpgjohansson.solo.soar.utils.log_DST(soarDst)
     #erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
@@ -237,14 +239,17 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
     #================================================
     # Select specified subset of datasets (item IDs)
     #================================================
-    bSoarSubset = _find_DST_subset(datasetsSubsetFunc,
-                    instrumentArray=soarDst['instrument'],
-                    levelArray     =soarDst['processing_level'],
-                    beginTimeArray =soarDst['begin_time_FN'])
+    bSoarSubset = _find_DST_subset(
+        datasetsSubsetFunc,
+        instrumentArray=soarDst['instrument'],
+        levelArray     =soarDst['processing_level'],
+        beginTimeArray =soarDst['begin_time_FN'],
+    )
     soarDst = erikpgjohansson.solo.soar.utils.index_DST(soarDst, bSoarSubset)
     print(
         'Subset of online SOAR datasets that should be synced with local'
-        ' datasets:')
+        ' datasets:',
+    )
     erikpgjohansson.solo.soar.utils.log_DST(soarDst)
     #erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
@@ -258,11 +263,12 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
     #==========================================================================
     bLv     = erikpgjohansson.solo.soar.utils.find_latest_versions(
         soarDst['item_id'],
-        soarDst['item_version'])
+        soarDst['item_version'],
+    )
     soarDst = erikpgjohansson.solo.soar.utils.index_DST(soarDst, bLv)
 
     print(
-        'Latest versions of all online SOAR datasets (synced and non-synced):'
+        'Latest versions of all online SOAR datasets (synced and non-synced):',
     )
     erikpgjohansson.solo.soar.utils.log_DST(soarDst)
     #erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
@@ -279,20 +285,23 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
 
     # Local datasets
     if not deleteOutsideSubset:
-        bLocalSubset = _find_DST_subset(datasetsSubsetFunc,
-                        instrumentArray=localDst['instrument'],
-                        levelArray     =localDst['processing_level'],
-                        beginTimeArray =localDst['begin_time_FN'])
+        bLocalSubset = _find_DST_subset(
+            datasetsSubsetFunc,
+            instrumentArray=localDst['instrument'],
+            levelArray     =localDst['processing_level'],
+            beginTimeArray =localDst['begin_time_FN'],
+        )
         localDst = erikpgjohansson.solo.soar.utils.index_DST(
-            localDst, bLocalSubset)
+            localDst, bLocalSubset,
+        )
         print(
             'NOTE: Only syncing against subset of local datasets.'
-            ' Will NOT delete outside datasets outside the specified subset.'
+            ' Will NOT delete outside datasets outside the specified subset.',
         )
     else:
         print(
             'NOTE: Syncing against all local datasets (in specified directory).'
-            ' Will DELETE datasets outside the specified subset.'
+            ' Will DELETE datasets outside the specified subset.',
         )
     # NOTE: localDst has no begin_time. Can therefore not log.
     print('Pre-existent set of local datasets that should be synced/updated:')
@@ -308,7 +317,8 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
         soarDst['file_name'],
         localDst['file_name'],
         soarDst['file_size'],
-        localDst['file_size'])
+        localDst['file_size'],
+    )
 
     soarMissingDst = erikpgjohansson.solo.soar.utils.index_DST(soarDst,  bSoarMissing)
     localExcessDst = erikpgjohansson.solo.soar.utils.index_DST(localDst, bLocalExcess)
@@ -326,7 +336,8 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
       - erikpgjohansson.solo.soar.utils.nRows_DST(soarMissingDst)
     assert nNetDatasetsToRemove <= nMaxNetDatasetsToRemove, \
         'Net number of datasets to remove ({0}) is larger than permitted ({1}). This might indicate a bug or configuration error. This assertion is a failsafe.'.format(
-            nNetDatasetsToRemove, nMaxNetDatasetsToRemove)
+            nNetDatasetsToRemove, nMaxNetDatasetsToRemove,
+        )
 
 
 
@@ -341,7 +352,8 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
             tempDownloadDir,
             logFormat=downloadLogFormat,
             debugDownloadingEnabled=True,
-            debugCreateEmptyFiles=DEBUG_DOWNLOAD_EMPTY_DATASETS)
+            debugCreateEmptyFiles=DEBUG_DOWNLOAD_EMPTY_DATASETS,
+        )
     else:
         print('DEBUG: Disabled downloading datasets.')
         for fileName in soarMissingDst['file_name']:
@@ -360,15 +372,19 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
         if nRows > 0:
             pathsToRemoveList = localExcessDst['file_path'].tolist()
             stdoutBytes = subprocess.check_output(
-                FILE_REMOVAL_COMMAND_LIST + pathsToRemoveList)
+                FILE_REMOVAL_COMMAND_LIST + pathsToRemoveList,
+            )
             stdoutStr = str(stdoutBytes, 'utf-8')
             print(stdoutStr)    # NOTE: Always prints line break.
     else:
         print('DEBUG: Disabled removing local datasets.')
         for iRow in range(nRows):
-            print('Virtually removing "{0}" ({1} bytes)'.format(
+            print(
+                'Virtually removing "{0}" ({1} bytes)'.format(
                 localExcessDst['file_path'][iRow],
-                localExcessDst['file_size'][iRow]))
+                localExcessDst['file_size'][iRow],
+                ),
+            )
 
 
 
@@ -379,7 +395,8 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
         print('Moving downloaded datasets to selected directory structure (if there are any).')
         erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
             'move', tempDownloadDir, syncDir,
-            dirCreationPermissions=CREATE_DIR_PERMISSIONS)
+            dirCreationPermissions=CREATE_DIR_PERMISSIONS,
+        )
     else:
         print('DEBUG: Disabled moving downloaded datasets to local datasets (IDDT).')
 
@@ -390,8 +407,10 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
 
 
 #def find_DST_difference(itemIdArray1, versionArray1, itemIdArray2, versionArray2):
-def find_DST_difference(fileNameArray1, fileNameArray2,
-                        fileSizeArray1, fileSizeArray2):
+def find_DST_difference(
+    fileNameArray1, fileNameArray2,
+    fileSizeArray1, fileSizeArray2,
+):
     '''
 Find both set differences between lists of strings as boolean index arrays.
 Intended for dataset filenames, to determine which datasets need to be synched
@@ -437,12 +456,18 @@ PROPOSAL: Include file sizes.
     # FNS = File Name & Size
     fnsArray1 = np.array(
         list(zip(fileNameArray1, fileSizeArray1)),
-        dtype=[('fileName', fileNameArray1.dtype),
-               ('fileSize', fileSizeArray1.dtype)])
+        dtype=[
+            ('fileName', fileNameArray1.dtype),
+            ('fileSize', fileSizeArray1.dtype),
+        ],
+    )
     fnsArray2 = np.array(
         list(zip(fileNameArray2, fileSizeArray2)),
-        dtype=[('fileName', fileNameArray2.dtype),
-               ('fileSize', fileSizeArray2.dtype)])
+        dtype=[
+            ('fileName', fileNameArray2.dtype),
+            ('fileSize', fileSizeArray2.dtype),
+        ],
+    )
 
     bDiff1 = ~np.isin(fnsArray1, fnsArray2)
     bDiff2 = ~np.isin(fnsArray2, fnsArray1)
@@ -462,8 +487,10 @@ PROPOSAL: Include file sizes.
 
 
 @codetiming.Timer('_find_DST_subset')
-def _find_DST_subset(datasetIncludeFunc,
-                     instrumentArray, levelArray, beginTimeArray):
+def _find_DST_subset(
+    datasetIncludeFunc,
+    instrumentArray, levelArray, beginTimeArray,
+):
     '''
 Returns indices to datasets that are permitted by datasetIncludeFunc.
 Basically just iterates over datasetIncludeFunc.
@@ -482,11 +509,14 @@ Returns
 bSubset : numpy array
 '''
     erikpgjohansson.solo.soar.utils.assert_col_array(
-        instrumentArray, np.dtype('O'))
+        instrumentArray, np.dtype('O'),
+    )
     erikpgjohansson.solo.soar.utils.assert_col_array(
-        levelArray,      np.dtype('O'))
+        levelArray,      np.dtype('O'),
+    )
     erikpgjohansson.solo.soar.utils.assert_col_array(
-        beginTimeArray,  np.dtype('<M8[ms]'))   # Omit type?
+        beginTimeArray,  np.dtype('<M8[ms]'),
+    )   # Omit type?
 
     bSubset = np.zeros(instrumentArray.shape, dtype=bool)
     #for i, _instrument in enumerate(instrumentArray):
@@ -501,7 +531,8 @@ bSubset : numpy array
         bSubset[i] = datasetIncludeFunc(
                         instrument=instrumentArray[i],
                         level     =levelArray[i],
-                        beginTime =beginTimeArray[i])
+                        beginTime =beginTimeArray[i],
+        )
 
     return bSubset
 
@@ -530,4 +561,5 @@ beginTime : numpy array, shape=(), numpy.datetime64
     return (
         instrument=='EPD'
         and level in ['L1']
-        and MIN_DT64 <= beginTime and beginTime <= MAX_DT64)
+        and MIN_DT64 <= beginTime and beginTime <= MAX_DT64
+    )

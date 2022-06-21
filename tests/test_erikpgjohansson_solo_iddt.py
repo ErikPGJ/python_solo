@@ -13,29 +13,43 @@ def test_get_IDDT_subdir():
         actResult = erikpgjohansson.solo.iddt.get_IDDT_subdir(filename, **kwargs)
         assert actResult == expResult
 
-    test('SOLO_L2_RPW-LFR-SBM2-CWF-E_20200401_V01.cdf',
-        {}, 'rpw/L2/lfr_wf_e/2020/04')
-    test('solo_L2_rpw-lfr-surv-bp1_20201001_V02.cdf',
-        {}, 'rpw/L2/lfr_bp/2020/10')
-    test('solo_L2_rpw-lfr-surv-bp1-cdag_20201001_V02.cdf',
-        {}, 'rpw/L2/lfr_bp/2020/10')
+    test(
+        'SOLO_L2_RPW-LFR-SBM2-CWF-E_20200401_V01.cdf',
+        {}, 'rpw/L2/lfr_wf_e/2020/04',
+    )
+    test(
+        'solo_L2_rpw-lfr-surv-bp1_20201001_V02.cdf',
+        {}, 'rpw/L2/lfr_bp/2020/10',
+    )
+    test(
+        'solo_L2_rpw-lfr-surv-bp1-cdag_20201001_V02.cdf',
+        {}, 'rpw/L2/lfr_bp/2020/10',
+    )
 
-    test('solo_L2_mag-rtn-normal-1-minute_20200601_V02.cdf',
+    test(
+        'solo_L2_mag-rtn-normal-1-minute_20200601_V02.cdf',
         {'dtdnInclInstrument': False},
-        'mag/L2/rtn-normal-1-minute/2020/06')
-    test('solo_L2_mag-rtn-normal-1-minute_20200601_V02.cdf',
+        'mag/L2/rtn-normal-1-minute/2020/06',
+    )
+    test(
+        'solo_L2_mag-rtn-normal-1-minute_20200601_V02.cdf',
         {'dtdnInclInstrument': True},
-        'mag/L2/mag-rtn-normal-1-minute/2020/06')
+        'mag/L2/mag-rtn-normal-1-minute/2020/06',
+    )
 
-    test('solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf',
-        {}, 'epd/L2/epd-step-burst/2020/07')
+    test(
+        'solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf',
+        {}, 'epd/L2/epd-step-burst/2020/07',
+    )
 
     test(
         'solo_L2_swa-eas1-nm3d-psd_20200708T060012-20200708T120502_V01.cdf',
-        {}, 'swa/L2/swa-eas1-nm3d-psd/2020/07')
+        {}, 'swa/L2/swa-eas1-nm3d-psd/2020/07',
+    )
     test(
         'solo_L1_swa-eas-OnbPartMoms_20200820T000000-20200820T235904_V01.cdf',
-        {}, 'swa/L1/2020/08/20')
+        {}, 'swa/L1/2020/08/20',
+    )
 
     # Non-datasets (according to filename).
     test('solo_L2_rpw-lfr-surv-bp1-cdag_20201001_V02.CDF', {}, None)
@@ -57,7 +71,8 @@ def test_convert_DATASET_ID_to_DTDN():
 
     def test(datasetId, kwargs, expResult):
         actResult = erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
-            datasetId, **kwargs)
+            datasetId, **kwargs,
+        )
         assert actResult == expResult
 
     def test_exc(datasetId, kwargs):

@@ -209,13 +209,16 @@ dst : Dictionary of numpy arrays.
                     else:
                         value = datetime.datetime.strptime(
                             columnList[iRow],
-                            TIME_STR_FORMAT)
+                            TIME_STR_FORMAT,
+                        )
                     columnArray[iRow] = value
             else:
                 # IMPLEMENTATION 1: Use numpy's datetime64.
-                columnArray = np.full(nRows,
-                                      np.datetime64('nat'),
-                                      dtype='datetime64[ms]')
+                columnArray = np.full(
+                    nRows,
+                    np.datetime64('nat'),
+                    dtype='datetime64[ms]',
+                )
                 # NOTE: Must iterate over rows to handle special string "null".
                 #   PROPOSAL: Replace string "null"-->"NaT" first, and then
                 #             use vectorization?
@@ -223,7 +226,8 @@ dst : Dictionary of numpy arrays.
                     if columnList[iRow] != 'null':
                         columnArray[iRow] = np.datetime64(
                             columnList[iRow],
-                            'ms')
+                            'ms',
+                        )
 
         elif colName == 'item_version':
             for value in columnList:
@@ -244,7 +248,8 @@ dst : Dictionary of numpy arrays.
     beginTimeFnArray = np.full(
                         nRows,
                         np.datetime64('nat'),
-                        dtype='datetime64[ms]')
+                        dtype='datetime64[ms]',
+    )
     for iRow in range(nRows):
         fileName = filenameArray[iRow]
         di = erikpgjohansson.solo.utils.parse_dataset_filename(fileName)
@@ -338,9 +343,11 @@ likely good enough.
 
 
 
-def download_latest_dataset(dataItemId, fileParentPath,
-                            expectedFileName=None, expectedFileSize=None,
-                            debugCreateEmptyFile=False):
+def download_latest_dataset(
+    dataItemId, fileParentPath,
+    expectedFileName=None, expectedFileSize=None,
+    debugCreateEmptyFile=False,
+):
     '''
 Download the latest version of a particular dataset.
 
@@ -404,8 +411,11 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
     if expectedFileName:
         if expectedFileName != fileName:
             raise Exception(
-                ('Filename returned from HTTP response "{0}" is not equal to'+
-                ' expected filenames "{1}".').format(fileName, expectedFileName))
+                (
+                    'Filename returned from HTTP response "{0}" is not equal to'+
+                    ' expected filenames "{1}".'
+                ).format(fileName, expectedFileName),
+            )
 
     filePath = os.path.join(fileParentPath, fileName)
 
@@ -427,8 +437,12 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
             fileSize = os.stat(filePath).st_size
             if fileSize != expectedFileSize:
                 raise Exception(
-                    ('Size of downloaded file ("{0}"; {1} bytes) is not equal to'+
-                    ' expected file size ({2} bytes.').format(
-                        fileName, fileSize, expectedFileSize))
+                    (
+                        'Size of downloaded file ("{0}"; {1} bytes) is not equal to'+
+                        ' expected file size ({2} bytes.'
+                    ).format(
+                        fileName, fileSize, expectedFileSize,
+                    ),
+                )
 
     return filePath

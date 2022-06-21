@@ -61,7 +61,7 @@ def sync():
         datasetsSubsetFunc      = _IRFU_datasets_include_func,
         downloadLogFormat       = 'long',
         deleteOutsideSubset     = True,
-        nMaxNetDatasetsToRemove = 25
+        nMaxNetDatasetsToRemove = 25,
     )
 
     # 2021-12-17: "AssertionError: Net number of datasets to remove (25) is

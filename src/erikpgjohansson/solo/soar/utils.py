@@ -173,13 +173,15 @@ bi : numpy array
 
 
 
-def download_latest_datasets_batch(itemIdArray,
-                                   fileSizeArray,
-                                   outputDirPath,
-                                   logFormat='long',
-                                   downloadByIncrFileSize=False,
-                                   debugDownloadingEnabled=True,
-                                   debugCreateEmptyFiles=False):
+def download_latest_datasets_batch(
+    itemIdArray,
+    fileSizeArray,
+    outputDirPath,
+    logFormat='long',
+    downloadByIncrFileSize=False,
+    debugDownloadingEnabled=True,
+    debugCreateEmptyFiles=False,
+):
     '''
 Download latest versions of datasets (multiple ones), for selected item ID's.
 Will likely overwrite pre-existing files (not checked).
@@ -239,13 +241,17 @@ PROPOSAL: Keyword argument for file-size sorted download.
         fileSize = fileSizeArray[i]
 
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print('{0}: Downloading: {1:.2f} [MiB], {2}'.format(
-            nowStr, fileSize/2**20, itemId))
+        print(
+            '{0}: Downloading: {1:.2f} [MiB], {2}'.format(
+            nowStr, fileSize/2**20, itemId,
+            ),
+        )
         if debugDownloadingEnabled:
             erikpgjohansson.solo.soar.soar.download_latest_dataset(
                 itemId,
                 outputDirPath,
-                debugCreateEmptyFile=debugCreateEmptyFiles)
+                debugCreateEmptyFile=debugCreateEmptyFiles,
+            )
 
         # NOTE: Doing statistics AFTER downloading file. Could also be done
         # BEFORE downloading. Note that this uses another timestamp
@@ -261,21 +267,36 @@ PROPOSAL: Keyword argument for file-size sorted download.
         completionDt     = StartDt + SoFarTd + RemainingTimeTd
 
         if logFormat == 'long':
-            print('So far:        {0:.2f} [MiB] of {1:.2f} [MiB]'.format(
+            print(
+                'So far:        {0:.2f} [MiB] of {1:.2f} [MiB]'.format(
                 soFarBytes / 2**20,
-                totalBytes / 2**20))
-            print('               {0:.2f} [s] = {1}'.format(
+                totalBytes / 2**20,
+                ),
+            )
+            print(
+                '               {0:.2f} [s] = {1}'.format(
                 soFarSec,
-                SoFarTd))
-            print('               {0:.2f} [MiB/s], on average'.format(
-                soFarBytes/soFarSec / 2**20))
+                SoFarTd,
+                ),
+            )
+            print(
+                '               {0:.2f} [MiB/s], on average'.format(
+                soFarBytes/soFarSec / 2**20,
+                ),
+            )
 
-            print('Remainder:     {0:.2f} [MiB] of {1:.2f} [MiB]'.format(
+            print(
+                'Remainder:     {0:.2f} [MiB] of {1:.2f} [MiB]'.format(
                 remainingBytes / 2**20,
-                totalBytes     / 2**20))
-            print('               {0:.0f} [s] = {1} (prediction)'.format(
+                totalBytes     / 2**20,
+                ),
+            )
+            print(
+                '               {0:.0f} [s] = {1} (prediction)'.format(
                 remainingTimeSec,
-                RemainingTimeTd))
+                RemainingTimeTd,
+                ),
+            )
             print('Expected completion at: {0} (prediction)'.format(completionDt))
         else:
             assert logFormat == 'short'
@@ -319,16 +340,19 @@ bLvArray : 1D numpy bool array.
     # ==> Want to assert for this.
     #import pdb; pdb.set_trace()
     erikpgjohansson.solo.soar.utils.assert_col_array(
-        itemIdArray,     np.dtype('O'))
+        itemIdArray,     np.dtype('O'),
+    )
     erikpgjohansson.solo.soar.utils.assert_col_array(
-        itemVerNbrArray, np.dtype('int64'))
+        itemVerNbrArray, np.dtype('int64'),
+    )
     assert itemIdArray.shape == itemVerNbrArray.shape
 
 
 
     # NOTE: itemIdArray[iUniques] == uniqItemIdArray
     (uniqItemIdArray, iUniques, jInverse, uniqueCounts) = np.unique(
-        itemIdArray, return_index=1, return_inverse=1, return_counts=1)
+        itemIdArray, return_index=1, return_inverse=1, return_counts=1,
+    )
 
     # Datasets that should ultimately be kept.
     bLvArray = np.full(itemIdArray.size, False)   # Create same-sized array.
@@ -349,8 +373,10 @@ bLvArray : 1D numpy bool array.
 
             assert i.size == 1, (
                 'Found multiple datasets with itemId = {0}'
-                +' with the same highest version number V{2:d}.').format(
-                uii, uiiLv)
+                +' with the same highest version number V{2:d}.'
+            ).format(
+                uii, uiiLv,
+            )
 
             bLvArray[i] = True
 
@@ -398,8 +424,9 @@ dst
             # IMPLEMENTATION NOTE: parse_dataset_filename() returns None for
             # non-parsable filenames.
             if di:
-                (_dataSrc, level, instrument, _descriptor
-                 ) = erikpgjohansson.solo.utils.parse_DATASET_ID(di['DATASET_ID'])
+                (
+                    _dataSrc, level, instrument, _descriptor,
+                ) = erikpgjohansson.solo.utils.parse_DATASET_ID(di['DATASET_ID'])
 
                 filePath = os.path.join(dirPath, fileName)
                 filePathList    += [filePath]
@@ -425,8 +452,8 @@ dst
         'file_size'       :np.array(fileSizeList,    dtype=np.int),
         'begin_time_FN'   :np.array(beginTimeFnList, dtype='datetime64[ms]'),
         'instrument'      :np.array(instrumentList,  dtype=object),
-        'processing_level':np.array(levelList,       dtype=object)
-        }
+        'processing_level':np.array(levelList,       dtype=object),
+    }
     # NOTE: Column name "processing_level" chose to be in agreement with
     # erikpgjohansson.solo.soar.soar.download_SOAR_DST().
 
@@ -436,8 +463,10 @@ dst
 
 
 
-def filter_DST(dst, levelsSet=None, instrumentsSet=None,
-               intervalTimeStrs=None):
+def filter_DST(
+    dst, levelsSet=None, instrumentsSet=None,
+    intervalTimeStrs=None,
+):
     '''
 General-purpose customizable DST filter. In particular for manualy selecting
 which subset of datasets that should be downloaded or synced. Datasets in DST
@@ -489,9 +518,13 @@ def log_DST(dst):
     print(    'Totals: Unique instruments:       ' + str(set(dst['instrument'])))
     print(    '        Unique processing levels: ' + str(set(dst['processing_level'])))
     print(    '                                  {0:d} datasets'.format(
-        dst['file_size'].size))
+        dst['file_size'].size,
+    ),
+    )
     print(    '                                  {0:.2f} [GiB]'.format(
-        totalBytes / 2**30))
+        totalBytes / 2**30,
+    ),
+    )
     if nonNullBta.size > 0:
         print('   begin_time_FN (non-null): Min: ' + str(nonNullBta.min()))
         print('                             Max: ' + str(nonNullBta.max()))
@@ -530,10 +563,12 @@ def download_batch___MTEST(fileParentPath):
     (dst, _JsonDict) = erikpgjohansson.solo.soar.soar.download_SOAR_DST()
     bLv = find_latest_versions(dst['item_ID'], dst['item_version'])
     dst = index_DST(dst, bLv)
-    dst = filter_DST(dst,
-                     levelsSet=['L2'],
-                     instrumentsSet=['MAG'],
-                     intervalTimeStrs=('2020-07-01', '2020-07-01 12:00:00'))
+    dst = filter_DST(
+        dst,
+        levelsSet=['L2'],
+        instrumentsSet=['MAG'],
+        intervalTimeStrs=('2020-07-01', '2020-07-01 12:00:00'),
+    )
 
     download_latest_datasets_batch(dst['item_id'], dst['file_size'], fileParentPath)
 
@@ -562,13 +597,17 @@ def download_batch___MANUAL():
 
     ######################
     intervalTimeStrs = ('2020-09-01', '2021-07-01 12:00:00')
-    dst2 = filter_DST(dst, levelsSet=['L1', 'L2'],
-                           instrumentsSet=['SWA', 'EPD'],
-                           intervalTimeStrs=intervalTimeStrs)
+    dst2 = filter_DST(
+        dst, levelsSet=['L1', 'L2'],
+        instrumentsSet=['SWA', 'EPD'],
+        intervalTimeStrs=intervalTimeStrs,
+    )
     log_DST(dst2)
-    download_latest_datasets_batch(dst2['item_id'],
-                                   dst2['file_size'],
-                                   OUTPUT_DIR,
-                                   downloadByIncrFileSize=False,
-                                   debugDownloadingEnabled=True)
+    download_latest_datasets_batch(
+        dst2['item_id'],
+        dst2['file_size'],
+        OUTPUT_DIR,
+        downloadByIncrFileSize=False,
+        debugDownloadingEnabled=True,
+    )
     ######################

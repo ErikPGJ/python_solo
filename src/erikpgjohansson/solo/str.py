@@ -179,8 +179,11 @@ Initially created 2020-10-14 by Erik P G Johansson.
     elif nonmatch_policy == 'permit non-match':
         assert_match = False
     else:
-        raise Exception('Illegal argument nonmatch_policy="{}".'.format(
-            nonmatch_policy))
+        raise Exception(
+            'Illegal argument nonmatch_policy="{}".'.format(
+            nonmatch_policy,
+            ),
+        )
 
     if search_dir == 1:
         modify_substr_list = lambda ssl : ssl
@@ -202,14 +205,17 @@ Initially created 2020-10-14 by Erik P G Johansson.
         # i_re, and
         # j_rt_re  (RE=read_token).
         (token, remaining_str, j_rt_re) = read_token(
-            remaining_str, [regexp_list[i_re]], search_dir)
+            remaining_str, [regexp_list[i_re]], search_dir,
+        )
 
         if j_rt_re == -1:
             if assert_match:
                 raise Exception(
                     'Failed to match regular expression'
                     +' {0:d}="{1}" in argument string "{2}".'.format(
-                        i_re, regexp_list[i_re], s))
+                        i_re, regexp_list[i_re], s,
+                    ),
+                )
             else:
                 return create_return_result(substr_list, remaining_str, False)
 
@@ -223,7 +229,8 @@ Initially created 2020-10-14 by Erik P G Johansson.
             # Bad error message if "s" is very long (e.g. file).
             raise Exception(
                 'Could not match entire argument string '+
-                '"{0}"'.format(s))
+                '"{0}"'.format(s),
+            )
         else:
             return create_return_result(substr_list, remaining_str, False)
 

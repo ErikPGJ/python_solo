@@ -108,7 +108,8 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
 
     if level in ['L2', 'L3']:
         dtdn = erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
-            datasetId, includeInstrument=dtdnInclInstrument)
+            datasetId, includeInstrument=dtdnInclInstrument,
+        )
         return os.path.join(instrDirName, level, dtdn, yearStr, monthStr)
     elif level in ['L1', 'L1R']:
         return os.path.join(instrDirName, level, yearStr, monthStr, domStr)
@@ -131,53 +132,101 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     # [i][j][0] = DATASET_ID
     # [i][j][1] = DTDN
     L2_L3_DSI_TO_DTDN = (
-        ({'SOLO_L2_RPW-LFR-SURV-CWF-B',
-          'SOLO_L2_RPW-LFR-SURV-SWF-B'},  'lfr_wf_b'),
-        ({'SOLO_L2_RPW-LFR-SBM1-CWF-E',
-          'SOLO_L2_RPW-LFR-SBM2-CWF-E',
-          'SOLO_L2_RPW-LFR-SURV-CWF-E',
-          'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',
-          'SOLO_L2_RPW-LFR-SURV-SWF-E'},  'lfr_wf_e'),
+        (
+            {
+                'SOLO_L2_RPW-LFR-SURV-CWF-B',
+                'SOLO_L2_RPW-LFR-SURV-SWF-B',
+            },  'lfr_wf_b',
+        ),
+        (
+            {
+                'SOLO_L2_RPW-LFR-SBM1-CWF-E',
+                'SOLO_L2_RPW-LFR-SBM2-CWF-E',
+                'SOLO_L2_RPW-LFR-SURV-CWF-E',
+                'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',
+                'SOLO_L2_RPW-LFR-SURV-SWF-E',
+            },  'lfr_wf_e',
+        ),
         ({'SOLO_L2_RPW-LFR-SURV-ASM'},    'lfr_asm'),
-        ({'SOLO_L2_RPW-LFR-SURV-BP1',
-          'SOLO_L2_RPW-LFR-SURV-BP2'},    'lfr_bp'),
-        ({'SOLO_L2_RPW-TDS-LFM-CWF-B',
-          'SOLO_L2_RPW-TDS-LFM-CWF-E',
-          'SOLO_L2_RPW-TDS-LFM-RSWF-B',
-          'SOLO_L2_RPW-TDS-LFM-RSWF-E',
-          'SOLO_L2_RPW-TDS-LFM-PSDSM'}, 'tds_lfm'),   # AMBIGUOUS for some: tds_lfm or tds_wf_b/e
+        (
+            {
+                'SOLO_L2_RPW-LFR-SURV-BP1',
+                'SOLO_L2_RPW-LFR-SURV-BP2',
+            },    'lfr_bp',
+        ),
+        (
+            {
+                'SOLO_L2_RPW-TDS-LFM-CWF-B',
+                'SOLO_L2_RPW-TDS-LFM-CWF-E',
+                'SOLO_L2_RPW-TDS-LFM-RSWF-B',
+                'SOLO_L2_RPW-TDS-LFM-RSWF-E',
+                'SOLO_L2_RPW-TDS-LFM-PSDSM',
+            }, 'tds_lfm',
+        ),   # AMBIGUOUS for some: tds_lfm or tds_wf_b/e
         ({'SOLO_L2_RPW-TDS-SURV-HIST1D'}, 'tds_hist1d'),
         ({'SOLO_L2_RPW-TDS-SURV-HIST2D'}, 'tds_hist2d'),
         ({'SOLO_L2_RPW-TDS-SURV-MAMP'},   'tds_mamp'),
         ({'SOLO_L2_RPW-TDS-SURV-STAT'},   'tds_stat'),
-        ({'SOLO_L2_RPW-TDS-SURV-RSWF-B',
-          'SOLO_L2_RPW-TDS-SURV-TSWF-B'}, 'tds_wf_b'),
-        ({'SOLO_L2_RPW-TDS-SURV-RSWF-E',
-          'SOLO_L2_RPW-TDS-SURV-TSWF-E'}, 'tds_wf_e'),
-        ({'SOLO_L2_RPW-HFR-SURV',
-          'SOLO_L2_RPW-TNR-SURV'},        'thr'),
+        (
+            {
+                'SOLO_L2_RPW-TDS-SURV-RSWF-B',
+                'SOLO_L2_RPW-TDS-SURV-TSWF-B',
+            }, 'tds_wf_b',
+        ),
+        (
+            {
+                'SOLO_L2_RPW-TDS-SURV-RSWF-E',
+                'SOLO_L2_RPW-TDS-SURV-TSWF-E',
+            }, 'tds_wf_e',
+        ),
+        (
+            {
+                'SOLO_L2_RPW-HFR-SURV',
+                'SOLO_L2_RPW-TNR-SURV',
+            },        'thr',
+        ),
         ({'SOLO_L3_RPW-TNR-FP'},          'tnr_fp'),
-        ({'SOLO_L3_RPW-BIA-EFIELD',
-          'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS'},  'lfr_efield'),
-        ({'SOLO_L3_RPW-BIA-SCPOT',
-          'SOLO_L3_RPW-BIA-SCPOT-10-SECONDS'},   'lfr_scpot'),
-        ({'SOLO_L3_RPW-BIA-DENSITY',
-          'SOLO_L3_RPW-BIA-DENSITY-10-SECONDS'}, 'lfr_density'))
+        (
+            {
+                'SOLO_L3_RPW-BIA-EFIELD',
+                'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',
+            },  'lfr_efield',
+        ),
+        (
+            {
+                'SOLO_L3_RPW-BIA-SCPOT',
+                'SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',
+            },   'lfr_scpot',
+        ),
+        (
+            {
+                'SOLO_L3_RPW-BIA-DENSITY',
+                'SOLO_L3_RPW-BIA-DENSITY-10-SECONDS',
+            }, 'lfr_density',
+        ),
+    )
 
 
 
-    (dataSrc, level, instrument, descriptor
-     ) = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
+    (
+        dataSrc, level, instrument, descriptor,
+    ) = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
 
 
     # ASSERTIONS
     if not datasetId.upper() == datasetId:
-        raise Exception('Not uppercase datasetId="{0}"'.format(
-            datasetId))
+        raise Exception(
+            'Not uppercase datasetId="{0}"'.format(
+            datasetId,
+            ),
+        )
     if not level in set(['L2', 'L3']):
-        raise Exception('Can not generate DTDN for level={0}, datasetId="{1}"'.format(
-            level, datasetId))
+        raise Exception(
+            'Can not generate DTDN for level={0}, datasetId="{1}"'.format(
+            level, datasetId,
+            ),
+        )
 
 
 
@@ -196,7 +245,8 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
 
     # Derive DTDN from DATASET_ID descriptor.
     (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-        descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match')
+        descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match',
+    )
 
     if not isPerfectMatch:
         raise Exception('Can not handle datasetId="{}".'.format(datasetId))
@@ -213,10 +263,12 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
 
 
 
-def copy_move_datasets_to_irfu_dir_tree(mode, sourceDir, destDir,
-                                        dirCreationPermissions=0o775,
-                                        dtdnInclInstrument=True,
-                                        instrDirCase='lower'):
+def copy_move_datasets_to_irfu_dir_tree(
+    mode, sourceDir, destDir,
+    dirCreationPermissions=0o775,
+    dtdnInclInstrument=True,
+    instrDirCase='lower',
+):
     '''
 ~Utility
 
@@ -368,18 +420,23 @@ None.
     #   String to be printed: "Copying", "Moving".
     # maxLenOp : implicit argument.
     def copy_move_file(cmFunc, verbStr, oldPath, newDirPath):
-        print('{0} file: {1:<{3}} --> {2}'.format(
-            verbStr, oldPath, newDirPath, maxLenOp))
+        print(
+            '{0} file: {1:<{3}} --> {2}'.format(
+            verbStr, oldPath, newDirPath, maxLenOp,
+            ),
+        )
         cmFunc(oldPath, newDirPath)
 
 
 
     if mode == 'copy':
         copyMoveFileFh = lambda oldPath, newDirPath : copy_move_file(
-            copy_file, 'Copying', oldPath, newDirPath)
+            copy_file, 'Copying', oldPath, newDirPath,
+        )
     elif mode == 'move':
         copyMoveFileFh = lambda oldPath, newDirPath : copy_move_file(
-            move_file, 'Moving', oldPath, newDirPath)
+            move_file, 'Moving', oldPath, newDirPath,
+        )
     else:
         raise Exception('Illegal mode="{}".'.format(mode))
 
@@ -400,7 +457,8 @@ None.
             relDirPath = erikpgjohansson.solo.iddt.get_IDDT_subdir(
                 filename,
                 dtdnInclInstrument=dtdnInclInstrument,
-                instrDirCase=instrDirCase)
+                instrDirCase=instrDirCase,
+            )
             if relDirPath:
                 newDirPath = os.path.join(destDir, relDirPath)
                 newPath    = os.path.join(newDirPath, filename)
@@ -408,8 +466,11 @@ None.
                 pathTable.append((newDirPath, oldPath, newPath))
 
             else:
-                print('Can not identify file and therefore not copy/move it: {0}'.format(
-                    oldPath))
+                print(
+                    'Can not identify file and therefore not copy/move it: {0}'.format(
+                    oldPath,
+                    ),
+                )
 
     '''==============================
     Create directories and move files

@@ -124,17 +124,21 @@ def bash_wrapper(argList):
     del argList
 
 
-    main(fileList,
-         includeSweeps         = includeSweeps,
-         includeLoadSweepTable = includeLoadSweepTable,
-         includeBiasSetting    = includeBiasSetting)
+    main(
+        fileList,
+        includeSweeps         = includeSweeps,
+        includeLoadSweepTable = includeLoadSweepTable,
+        includeBiasSetting    = includeBiasSetting,
+    )
 
 
 
-def main(fileList,
-         includeSweeps         = False,
-         includeLoadSweepTable = False,
-         includeBiasSetting    = False):
+def main(
+    fileList,
+    includeSweeps         = False,
+    includeLoadSweepTable = False,
+    includeBiasSetting    = False,
+):
     '''
     Main function
 
@@ -159,7 +163,8 @@ def main(fileList,
     for (fileDict1, fileDict2) in zip(fileDictList[:-1], fileDictList[1:]):
         assert fileDict1['DtLast'] < fileDict2['DtFirst'],\
             'Files\n{0}\nand\n{1} overlap in time.'.format(
-                fileDict1['filePath'], fileDict2['filePath'])
+                fileDict1['filePath'], fileDict2['filePath'],
+            )
 
 
 
@@ -231,10 +236,12 @@ def main(fileList,
                 # Includes both sweeps and calibration sweeps.
                 p = p or re.fullmatch(
                     'Configure and execute the BIAS sweep Part .*',
-                    seqDescr)
+                    seqDescr,
+                )
                 p = p or re.fullmatch(
                     'Run BIAS Calibration Part .*',
-                    seqDescr)
+                    seqDescr,
+                )
             if includeLoadSweepTable:
                 p = p or 'CP_DPU_BIA_SWEEP_STEP_NR'    == descr
                 p = p or 'CP_DPU_BIA_SWEEP_STEP_CUR'   == descr
@@ -284,7 +291,8 @@ def print_row(dataDict, colWidthDict, iRow):
     if execTimeStr:
         Dt = datetime.datetime.strptime(
             execTimeStr,
-            CSV_EXECUTION_TIME_FORMAT)
+            CSV_EXECUTION_TIME_FORMAT,
+        )
 
         # YMD = Year-Month-Day (as opposed to Year-Doy)
         execTimeYmdStr = Dt.strftime('(%Y-%m-%d)')
@@ -296,26 +304,40 @@ def print_row(dataDict, colWidthDict, iRow):
     #===========================
     strList = []
     strList.append('{0:4}'.format(iRow))
-    strList.append('{0:12} {1:2}{2:{3}}'.format(
+    strList.append(
+        '{0:12} {1:2}{2:{3}}'.format(
         execTimeYmdStr,
         preExecTimeStr,
         execTimeStr,
         colWidthDict['Execution Time'],
-        ))
-    strList.append('{0:{1}}'.format(
+        ),
+    )
+    strList.append(
+        '{0:{1}}'.format(
         dataDict['Description'][iRow],
-        colWidthDict['Description']))
-    strList.append('{0:{1}}'.format(
+        colWidthDict['Description'],
+        ),
+    )
+    strList.append(
+        '{0:{1}}'.format(
         dataDict['MD'][iRow],
-        colWidthDict['MD']))
+        colWidthDict['MD'],
+        ),
+    )
     # IMPLEMENTATION NOTE: colWidthDict['SSID'] is much greater than necessary
     # for values actually printed (empirically).
     # Therefore uses hardcoded column width.
-    strList.append('{0:7}'.format(
-        dataDict['SSID'][iRow]))
-    strList.append('{0:{1}}'.format(
+    strList.append(
+        '{0:7}'.format(
+        dataDict['SSID'][iRow],
+        ),
+    )
+    strList.append(
+        '{0:{1}}'.format(
         dataDict['Seq. Descr.'][iRow],
-        colWidthDict['Seq. Descr.']))
+        colWidthDict['Seq. Descr.'],
+        ),
+    )
 
     #=======
     # Print
@@ -352,7 +374,8 @@ def read_TC_csv_file(filePath):
 
     fileDictExtra = {
         'DtFirst':  DtFirst,
-        'DtLast':   DtLast}
+        'DtLast':   DtLast,
+    }
     fileDict = {**fileDict, **fileDictExtra}
 
     return fileDict
@@ -399,22 +422,26 @@ def read_CSV_file(filePath):
         nColsThisRow = len(strListList[iFileRow])
         assert nColsThisRow == nCols,\
             'Number of columns on row {0} (0=first) (nColsThisRow={1})'.format(
-                iFileRow, nColsThisRow)\
+                iFileRow, nColsThisRow,
+            )\
             +' differs from preceding rows (nCols={0}).\nFile: {1}'.format(
-                nCols, filePath)
+                nCols, filePath,
+            )
 
     # Create: dataDict[colName][iRow]
     dataDict        = {}
     colMaxWidthDict = {}
     for colName, iCol in zip(colNameList, range(nCols)):
         dataDict[colName] = [
-            strListList[iCsvRow][iCol] for iCsvRow in range(1, nFileRows)]
+            strListList[iCsvRow][iCol] for iCsvRow in range(1, nFileRows)
+        ]
         colMaxWidthDict[colName] = max([len(s) for s in dataDict[colName]])
 
     return {
         'dataDict':        dataDict,
         'nDataRows':       nFileRows-1,
-        'colMaxWidthDict': colMaxWidthDict}
+        'colMaxWidthDict': colMaxWidthDict,
+    }
 
 
 

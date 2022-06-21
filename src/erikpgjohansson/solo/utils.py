@@ -90,33 +90,39 @@ def parse_dataset_filename(filename):
         (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
             ['[0-9]{8,8}'],
-            1, 'permit non-match')
+            1, 'permit non-match',
+        )
         if isPerfectMatch:
             return parse_YYYYMMDD(timeIntervalStr) + (0, 0, 0.0)
 
         (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
             ['[0-9]{8,8}', '-', '[0-9]{8,8}'],
-            1, 'permit non-match')
+            1, 'permit non-match',
+        )
         if isPerfectMatch:
             return parse_YYYYMMDD(substrList[0]) + (0, 0, 0.0)
 
         (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
             ['[0-9]{8,8}T[0-9]{6,9}'],
-            1, 'permit non-match')
+            1, 'permit non-match',
+        )
         if isPerfectMatch:
             return parse_YYYYMMDDThhmmssxyz(substrList[0])
 
         (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
             ['[0-9]{8,8}T[0-9]{6,6}', '-', '[0-9]{8,8}T[0-9]{6,6}'],
-            1, 'permit non-match')
+            1, 'permit non-match',
+        )
         if isPerfectMatch:
             return parse_YYYYMMDDThhmmssxyz(substrList[0])
 
-        raise Exception('Can not parse time interval string "{}" in filename "{}".'
-                        .format(timeIntervalStr, filename))
+        raise Exception(
+            'Can not parse time interval string "{}" in filename "{}".'
+            .format(timeIntervalStr, filename),
+        )
 
 
 
@@ -124,9 +130,12 @@ def parse_dataset_filename(filename):
     # /SOL-SGS-TN-0009 MetadataStandard
     (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
         filename,
-        ['.*', '(|-cdag|-CDAG)', '_', '[0-9T-]{8,31}', '_V', '[0-9][0-9]+',
-         '[CIU]?', r'(\.cdf|\.fits)'],
-        -1, 'permit non-match')
+        [
+            '.*', '(|-cdag|-CDAG)', '_', '[0-9T-]{8,31}', '_V', '[0-9][0-9]+',
+            '[CIU]?', r'(\.cdf|\.fits)',
+        ],
+        -1, 'permit non-match',
+    )
 
     if not isPerfectMatch:
         return None
@@ -141,11 +150,13 @@ def parse_dataset_filename(filename):
     assert len(tv1) == 6
     assert type(tv1[5]) == float
 
-    d = {'DATASET_ID':           datasetId,
-         'time interval string': timeIntervalStr,
-         'version string':       versionStr,
-         'time vector 1':        tv1,
-         'item ID':              itemId}
+    d = {
+        'DATASET_ID':           datasetId,
+        'time interval string': timeIntervalStr,
+        'version string':       versionStr,
+        'time vector 1':        tv1,
+        'item ID':              itemId,
+    }
     return d
 
 
@@ -199,9 +210,12 @@ def parse_DATASET_ID(datasetId):
     # NOTE: Only identifies -CDAG to giver custom error message.
     (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
         datasetId,
-        ['(SOLO|RGTS)', '_', '(LL02|HK|L1|L1R|L2|L3)', '_',
-         '[A-Z]+', '-[A-Z0-9-]+', '(|-CDAG)'],
-        -1, 'permit non-match')
+        [
+            '(SOLO|RGTS)', '_', '(LL02|HK|L1|L1R|L2|L3)', '_',
+            '[A-Z]+', '-[A-Z0-9-]+', '(|-CDAG)',
+        ],
+        -1, 'permit non-match',
+    )
 
     # ASSERTIONS
     if not isPerfectMatch:
@@ -209,7 +223,8 @@ def parse_DATASET_ID(datasetId):
     cdagStr = substrList[-1]
     if cdagStr:
         raise Exception(
-            'Illegal datasetId="{}" that contains "-CDAG".'.format(datasetId))
+            'Illegal datasetId="{}" that contains "-CDAG".'.format(datasetId),
+        )
 
     dataSrc    = substrList[0]
     level      = substrList[2]
