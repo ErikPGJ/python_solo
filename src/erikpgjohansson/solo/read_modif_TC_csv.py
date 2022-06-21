@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Utility for (human) reading arbitrary many, non-overlapping RPW TC .csv files
 (e.g. solo_STP124_rpw_20201130_20201206_V01.csv).
@@ -162,7 +161,7 @@ def main(
     # (Assumes they are sorted in time internally.)
     for (fileDict1, fileDict2) in zip(fileDictList[:-1], fileDictList[1:]):
         assert fileDict1['DtLast'] < fileDict2['DtFirst'],\
-            'Files\n{0}\nand\n{1} overlap in time.'.format(
+            'Files\n{}\nand\n{} overlap in time.'.format(
                 fileDict1['filePath'], fileDict2['filePath'],
             )
 
@@ -303,7 +302,7 @@ def print_row(dataDict, colWidthDict, iRow):
     # Select and format columns
     #===========================
     strList = []
-    strList.append('{0:4}'.format(iRow))
+    strList.append(f'{iRow:4}')
     strList.append(
         '{0:12} {1:2}{2:{3}}'.format(
         execTimeYmdStr,
@@ -328,7 +327,7 @@ def print_row(dataDict, colWidthDict, iRow):
     # for values actually printed (empirically).
     # Therefore uses hardcoded column width.
     strList.append(
-        '{0:7}'.format(
+        '{:7}'.format(
         dataDict['SSID'][iRow],
         ),
     )
@@ -421,10 +420,10 @@ def read_CSV_file(filePath):
     for iFileRow in range(1, nFileRows):
         nColsThisRow = len(strListList[iFileRow])
         assert nColsThisRow == nCols,\
-            'Number of columns on row {0} (0=first) (nColsThisRow={1})'.format(
+            'Number of columns on row {} (0=first) (nColsThisRow={})'.format(
                 iFileRow, nColsThisRow,
             )\
-            +' differs from preceding rows (nCols={0}).\nFile: {1}'.format(
+            +' differs from preceding rows (nCols={}).\nFile: {}'.format(
                 nCols, filePath,
             )
 
@@ -435,7 +434,7 @@ def read_CSV_file(filePath):
         dataDict[colName] = [
             strListList[iCsvRow][iCol] for iCsvRow in range(1, nFileRows)
         ]
-        colMaxWidthDict[colName] = max([len(s) for s in dataDict[colName]])
+        colMaxWidthDict[colName] = max(len(s) for s in dataDict[colName])
 
     return {
         'dataDict':        dataDict,

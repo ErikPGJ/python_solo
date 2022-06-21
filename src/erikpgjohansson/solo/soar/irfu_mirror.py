@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Code for implementing the "official" IRFU-internal SOAR data mirror.
 

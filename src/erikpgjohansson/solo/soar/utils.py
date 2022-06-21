@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Utilities related to using SOAR, but not for connecting to SOAR directly.
 Includes functionality for syncing SOAR data (for now).
@@ -242,7 +241,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
 
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(
-            '{0}: Downloading: {1:.2f} [MiB], {2}'.format(
+            '{}: Downloading: {:.2f} [MiB], {}'.format(
             nowStr, fileSize/2**20, itemId,
             ),
         )
@@ -268,36 +267,36 @@ PROPOSAL: Keyword argument for file-size sorted download.
 
         if logFormat == 'long':
             print(
-                'So far:        {0:.2f} [MiB] of {1:.2f} [MiB]'.format(
+                'So far:        {:.2f} [MiB] of {:.2f} [MiB]'.format(
                 soFarBytes / 2**20,
                 totalBytes / 2**20,
                 ),
             )
             print(
-                '               {0:.2f} [s] = {1}'.format(
+                '               {:.2f} [s] = {}'.format(
                 soFarSec,
                 SoFarTd,
                 ),
             )
             print(
-                '               {0:.2f} [MiB/s], on average'.format(
+                '               {:.2f} [MiB/s], on average'.format(
                 soFarBytes/soFarSec / 2**20,
                 ),
             )
 
             print(
-                'Remainder:     {0:.2f} [MiB] of {1:.2f} [MiB]'.format(
+                'Remainder:     {:.2f} [MiB] of {:.2f} [MiB]'.format(
                 remainingBytes / 2**20,
                 totalBytes     / 2**20,
                 ),
             )
             print(
-                '               {0:.0f} [s] = {1} (prediction)'.format(
+                '               {:.0f} [s] = {} (prediction)'.format(
                 remainingTimeSec,
                 RemainingTimeTd,
                 ),
             )
-            print('Expected completion at: {0} (prediction)'.format(completionDt))
+            print(f'Expected completion at: {completionDt} (prediction)')
         else:
             assert logFormat == 'short'
 
@@ -517,11 +516,11 @@ def log_DST(dst):
     print('='*80)
     print(    'Totals: Unique instruments:       ' + str(set(dst['instrument'])))
     print(    '        Unique processing levels: ' + str(set(dst['processing_level'])))
-    print(    '                                  {0:d} datasets'.format(
+    print(    '                                  {:d} datasets'.format(
         dst['file_size'].size,
     ),
     )
-    print(    '                                  {0:.2f} [GiB]'.format(
+    print(    '                                  {:.2f} [GiB]'.format(
         totalBytes / 2**30,
     ),
     )

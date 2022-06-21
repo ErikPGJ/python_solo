@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Utilities for synching SOAR datasets with a local directory.
 
@@ -335,7 +334,7 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
         erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst) \
       - erikpgjohansson.solo.soar.utils.nRows_DST(soarMissingDst)
     assert nNetDatasetsToRemove <= nMaxNetDatasetsToRemove, \
-        'Net number of datasets to remove ({0}) is larger than permitted ({1}). This might indicate a bug or configuration error. This assertion is a failsafe.'.format(
+        'Net number of datasets to remove ({}) is larger than permitted ({}). This might indicate a bug or configuration error. This assertion is a failsafe.'.format(
             nNetDatasetsToRemove, nMaxNetDatasetsToRemove,
         )
 
@@ -344,7 +343,7 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
     #===========================
     # Download missing datasets
     #===========================
-    print('Downloading {0} datasets'.format(soarMissingDst['item_id'].size))
+    print('Downloading {} datasets'.format(soarMissingDst['item_id'].size))
     if DEBUG_DOWNLOAD_DATASETS:
         erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
             soarMissingDst['item_id'],
@@ -357,7 +356,7 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
     else:
         print('DEBUG: Disabled downloading datasets.')
         for fileName in soarMissingDst['file_name']:
-            print('Virtually downloading "{0}"'.format(fileName))
+            print(f'Virtually downloading "{fileName}"')
 
     #==============================
     # Remove (some) local datasets
@@ -367,7 +366,7 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
     # This is to avoid that bugs lead to unnecessarily deleting datasets that
     # are hard/slow to replace.
     nRows = erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst)
-    print('Removing {0} local datasets'.format(nRows))
+    print(f'Removing {nRows} local datasets')
     if DEBUG_DELETE_LOCAL_DATASETS:
         if nRows > 0:
             pathsToRemoveList = localExcessDst['file_path'].tolist()
@@ -380,7 +379,7 @@ PermissionError: [Errno 13] Permission denied: '/data/solo/soar/swa/L2/swa-eas1-
         print('DEBUG: Disabled removing local datasets.')
         for iRow in range(nRows):
             print(
-                'Virtually removing "{0}" ({1} bytes)'.format(
+                'Virtually removing "{}" ({} bytes)'.format(
                 localExcessDst['file_path'][iRow],
                 localExcessDst['file_size'][iRow],
                 ),

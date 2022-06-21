@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 ==============================================================================
 Initially created by Erik P G Johansson 2020-10-13.
@@ -212,7 +211,7 @@ Initially created 2020-10-14 by Erik P G Johansson.
             if assert_match:
                 raise Exception(
                     'Failed to match regular expression'
-                    +' {0:d}="{1}" in argument string "{2}".'.format(
+                    +' {:d}="{}" in argument string "{}".'.format(
                         i_re, regexp_list[i_re], s,
                     ),
                 )
@@ -229,7 +228,7 @@ Initially created 2020-10-14 by Erik P G Johansson.
             # Bad error message if "s" is very long (e.g. file).
             raise Exception(
                 'Could not match entire argument string '+
-                '"{0}"'.format(s),
+                f'"{s}"',
             )
         else:
             return create_return_result(substr_list, remaining_str, False)

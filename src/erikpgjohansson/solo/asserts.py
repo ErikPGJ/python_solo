@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 NOTE: Copy of subset of other module outside distribution package.
 
@@ -22,7 +21,7 @@ def path_is_available(path):
     # """"Return True if path refers to an existing path. Returns True for
     # broken symbolic links. Equivalent to exists() on platforms lacking os.lstat().""""
     assert not os.path.lexists(path), \
-        'Path "{0}" unexpectedly refers to an existing object.'.format(path)
+        f'Path "{path}" unexpectedly refers to an existing object.'
 
 
 

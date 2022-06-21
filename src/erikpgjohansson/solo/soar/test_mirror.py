@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Code for implementing a test SOAR data mirror.
 

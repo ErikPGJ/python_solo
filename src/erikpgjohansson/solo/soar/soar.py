@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Code directly related to SOAR (Solar Orbiter ARchive).
 
@@ -165,12 +164,12 @@ dst : Dictionary of numpy arrays.
         PROPOSAL: Assert that there is a non-null begin_time.
     '''
     # Columns that should be converted string-->int
-    INT_COLUMN_NAMES    = set(['file_size'])
+    INT_COLUMN_NAMES    = {'file_size'}
     # Columns that should be converted string-->string
     # (numpy array of objects).
-    STRING2INT_COLUMN_NAMES = set(['item_id'])
+    STRING2INT_COLUMN_NAMES = {'item_id'}
 
-    STR2DATETIME_COLUMN_NAMES = set(['begin_time', 'archived_on'])
+    STR2DATETIME_COLUMN_NAMES = {'begin_time', 'archived_on'}
 
     TIME_STR_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -397,7 +396,7 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
 '''
 
     # NOTE: Not a real constant since a string is inserted into it.
-    URL='http://soar.esac.esa.int/soar-sl-tap/data?data_item_id={}&retrieval_type=LAST_PRODUCT&product_type=SCIENCE'.format(dataItemId)
+    URL=f'http://soar.esac.esa.int/soar-sl-tap/data?data_item_id={dataItemId}&retrieval_type=LAST_PRODUCT&product_type=SCIENCE'
 
     assert type(dataItemId) == str
 

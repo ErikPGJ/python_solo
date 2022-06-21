@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Initially created by Erik P G Johansson 2020-10-16, IRF Uppsala, Sweden.
 '''
@@ -204,7 +203,7 @@ def parse_DATASET_ID(datasetId):
           yet).
     '''
     if not datasetId.upper() == datasetId:
-        raise Exception('Not uppercase datasetId="{}"'.format(datasetId))
+        raise Exception(f'Not uppercase datasetId="{datasetId}"')
 
     # IMPLEMENTATION NOTE: Must search backwards because of -CDAG.
     # NOTE: Only identifies -CDAG to giver custom error message.
@@ -219,11 +218,11 @@ def parse_DATASET_ID(datasetId):
 
     # ASSERTIONS
     if not isPerfectMatch:
-        raise Exception('Can not parse datasetId="{}".'.format(datasetId))
+        raise Exception(f'Can not parse datasetId="{datasetId}".')
     cdagStr = substrList[-1]
     if cdagStr:
         raise Exception(
-            'Illegal datasetId="{}" that contains "-CDAG".'.format(datasetId),
+            f'Illegal datasetId="{datasetId}" that contains "-CDAG".',
         )
 
     dataSrc    = substrList[0]

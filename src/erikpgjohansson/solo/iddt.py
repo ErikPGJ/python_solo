@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 '''
 Functionality for handling IDDT.
 
@@ -94,15 +93,15 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
 
     (junk, level, instrument, descriptor) = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
-    yearStr  = '{:04}'.format(tv1[0])
-    monthStr = '{:02}'.format(tv1[1])
-    domStr   = '{:02}'.format(tv1[2])
+    yearStr  = f'{tv1[0]:04}'
+    monthStr = f'{tv1[1]:02}'
+    domStr   = f'{tv1[2]:02}'
     if   instrDirCase == 'upper':
         instrDirName = instrument.upper()    # .lower() really unnecessary.
     elif instrDirCase == 'lower':
         instrDirName = instrument.lower()
     else:
-        raise Exception('Illegal argument value instrDirCase={0}'.format(instrDirCase))
+        raise Exception(f'Illegal argument value instrDirCase={instrDirCase}')
 
 
 
@@ -115,7 +114,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         return os.path.join(instrDirName, level, yearStr, monthStr, domStr)
     else:
         # NOTE: Includes HK.
-        raise Exception('Can not generate IDDT subdirectory for level={0}.'.format(level))
+        raise Exception(f'Can not generate IDDT subdirectory for level={level}.')
 
 
 
@@ -217,13 +216,13 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     # ASSERTIONS
     if not datasetId.upper() == datasetId:
         raise Exception(
-            'Not uppercase datasetId="{0}"'.format(
+            'Not uppercase datasetId="{}"'.format(
             datasetId,
             ),
         )
-    if not level in set(['L2', 'L3']):
+    if not level in {'L2', 'L3'}:
         raise Exception(
-            'Can not generate DTDN for level={0}, datasetId="{1}"'.format(
+            'Can not generate DTDN for level={}, datasetId="{}"'.format(
             level, datasetId,
             ),
         )
@@ -237,7 +236,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     # ASSERTION: Previous handling of special cases has already handled
     # aLL RPW L2+L3 cases.
     if instrument == 'RPW' and level in ['L2', 'L3']:
-        raise Exception('Can not handle datasetId="{}".'.format(datasetId))
+        raise Exception(f'Can not handle datasetId="{datasetId}".')
 
 
 
@@ -249,7 +248,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     )
 
     if not isPerfectMatch:
-        raise Exception('Can not handle datasetId="{}".'.format(datasetId))
+        raise Exception(f'Can not handle datasetId="{datasetId}".')
 
     if includeInstrument:
         dtdn = descriptor.lower()
@@ -404,10 +403,10 @@ None.
             # IMPLEMENTATION NOTE: "cp" can not handle source and destination
             # being the same.
             # NOTE: Can not handle paths with apostrophe.
-            cmd = "cp '{0}' '{1}'".format(oldPath, newDirPath)
+            cmd = f"cp '{oldPath}' '{newDirPath}'"
             errorCode = os.system(cmd)
             if errorCode != 0:
-                raise Exception('Copy command failed: {0}'.format(cmd))
+                raise Exception(f'Copy command failed: {cmd}')
 
     def move_file(oldPath, newDirPath):
         # NOTE: os.replace() more cross-platform than os.rename().
@@ -438,7 +437,7 @@ None.
             move_file, 'Moving', oldPath, newDirPath,
         )
     else:
-        raise Exception('Illegal mode="{}".'.format(mode))
+        raise Exception(f'Illegal mode="{mode}".')
 
     '''=================================================
     Collect directories to create and files to move/copy
@@ -467,7 +466,7 @@ None.
 
             else:
                 print(
-                    'Can not identify file and therefore not copy/move it: {0}'.format(
+                    'Can not identify file and therefore not copy/move it: {}'.format(
                     oldPath,
                     ),
                 )
