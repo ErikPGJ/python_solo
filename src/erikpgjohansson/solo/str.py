@@ -13,9 +13,7 @@ BOGIQ:
 '''
 
 
-
 import re
-
 
 
 def read_token(s, regexp_list, search_dir):
@@ -73,7 +71,8 @@ NOTE: searchDir==-1 ==> [remainingStr, token] == s
 Created 2020-10-13.
 '''
     '''
-PROPOSAL: Return string indices to remaining string, not entire remaining string.
+PROPOSAL: Return string indices to remaining string, not entire remaining
+          string.
     PRO: Potentially faster if parsing long strings, e.g. files.
 '''
 
@@ -97,10 +96,9 @@ PROPOSAL: Return string indices to remaining string, not entire remaining string
             token = mo.group(0)
             remaining_str = remaining_str_func(s, token)
 
-            return (token, remaining_str, i_regexp)
+            return token, remaining_str, i_regexp
 
-    return (None, s, -1)
-
+    return None, s, -1
 
 
 def regexp_str_parts(s, regexp_list, search_dir, nonmatch_policy):
@@ -166,9 +164,7 @@ Initially created 2020-10-14 by Erik P G Johansson.
     # Inner function for modifying the return result (multiple locations).
     def create_return_result(substr_list, remaining_str, is_perfect_match):
         substr_list = modify_substr_list(substr_list)
-        return (substr_list, remaining_str, is_perfect_match)
-
-
+        return substr_list, remaining_str, is_perfect_match
 
     '''================
     Interpret arguments
@@ -179,9 +175,7 @@ Initially created 2020-10-14 by Erik P G Johansson.
         assert_match = False
     else:
         raise Exception(
-            'Illegal argument nonmatch_policy="{}".'.format(
-            nonmatch_policy,
-            ),
+            f'Illegal argument nonmatch_policy="{nonmatch_policy}".',
         )
 
     if search_dir == 1:
@@ -191,8 +185,6 @@ Initially created 2020-10-14 by Erik P G Johansson.
         modify_substr_list = lambda ssl : ssl[::-1]
     else:
         raise Exception('Illegal argument search_dir.')
-
-
 
     '''========
      ALGORITHM
@@ -211,7 +203,7 @@ Initially created 2020-10-14 by Erik P G Johansson.
             if assert_match:
                 raise Exception(
                     'Failed to match regular expression'
-                    +' {:d}="{}" in argument string "{}".'.format(
+                    ' {:d}="{}" in argument string "{}".'.format(
                         i_re, regexp_list[i_re], s,
                     ),
                 )
@@ -227,7 +219,7 @@ Initially created 2020-10-14 by Erik P G Johansson.
         if assert_match:
             # Bad error message if "s" is very long (e.g. file).
             raise Exception(
-                'Could not match entire argument string '+
+                'Could not match entire argument string '
                 f'"{s}"',
             )
         else:

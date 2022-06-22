@@ -9,7 +9,6 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 import codetiming
 import erikpgjohansson.solo.soar.soar
 import erikpgjohansson.solo.iddt
-import json
 import numpy as np
 import subprocess
 

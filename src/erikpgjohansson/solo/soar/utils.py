@@ -349,8 +349,8 @@ bLvArray : 1D numpy bool array.
             (i,) = np.nonzero(b)   # NOTE: Returns tuple or arrays.
 
             assert i.size == 1, (
-                'Found multiple datasets with itemId = {0}'
-                ' with the same highest version number V{1:d}.'
+                'Found multiple datasets with itemId = {}'
+                ' with the same highest version number V{:d}.'
             ).format(
                 uii, uiiLv,
             )
@@ -481,16 +481,20 @@ def log_DST(dst):
 
     print('=' * 80)
     print('Totals: Unique instruments:       ' + str(set(dst['instrument'])))
-    print('        Unique processing levels: ' + str(
-        set(dst['processing_level'])
-    ))
-    print('                                  {:d} datasets'.format(
-        dst['file_size'].size,
-    ),
+    print(
+        '        Unique processing levels: ' + str(
+            set(dst['processing_level']),
+        ),
     )
-    print('                                  {:.2f} [GiB]'.format(
-        totalBytes / 2**30,
-    ),
+    print(
+        '                                  {:d} datasets'.format(
+            dst['file_size'].size,
+        ),
+    )
+    print(
+        '                                  {:.2f} [GiB]'.format(
+            totalBytes / 2**30,
+        ),
     )
     if nonNullBta.size > 0:
         print('   begin_time_FN (non-null): Min: ' + str(nonNullBta.min()))

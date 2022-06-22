@@ -16,6 +16,14 @@ SHOULD PRINT
 
 Initially created 2020-11-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
+
+
+import csv
+import datetime
+import operator
+import re
+
+
 '''
 BOGIQ
 =====
@@ -42,15 +50,11 @@ so_read_modif_TC_csv.py   $(ls -1 solo_STP*/*.csv | grep -v BRIDGE_BACK) | lesr
 '''
 
 
-import csv
-import datetime
-import operator
-import re
-
 CSV_EXECUTION_TIME_FORMAT = '%Y-%jT%H:%M:%S.%f'
 
 BASH_HELP_TEXT = """
-Utility for reading TC .csv files  (e.g. solo_STP124_rpw_20201130_20201206_V01.csv).
+Utility for reading TC .csv files
+(e.g. solo_STP124_rpw_20201130_20201206_V01.csv).
 Prints filtered, modified version of file to stdout.
 
 Wrapper around python code.
@@ -69,7 +73,6 @@ Parameters: [-s -t -b] <csv files>
 
 Script initially created 2020-11-26 by Erik P G Johansson.
 """
-
 
 
 def bash_wrapper(argList):
@@ -95,11 +98,9 @@ def bash_wrapper(argList):
         # from other python code without quitting.
         return 0
 
-
-
-    #=================
+    # ===============
     # Parse arguments
-    #=================
+    # ===============
     includeSweeps         = False
     includeLoadSweepTable = False
     includeBiasSetting    = False
@@ -122,14 +123,12 @@ def bash_wrapper(argList):
     fileList = argList
     del argList
 
-
     main(
         fileList,
         includeSweeps         = includeSweeps,
         includeLoadSweepTable = includeLoadSweepTable,
         includeBiasSetting    = includeBiasSetting,
     )
-
 
 
 def main(
@@ -146,8 +145,6 @@ def main(
     Asserts that files do not overlap in time.
     '''
 
-
-
     fileDictList = []
     for filePath in fileList:
         fileDict = read_TC_csv_file(filePath)
@@ -160,23 +157,22 @@ def main(
     # ASSERT: Files do not overlap in time coverage.
     # (Assumes they are sorted in time internally.)
     for (fileDict1, fileDict2) in zip(fileDictList[:-1], fileDictList[1:]):
-        assert fileDict1['DtLast'] < fileDict2['DtFirst'],\
-            'Files\n{}\nand\n{} overlap in time.'.format(
-                fileDict1['filePath'], fileDict2['filePath'],
-            )
+        filePath1 = fileDict1['filePath']
+        filePath2 = fileDict2['filePath']
+        assert fileDict1['DtLast'] < fileDict2['DtFirst'], \
+            f'Files\n{filePath1}\nand\n{filePath2} overlap in time.'
 
-
-
-    #==========================================
+    # ========================================
     # Derive max column width for every column
-    #==========================================
+    # ========================================
     # Useful for printing.
     # NOTE: Derived for all rows, regardless of whether they are actually
     #       printed or not.
     # NOTE: Does NOT assume that files have the same column names.
     #
     # TODO-NI: Is this code needed?
-    #       fileDict['colMaxWidthDict'] should contain the max column widths already.
+    #     fileDict['colMaxWidthDict'] should contain the max column widths
+    #     already.
     # colMaxWidthDict = {}
     # for fileDict in fileDictList:
     #     csvColMaxWidthDict = fileDict['colMaxWidthDict']
@@ -189,11 +185,9 @@ def main(
     #         colMaxWidthDict[colName] = cmw
     colMaxWidthDict = fileDict['colMaxWidthDict']
 
-
-
-    #===================================
+    # =================================
     # Print filtered and modified table
-    #===================================
+    # =================================
     for fileDict in fileDictList:
         s = '-' * len(fileDict['filePath'])
         print(s)
@@ -246,13 +240,12 @@ def main(
                 p = p or 'CP_DPU_BIA_SWEEP_STEP_CUR'   == descr
                 p = p or 'TC_DPU_LOAD_BIAS_SWEEP'      == descr
             if includeBiasSetting:
-                #p = p or re.fullmatch('TC_DPU_SET_BIAS[123]', descr)
+                # p = p or re.fullmatch('TC_DPU_SET_BIAS[123]', descr)
                 p = p or re.fullmatch('CP_BIA_SET_BIAS[123]', descr)
-            #p = p or 'CP_BIA_SET_MODE_SET_MX_MODE' == descr
+            # p = p or 'CP_BIA_SET_MODE_SET_MX_MODE' == descr
 
             if p:
                 print_row(dataDict, colMaxWidthDict, iRow)
-
 
 
 def print_row(dataDict, colWidthDict, iRow):
@@ -298,29 +291,29 @@ def print_row(dataDict, colWidthDict, iRow):
     else:
         execTimeYmdStr = ''
 
-    #===========================
+    # =========================
     # Select and format columns
-    #===========================
+    # =========================
     strList = []
     strList.append(f'{iRow:4}')
     strList.append(
         '{0:12} {1:2}{2:{3}}'.format(
-        execTimeYmdStr,
-        preExecTimeStr,
-        execTimeStr,
-        colWidthDict['Execution Time'],
+            execTimeYmdStr,
+            preExecTimeStr,
+            execTimeStr,
+            colWidthDict['Execution Time'],
         ),
     )
     strList.append(
         '{0:{1}}'.format(
-        dataDict['Description'][iRow],
-        colWidthDict['Description'],
+            dataDict['Description'][iRow],
+            colWidthDict['Description'],
         ),
     )
     strList.append(
         '{0:{1}}'.format(
-        dataDict['MD'][iRow],
-        colWidthDict['MD'],
+            dataDict['MD'][iRow],
+            colWidthDict['MD'],
         ),
     )
     # IMPLEMENTATION NOTE: colWidthDict['SSID'] is much greater than necessary
@@ -328,28 +321,26 @@ def print_row(dataDict, colWidthDict, iRow):
     # Therefore uses hardcoded column width.
     strList.append(
         '{:7}'.format(
-        dataDict['SSID'][iRow],
+            dataDict['SSID'][iRow],
         ),
     )
     strList.append(
         '{0:{1}}'.format(
-        dataDict['Seq. Descr.'][iRow],
-        colWidthDict['Seq. Descr.'],
+            dataDict['Seq. Descr.'][iRow],
+            colWidthDict['Seq. Descr.'],
         ),
     )
 
-    #=======
+    # =====
     # Print
-    #=======
+    # =====
     s = ', '.join(strList)
     print(s)
-
 
 
 def read_TC_csv_file(filePath):
     '''
     Wrapper around read_CSV_file() with more domain-specific code.
-
 
     Parameters
     ----------
@@ -364,11 +355,15 @@ def read_TC_csv_file(filePath):
 
     execTimeStrList = fileDict['dataDict']['Execution Time']
 
-    execTimeStr1 = next(s for s in          execTimeStrList  if s)
+    execTimeStr1 = next(s for s in execTimeStrList if s)
     execTimeStr2 = next(s for s in reversed(execTimeStrList) if s)
 
-    DtFirst = datetime.datetime.strptime(execTimeStr1, CSV_EXECUTION_TIME_FORMAT)
-    DtLast  = datetime.datetime.strptime(execTimeStr2, CSV_EXECUTION_TIME_FORMAT)
+    DtFirst = datetime.datetime.strptime(
+        execTimeStr1, CSV_EXECUTION_TIME_FORMAT,
+    )
+    DtLast  = datetime.datetime.strptime(
+        execTimeStr2, CSV_EXECUTION_TIME_FORMAT,
+    )
     assert DtFirst <= DtLast
 
     fileDictExtra = {
@@ -380,11 +375,9 @@ def read_TC_csv_file(filePath):
     return fileDict
 
 
-
 def read_CSV_file(filePath):
     '''
     Somewhat generic CSV reader.
-
 
     Parameters
     ----------
@@ -407,7 +400,7 @@ def read_CSV_file(filePath):
         strListList = []
         for strList in fileReader:
             strListList.append(strList)
-            #print(', '.join(rowList))
+            # print(', '.join(rowList))
 
         colNameList = strListList[0]
         nCols     = len(strListList[0])
@@ -423,7 +416,7 @@ def read_CSV_file(filePath):
             'Number of columns on row {} (0=first) (nColsThisRow={})'.format(
                 iFileRow, nColsThisRow,
             )\
-            +' differs from preceding rows (nCols={}).\nFile: {}'.format(
+            + ' differs from preceding rows (nCols={}).\nFile: {}'.format(
                 nCols, filePath,
             )
 
@@ -443,20 +436,33 @@ def read_CSV_file(filePath):
     }
 
 
-
 # TEST
 if 0:
-    TEST_FILE_122 = '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/solo_STP122_rpw_20201116_20201122_V03/solo_STP122_rpw_20201116_20201122_V03.csv'
-    TEST_FILE_123 = '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/solo_STP123_rpw_20201123_20201129_V01/solo_STP123_rpw_20201123_20201129_V01.csv'
+    TEST_FILE_122 = \
+        '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/' \
+        'solo_STP122_rpw_20201116_20201122_V03/' \
+        'solo_STP122_rpw_20201116_20201122_V03.csv'
+    TEST_FILE_123 = \
+        '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/' \
+        'solo_STP123_rpw_20201123_20201129_V01/' \
+        'solo_STP123_rpw_20201123_20201129_V01.csv'
 
     # Has quoted commas. ==> Must read quoted text.
     # Ex: "Configure the Bias (mode, and relay) "
-    TEST_FILE_102 = '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/solo_STP102_rpw_20200629_20200705_V03/solo_STP102_rpw_20200629_20200705_V03.csv'
+    TEST_FILE_102 = \
+        '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/' \
+        'solo_STP102_rpw_20200629_20200705_V03/' \
+        'solo_STP102_rpw_20200629_20200705_V03.csv'
 
-    #main([TEST_FILE_122, TEST_FILE_123])
-    #main([TEST_FILE_123, TEST_FILE_122])
-    #main([TEST_FILE_102])
-    main(['-b', '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/solo_STP1_rpw_20200224_20200301_V01/solo_STP1_rpw_Rolls_20200225_20200228.csv'])
+    # main([TEST_FILE_122, TEST_FILE_123])
+    # main([TEST_FILE_123, TEST_FILE_122])
+    # main([TEST_FILE_102])
+    main([
+        '-b',
+        '/nonhome_data/SOLAR_ORBITER/data_roc/Timeline_apriori_csv/2020/'
+        'solo_STP1_rpw_20200224_20200301_V01/'
+        'solo_STP1_rpw_Rolls_20200225_20200228.csv',
+    ])
 
-    #main([])
-    #main([TEST_FILE_123, TEST_FILE_123])
+    # main([])
+    # main([TEST_FILE_123, TEST_FILE_123])

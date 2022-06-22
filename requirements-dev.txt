@@ -1,4 +1,4 @@
 # Additional Python distribution packages needed for development.
+flake8
 pre-commit
 pytest
-flake8

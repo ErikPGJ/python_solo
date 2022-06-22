@@ -1,19 +1,15 @@
 '''
 Initially created by Erik P G Johansson 2020-10-16, IRF Uppsala, Sweden.
 '''
-'''
-BOGIQ
-=====
-'''
-
 
 
 import erikpgjohansson.solo.str
 
 
-
-
-
+'''
+BOGIQ
+=====
+'''
 
 
 def parse_dataset_filename(filename):
@@ -76,45 +72,49 @@ def parse_dataset_filename(filename):
         def parse_YYYYMMDDThhmmssxyz(s):
             assert len(s) >= 8+1+6
             assert s[8] == 'T'
-            year   = int(  s[0:4])
-            month  = int(  s[4:6])
-            day    = int(  s[6:8])
-            hour   = int(  s[9:11])
-            minute = int(  s[11:13])
+            year   = int(s[0:4])
+            month  = int(s[4:6])
+            day    = int(s[6:8])
+            hour   = int(s[9:11])
+            minute = int(s[11:13])
             # second = float(s[13:15])
             secondsStr = s[13:]
             second = int(secondsStr) / 10**(len(secondsStr)-2)   # Always float
-            return (year, month, day, hour, minute, second)
+            return year, month, day, hour, minute, second
 
-        (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
-            ['[0-9]{8,8}'],
-            1, 'permit non-match',
-        )
+        substrList, remainingStr, isPerfectMatch = \
+            erikpgjohansson.solo.str.regexp_str_parts(
+                timeIntervalStr,
+                ['[0-9]{8,8}'],
+                1, 'permit non-match',
+            )
         if isPerfectMatch:
             return parse_YYYYMMDD(timeIntervalStr) + (0, 0, 0.0)
 
-        (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
-            ['[0-9]{8,8}', '-', '[0-9]{8,8}'],
-            1, 'permit non-match',
-        )
+        substrList, remainingStr, isPerfectMatch = \
+            erikpgjohansson.solo.str.regexp_str_parts(
+                timeIntervalStr,
+                ['[0-9]{8,8}', '-', '[0-9]{8,8}'],
+                1, 'permit non-match',
+            )
         if isPerfectMatch:
             return parse_YYYYMMDD(substrList[0]) + (0, 0, 0.0)
 
-        (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
-            ['[0-9]{8,8}T[0-9]{6,9}'],
-            1, 'permit non-match',
-        )
+        substrList, remainingStr, isPerfectMatch = \
+            erikpgjohansson.solo.str.regexp_str_parts(
+                timeIntervalStr,
+                ['[0-9]{8,8}T[0-9]{6,9}'],
+                1, 'permit non-match',
+            )
         if isPerfectMatch:
             return parse_YYYYMMDDThhmmssxyz(substrList[0])
 
-        (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
-            ['[0-9]{8,8}T[0-9]{6,6}', '-', '[0-9]{8,8}T[0-9]{6,6}'],
-            1, 'permit non-match',
-        )
+        substrList, remainingStr, isPerfectMatch = \
+            erikpgjohansson.solo.str.regexp_str_parts(
+                timeIntervalStr,
+                ['[0-9]{8,8}T[0-9]{6,6}', '-', '[0-9]{8,8}T[0-9]{6,6}'],
+                1, 'permit non-match',
+            )
         if isPerfectMatch:
             return parse_YYYYMMDDThhmmssxyz(substrList[0])
 
@@ -123,25 +123,25 @@ def parse_dataset_filename(filename):
             .format(timeIntervalStr, filename),
         )
 
-
-
     # NOTE: Reg.exp. "[CIU]?" required(?) for LL data, and is absent otherwise.
     # /SOL-SGS-TN-0009 MetadataStandard
-    (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-        filename,
-        [
-            '.*', '(|-cdag|-CDAG)', '_', '[0-9T-]{8,31}', '_V', '[0-9][0-9]+',
-            '[CIU]?', r'(\.cdf|\.fits)',
-        ],
-        -1, 'permit non-match',
-    )
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            filename, [
+                '.*', '(|-cdag|-CDAG)', '_', '[0-9T-]{8,31}', '_V',
+                '[0-9][0-9]+',
+                '[CIU]?', r'(\.cdf|\.fits)',
+            ],
+            -1, 'permit non-match',
+        )
 
     if not isPerfectMatch:
         return None
 
     # NOTE: No separate flag for CDAG/non-CDAG.
-    #itemId = ''.join(substrList[0:4])   # NOTE: Includes CDAG. Bad?!
-    itemId = ''.join(substrList[0:1] + substrList[2:4])   # NOTE: Excludes CDAG. Bad?!
+    # itemId = ''.join(substrList[0:4])   # NOTE: Includes CDAG. Bad?!
+    # NOTE: Excludes CDAG. Bad?!
+    itemId = ''.join(substrList[0:1] + substrList[2:4])
     datasetId       = substrList[0].upper()
     timeIntervalStr = substrList[3]
     tv1             = parse_time_interval_str(timeIntervalStr)
@@ -157,11 +157,6 @@ def parse_dataset_filename(filename):
         'item ID':              itemId,
     }
     return d
-
-
-
-
-
 
 
 def parse_DATASET_ID(datasetId):
@@ -207,14 +202,15 @@ def parse_DATASET_ID(datasetId):
 
     # IMPLEMENTATION NOTE: Must search backwards because of -CDAG.
     # NOTE: Only identifies -CDAG to giver custom error message.
-    (substrList, remainingStr, isPerfectMatch) = erikpgjohansson.solo.str.regexp_str_parts(
-        datasetId,
-        [
-            '(SOLO|RGTS)', '_', '(LL02|HK|L1|L1R|L2|L3)', '_',
-            '[A-Z]+', '-[A-Z0-9-]+', '(|-CDAG)',
-        ],
-        -1, 'permit non-match',
-    )
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            datasetId,
+            [
+                '(SOLO|RGTS)', '_', '(LL02|HK|L1|L1R|L2|L3)', '_',
+                '[A-Z]+', '-[A-Z0-9-]+', '(|-CDAG)',
+            ],
+            -1, 'permit non-match',
+        )
 
     # ASSERTIONS
     if not isPerfectMatch:
@@ -232,11 +228,6 @@ def parse_DATASET_ID(datasetId):
     # NOTE: Does not return descriptor _without_ instrument.
 
     return (dataSrc, level, instrument, descriptor)
-
-
-
-
-
 
 
 if __name__ == '__main__':
