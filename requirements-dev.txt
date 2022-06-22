@@ -1,0 +1,3 @@
+# Additional Python distribution packages needed for development.
+pre-commit
+pytest

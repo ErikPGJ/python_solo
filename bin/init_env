@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Generic script to
+# (1) activate venv environment, and
+# (2) set PYTHONPATH
+# before calling python
+#
+# NOTE: Meant to be called using "source".
+
+PROJECT_DIR=$(readlink -f "$1")
+
+export PYTHONPATH="$PROJECT_DIR"/tests
+source "$PROJECT_DIR"/venv/bin/activate
