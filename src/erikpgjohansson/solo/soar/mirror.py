@@ -87,7 +87,7 @@ DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
 # Path to JSON file which is used for caching the SOAR table. May or may not
 # pre-exist.
 # None: Do not cache.
-SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/temp/soar.json"
+SOAR_TABLE_CACHE_JSON_FILE = None
 
 # Command and arguments to use for removing old local datasets. Paths to
 # actual files to remove are added at the end.
