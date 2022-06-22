@@ -78,10 +78,11 @@ PROPOSAL: Separate function for removing files instead of command+arguments
 # DEBUG: Settings for debugging.
 # --
 # NOTE: Does not by itself change SOAR datasets to be listed as 0 bytes.
-DEBUG_DOWNLOAD_EMPTY_DATASETS = False  # NOTE: Default=False.
-DEBUG_DOWNLOAD_DATASETS = True
-DEBUG_DELETE_LOCAL_DATASETS = True
-DEBUG_MOVE_DOWNLOADED_DATASETS = True
+# Default = False
+DEBUG_DOWNLOAD_EMPTY_DATASETS = False
+DEBUG_DOWNLOAD_DATASETS_DISABLED = False
+DEBUG_DELETE_LOCAL_DATASETS_DISABLED = False
+DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
 
 # Path to JSON file which is used for caching the SOAR table. May or may not
 # pre-exist.
@@ -363,8 +364,9 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # =========================
     # Download missing datasets
     # =========================
-    print('Downloading {} datasets'.format(soarMissingDst['item_id'].size))
-    if DEBUG_DOWNLOAD_DATASETS:
+    n_datasets = soarMissingDst['item_id'].size
+    print(f'Downloading {n_datasets} datasets')
+    if not DEBUG_DOWNLOAD_DATASETS_DISABLED:
         erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
             soarMissingDst['item_id'],
             soarMissingDst['file_size'],
@@ -387,7 +389,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # are hard/slow to replace.
     nRows = erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst)
     print(f'Removing {nRows} local datasets')
-    if DEBUG_DELETE_LOCAL_DATASETS:
+    if not DEBUG_DELETE_LOCAL_DATASETS_DISABLED:
         if nRows > 0:
             pathsToRemoveList = localExcessDst['file_path'].tolist()
             stdoutBytes = subprocess.check_output(
@@ -408,7 +410,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ==================================================
     # Move downloaded datasets into local directory tree
     # ==================================================
-    if DEBUG_MOVE_DOWNLOADED_DATASETS:
+    if not DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED:
         print(
             'Moving downloaded datasets to'
             ' selected directory structure (if there are any).',
