@@ -9,6 +9,7 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 import codetiming
 import erikpgjohansson.solo.soar.soar
 import erikpgjohansson.solo.iddt
+import json
 import numpy as np
 import subprocess
 
@@ -72,6 +73,30 @@ PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
 PROPOSAL: Separate function for removing files instead of command+arguments
           (FILE_REMOVAL_COMMAND_LIST).
 '''
+
+
+# DEBUG: Settings for debugging.
+# --
+# NOTE: Does not by itself change SOAR datasets to be listed as 0 bytes.
+DEBUG_DOWNLOAD_EMPTY_DATASETS = False  # NOTE: Default=False.
+DEBUG_DOWNLOAD_DATASETS = True
+DEBUG_DELETE_LOCAL_DATASETS = True
+DEBUG_MOVE_DOWNLOADED_DATASETS = True
+
+# Path to JSON file which is used for caching the SOAR table. May or may not
+# pre-exist.
+# None: Do not cache.
+SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/temp/soar.json"
+
+# Command and arguments to use for removing old local datasets. Paths to
+# actual files to remove are added at the end.
+#
+# "remove_to_trash" is one of Erik P G Johansson's private bash scripts
+# that moves files/directories to an automatically selected "trash"
+# directory ("recycle bin").
+FILE_REMOVAL_COMMAND_LIST = ['remove_to_trash', 'SOAR_sync']
+# FILE_REMOVAL_COMMAND_LIST = ['rm', '-v']
+CREATE_DIR_PERMISSIONS = 0o755
 
 
 @codetiming.Timer('sync')
@@ -188,21 +213,6 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     assert callable(datasetsSubsetFunc)
     assert type(nMaxNetDatasetsToRemove) in [int, float]
 
-    # DEBUG: Settings for debugging.
-    # --
-    # NOTE: Does not by itself change SOAR datasets to be listed as 0 bytes.
-    DEBUG_DOWNLOAD_EMPTY_DATASETS  = False    # NOTE: Default=False.
-    DEBUG_DOWNLOAD_DATASETS        = True
-    DEBUG_DELETE_LOCAL_DATASETS    = True
-    DEBUG_MOVE_DOWNLOADED_DATASETS = True
-
-    # "remove_to_trash" is one of Erik P G Johansson's private bash scripts
-    # that moves files/directories to an automatically selected "trash"
-    # directory ("recycle bin").
-    # FILE_REMOVAL_COMMAND_LIST = ['remove_to_trash', 'SOAR_sync']
-    FILE_REMOVAL_COMMAND_LIST = ['rm', '-v']
-    CREATE_DIR_PERMISSIONS = 0o755
-
     # ==============================
     # Create table of local datasets
     # ==============================
@@ -221,7 +231,10 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ======================================
     # Download table of online SOAR datasets
     # ======================================
-    (soarDst, _JsonDict) = erikpgjohansson.solo.soar.soar.download_SOAR_DST()
+    print('Downloading SOAR table of datasets.')
+    soarDst, _JsonDict = erikpgjohansson.solo.soar.soar.download_SOAR_DST(
+        cacheFilePath=SOAR_TABLE_CACHE_JSON_FILE,
+    )
     print(
         'All online SOAR datasets'
         ' (synced and non-synced; all dataset versions):',
