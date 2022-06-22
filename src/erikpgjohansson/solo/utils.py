@@ -59,70 +59,6 @@ def parse_dataset_filename(filename):
     PROPOSAL: Return "time vector 2" (end of dataset time according to name).
         PROBLEM: How increment day (over month/year boundary) to find it?
     '''
-    def parse_time_interval_str(timeIntervalStr):
-
-        def parse_YYYYMMDD(s):
-            assert len(s) == 8
-            year   = int(s[0:4])
-            month  = int(s[4:6])
-            day    = int(s[6:8])
-            return (year, month, day)
-
-        # xyz = Any number of decimals after integer seconds.
-        def parse_YYYYMMDDThhmmssxyz(s):
-            assert len(s) >= 8+1+6
-            assert s[8] == 'T'
-            year   = int(s[0:4])
-            month  = int(s[4:6])
-            day    = int(s[6:8])
-            hour   = int(s[9:11])
-            minute = int(s[11:13])
-            # second = float(s[13:15])
-            secondsStr = s[13:]
-            second = int(secondsStr) / 10**(len(secondsStr)-2)   # Always float
-            return year, month, day, hour, minute, second
-
-        substrList, remainingStr, isPerfectMatch = \
-            erikpgjohansson.solo.str.regexp_str_parts(
-                timeIntervalStr,
-                ['[0-9]{8,8}'],
-                1, 'permit non-match',
-            )
-        if isPerfectMatch:
-            return parse_YYYYMMDD(timeIntervalStr) + (0, 0, 0.0)
-
-        substrList, remainingStr, isPerfectMatch = \
-            erikpgjohansson.solo.str.regexp_str_parts(
-                timeIntervalStr,
-                ['[0-9]{8,8}', '-', '[0-9]{8,8}'],
-                1, 'permit non-match',
-            )
-        if isPerfectMatch:
-            return parse_YYYYMMDD(substrList[0]) + (0, 0, 0.0)
-
-        substrList, remainingStr, isPerfectMatch = \
-            erikpgjohansson.solo.str.regexp_str_parts(
-                timeIntervalStr,
-                ['[0-9]{8,8}T[0-9]{6,9}'],
-                1, 'permit non-match',
-            )
-        if isPerfectMatch:
-            return parse_YYYYMMDDThhmmssxyz(substrList[0])
-
-        substrList, remainingStr, isPerfectMatch = \
-            erikpgjohansson.solo.str.regexp_str_parts(
-                timeIntervalStr,
-                ['[0-9]{8,8}T[0-9]{6,6}', '-', '[0-9]{8,8}T[0-9]{6,6}'],
-                1, 'permit non-match',
-            )
-        if isPerfectMatch:
-            return parse_YYYYMMDDThhmmssxyz(substrList[0])
-
-        raise Exception(
-            'Can not parse time interval string "{}" in filename "{}".'
-            .format(timeIntervalStr, filename),
-        )
-
     # NOTE: Reg.exp. "[CIU]?" required(?) for LL data, and is absent otherwise.
     # /SOL-SGS-TN-0009 MetadataStandard
     substrList, remainingStr, isPerfectMatch = \
@@ -144,7 +80,10 @@ def parse_dataset_filename(filename):
     itemId = ''.join(substrList[0:1] + substrList[2:4])
     datasetId       = substrList[0].upper()
     timeIntervalStr = substrList[3]
-    tv1             = parse_time_interval_str(timeIntervalStr)
+    try:
+        tv1         = _parse_time_interval_str(timeIntervalStr)
+    except Exception as e:
+        return None
     versionStr      = substrList[5]
     assert len(tv1) == 6
     assert type(tv1[5]) == float
@@ -157,6 +96,75 @@ def parse_dataset_filename(filename):
         'item ID':              itemId,
     }
     return d
+
+
+def _parse_time_interval_str(timeIntervalStr):
+    ''''''
+    '''
+    TODO: Test code.
+    '''
+
+    def parse_YYYYMMDD(s):
+        assert len(s) == 8
+        year   = int(s[0:4])
+        month  = int(s[4:6])
+        day    = int(s[6:8])
+        return year, month, day
+
+    # xyz = Any number of decimals after integer seconds.
+    def parse_YYYYMMDDThhmmssxyz(s):
+        assert len(s) >= 8+1+6
+        assert s[8] == 'T'
+        year   = int(s[0:4])
+        month  = int(s[4:6])
+        day    = int(s[6:8])
+        hour   = int(s[9:11])
+        minute = int(s[11:13])
+        # second = float(s[13:15])
+        secondsStr = s[13:]
+        second = int(secondsStr) / 10**(len(secondsStr)-2)   # Always float
+        return year, month, day, hour, minute, second
+
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            timeIntervalStr,
+            ['[0-9]{8,8}'],
+            1, 'permit non-match',
+        )
+    if isPerfectMatch:
+        return parse_YYYYMMDD(timeIntervalStr) + (0, 0, 0.0)
+
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            timeIntervalStr,
+            ['[0-9]{8,8}', '-', '[0-9]{8,8}'],
+            1, 'permit non-match',
+        )
+    if isPerfectMatch:
+        return parse_YYYYMMDD(substrList[0]) + (0, 0, 0.0)
+
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            timeIntervalStr,
+            ['[0-9]{8,8}T[0-9]{6,9}'],
+            1, 'permit non-match',
+        )
+    if isPerfectMatch:
+        return parse_YYYYMMDDThhmmssxyz(substrList[0])
+
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            timeIntervalStr,
+            ['[0-9]{8,8}T[0-9]{6,6}', '-', '[0-9]{8,8}T[0-9]{6,6}'],
+            1, 'permit non-match',
+        )
+    if isPerfectMatch:
+        return parse_YYYYMMDDThhmmssxyz(substrList[0])
+
+    raise Exception(
+        'Can not parse time interval string "{}" in filename "{}".'
+        .format(timeIntervalStr),
+    )
 
 
 def parse_DATASET_ID(datasetId):
