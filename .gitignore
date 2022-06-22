@@ -9,6 +9,4 @@ src/*.egg-info/
 .vscode/
 
 venv/
-
-init_env
-src/erikpgjohansson/test.py
+private/
