@@ -179,10 +179,13 @@ Initially created 2020-10-14 by Erik P G Johansson.
         )
 
     if search_dir == 1:
-        modify_substr_list = lambda ssl : ssl
+        def modify_substr_list(ssl):
+            return ssl
     elif search_dir == -1:
         regexp_list = regexp_list[::-1]
-        modify_substr_list = lambda ssl : ssl[::-1]
+
+        def modify_substr_list(ssl):
+            return ssl[::-1]
     else:
         raise Exception('Illegal argument search_dir.')
 
@@ -218,10 +221,7 @@ Initially created 2020-10-14 by Erik P G Johansson.
     if remaining_str:
         if assert_match:
             # Bad error message if "s" is very long (e.g. file).
-            raise Exception(
-                'Could not match entire argument string '
-                f'"{s}"',
-            )
+            raise Exception(f'Could not match entire argument string "{s}"')
         else:
             return create_return_result(substr_list, remaining_str, False)
 

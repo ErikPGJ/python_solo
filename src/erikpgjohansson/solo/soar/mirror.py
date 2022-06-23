@@ -142,13 +142,6 @@ Returns
 None.
 '''
     '''
-PROPOSAL: Limit number of datasets that are allowed to be removed (assertion).
-    PRO: Limits consequences of misconfiguration (datasetsSubsetFunc)
-         or bugs leading to removing many slow-to-download datasets.
-    PROPOSAL: Argument.
-    PROPOSAL: By number of datasets.
-    PROPOSAL: By number of bytes.
-
 BUG: Does not correct the locations of misplaced datasets.
     PROBLEM: How handle symlinks?
         Ex: Might be used for duplicating locations for backward compatibility.

@@ -141,8 +141,10 @@ Returns
 -------
 JsonDict : Representation of SOAR data list.
 '''
-    URL = 'http://soar.esac.esa.int/soar-sl-tap/tap/sync?REQUEST=doQuery' \
-          '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
+    URL = (
+        'http://soar.esac.esa.int/soar-sl-tap/tap/sync?REQUEST=doQuery'
+        '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
+    )
 
     HttpResponse = urllib.request.urlopen(URL)
     JsonDict = json.loads(HttpResponse.read().decode())
@@ -375,29 +377,23 @@ debugCreateEmptyFile : Boolean
     True : Creates empty files with filename from SOAR.
            NOTE: Disables any file size checking.
 
-
 Returns
 -------
 filePath
-
 
 EXCEPTIONS
 ==========
 HTTPError : If invalid dataItemId.
 Exception : If expectedFileName or expectedFileSize do not match.
---
+
 NOTE: Does not appear to be able to download LL02 datasets.
-
-
 NOTE: Function selects filename based on HTTP request result.
 '''
     '''
 TODO-DEC: How handle pre-existing files?
     PROPOSAL: Policy argument.
-PROPOSAL: Return filename/file path.
 PROPOSAL: Somehow log download speed bytes/s.
 PROPOSAL: Somehow predict time left.
-PROPOSAL: Optional argments for verifying expected filename and file size.
 PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
 '''
 

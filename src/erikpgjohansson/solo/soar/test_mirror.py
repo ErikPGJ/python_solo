@@ -40,8 +40,10 @@ include: bool
     START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
     STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
 
+    # LS_LEVELS = ['LL02', 'L1']
+    LS_LEVELS = ['L1']
     if (instrument == 'EPD') \
-            and (level in ['L1']) \
+            and (level in LS_LEVELS) \
             and (START_TIME <= beginTime) \
             and (beginTime < STOP_TIME):
         return True
@@ -52,11 +54,6 @@ include: bool
 def sync():
     assert os.uname().nodename in ['brain', 'spis', 'irony'],\
         'This code is not meant to run on this machine.'
-
-    # TEMP
-    # print('-'*80)
-    # print('PYTHONPATH = '+os.environ['PYTHONPATH'])
-    # print('-'*80)
 
     ROOT_DIR = '/home/erjo/temp/soar_mirror'
     SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/temp/soar.json"

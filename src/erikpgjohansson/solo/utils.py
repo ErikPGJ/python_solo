@@ -9,7 +9,19 @@ import erikpgjohansson.solo.str
 '''
 BOGIQ
 =====
+PROPOSAL: Function for parsing "item_id".
+    PRO: Can use for deducing level, which can be used for handling special 
+         case of LL when downloading.
+    PRO: Can use to select sync subset based on e.g. dataset_ID (?).
 '''
+
+
+# Regular Expressions (RE)
+RE_TIME_INTERVAL_STR = '[0-9T-]{8,31}'
+RE_YYYYMMDD           = '[0-9]{8,8}'
+RE_YYYYMMDDThhmmss    = '[0-9]{8,8}T[0-9]{6,6}'
+RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
+
 
 
 def parse_dataset_filename(filename):
@@ -17,21 +29,23 @@ def parse_dataset_filename(filename):
     Parse dataset filename following official filenaming convention.
 
     NOTE: Can amend code to return more filename fields eventually.
+    NOTE: Includes added support for tolerating the RPW-specific
+    consortium-internal "-cdag" extension to official filenaming conventions.
 
+    IMPLEMENTATION NOTE: Functionality kind of overlaps with parse_item_ID(),
+    except that that function does not support for "-CDAG" extension. Can
+    therefore not use parse_item_ID() in the implementation of this function.
 
     Parameters
     ----------
     filename : String
         Nominally file name following official naming conventions.
-        NOTE: Includes te RPW-specific consortium-internal "-cdag".
         NOTE: Applies to datasets for all instruments (not just RPW).
-
 
     Returns
     -------
     If filename can not be parsed :
         None
-        NOTE: Does not raise exception.
     If filename can be parsed :
         Dictionary
             'DATASET_ID'           : Always upper case. (Excludes CDAG.)
@@ -44,28 +58,33 @@ def parse_dataset_filename(filename):
 
     Examples of in-flight dataset filenames
     ---------------------------------------
-    solo_HK_rpw-bia_20200301_V01.cdf                   # NOTE: No -cdag.
-    solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V01.cdf   # NOTE: -cdag.
+    solo_HK_rpw-bia_20200301_V01.cdf
+    solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V01.cdf
     solo_L1_rpw-bia-sweep-cdag_20200307T053018-20200307T053330_V01.cdf
     solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf
     # NOTE: Upper case in DATASET_ID outside level.
     solo_L1_swa-eas2-NM3D_20201027T000007-20201027T030817_V01.cdf
     # NOTE: LL, V03I
     solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025_V03I.cdf
-    # NOTE: .fits
+    # NOTE: File suffix ".fits".
+    # NOTE: Extra second decimals.
     solo_L1_eui-fsi174-image_20200806T083130185_V01.fits
     '''
     '''
     PROPOSAL: Return "time vector 2" (end of dataset time according to name).
         PROBLEM: How increment day (over month/year boundary) to find it?
     '''
-    # NOTE: Reg.exp. "[CIU]?" required(?) for LL data, and is absent otherwise.
+    # NOTE: Reg.exp. "[CIU]?" appears to be required(?) for LL data, but is
+    # absent otherwise.
     # /SOL-SGS-TN-0009 MetadataStandard
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             filename, [
-                '.*', '(|-cdag|-CDAG)', '_', '[0-9T-]{8,31}', '_V',
-                '[0-9][0-9]+',
+                '.*',              # 0
+                '(|-cdag|-CDAG)', '_',
+                RE_TIME_INTERVAL_STR,   # 3
+                '_V',
+                '[0-9][0-9]+',     # 5
                 '[CIU]?', r'(\.cdf|\.fits)',
             ],
             -1, 'permit non-match',
@@ -74,19 +93,16 @@ def parse_dataset_filename(filename):
     if not isPerfectMatch:
         return None
 
-    # NOTE: No separate flag for CDAG/non-CDAG.
-    # itemId = ''.join(substrList[0:4])   # NOTE: Includes CDAG. Bad?!
-    # NOTE: Excludes CDAG. Bad?!
+    # NOTE: No separate flag to capture CDAG/non-CDAG. Only tolerates it.
+    # NOTE: Excludes CDAG=substrList[1].
     itemId = ''.join(substrList[0:1] + substrList[2:4])
     datasetId       = substrList[0].upper()
     timeIntervalStr = substrList[3]
+    versionStr      = substrList[5]
     try:
-        tv1         = _parse_time_interval_str(timeIntervalStr)
+        tv1 = _parse_time_interval_str(timeIntervalStr)
     except Exception as e:
         return None
-    versionStr      = substrList[5]
-    assert len(tv1) == 6
-    assert type(tv1[5]) == float
 
     d = {
         'DATASET_ID':           datasetId,
@@ -111,60 +127,58 @@ def _parse_time_interval_str(timeIntervalStr):
         day    = int(s[6:8])
         return year, month, day
 
-    # xyz = Any number of decimals after integer seconds.
-    def parse_YYYYMMDDThhmmssxyz(s):
+    # ddd = Arbitrary number of decimals after integer seconds.
+    def parse_YYYYMMDDThhmmssddd(s):
         assert len(s) >= 8+1+6
-        assert s[8] == 'T'
         year   = int(s[0:4])
         month  = int(s[4:6])
         day    = int(s[6:8])
+        assert s[8] == 'T'
         hour   = int(s[9:11])
         minute = int(s[11:13])
-        # second = float(s[13:15])
+        # IMPLEMENTATION NOTE: Substring representing seconds does not contain
+        # any period. Can therefore not apply float() on it directly.
         secondsStr = s[13:]
         second = int(secondsStr) / 10**(len(secondsStr)-2)   # Always float
         return year, month, day, hour, minute, second
 
-    substrList, remainingStr, isPerfectMatch = \
+    _, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            ['[0-9]{8,8}'],
+            [RE_YYYYMMDD],
             1, 'permit non-match',
         )
     if isPerfectMatch:
         return parse_YYYYMMDD(timeIntervalStr) + (0, 0, 0.0)
 
-    substrList, remainingStr, isPerfectMatch = \
+    substrList, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            ['[0-9]{8,8}', '-', '[0-9]{8,8}'],
+            [RE_YYYYMMDD, '-', RE_YYYYMMDD],
             1, 'permit non-match',
         )
     if isPerfectMatch:
         return parse_YYYYMMDD(substrList[0]) + (0, 0, 0.0)
 
-    substrList, remainingStr, isPerfectMatch = \
+    substrList, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            ['[0-9]{8,8}T[0-9]{6,9}'],
+            [RE_YYYYMMDDThhmmssddd],
             1, 'permit non-match',
         )
     if isPerfectMatch:
-        return parse_YYYYMMDDThhmmssxyz(substrList[0])
+        return parse_YYYYMMDDThhmmssddd(substrList[0])
 
-    substrList, remainingStr, isPerfectMatch = \
+    substrList, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            ['[0-9]{8,8}T[0-9]{6,6}', '-', '[0-9]{8,8}T[0-9]{6,6}'],
+            [RE_YYYYMMDDThhmmss, '-', RE_YYYYMMDDThhmmss],
             1, 'permit non-match',
         )
     if isPerfectMatch:
-        return parse_YYYYMMDDThhmmssxyz(substrList[0])
+        return parse_YYYYMMDDThhmmssddd(substrList[0])
 
-    raise Exception(
-        'Can not parse time interval string "{}" in filename "{}".'
-        .format(timeIntervalStr),
-    )
+    raise Exception(f'Can not parse time interval string "{timeIntervalStr}".')
 
 
 def parse_DATASET_ID(datasetId):
@@ -210,12 +224,18 @@ def parse_DATASET_ID(datasetId):
 
     # IMPLEMENTATION NOTE: Must search backwards because of -CDAG.
     # NOTE: Only identifies -CDAG to giver custom error message.
+    # NOTE: Have not seen any LL01 datasets. Not sure if such exist.
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             datasetId,
             [
-                '(SOLO|RGTS)', '_', '(LL02|HK|L1|L1R|L2|L3)', '_',
-                '[A-Z]+', '-[A-Z0-9-]+', '(|-CDAG)',
+                '(SOLO|RGTS)',    # 0
+                '_',
+                '(LL02|LL03|L1|L1R|L2|L3)',    # 2
+                '_',
+                '[A-Z]+',         # 4
+                '-[A-Z0-9-]+',    # 5
+                '(|-CDAG)',       # 6
             ],
             -1, 'permit non-match',
         )
@@ -231,11 +251,11 @@ def parse_DATASET_ID(datasetId):
 
     dataSrc    = substrList[0]
     level      = substrList[2]
-    descriptor = ''.join(substrList[4:6])
     instrument = substrList[4]
-    # NOTE: Does not return descriptor _without_ instrument.
+    descriptor = ''.join(substrList[4:6])
+    # NOTE: Descriptor INCLUDES instrument.
 
-    return (dataSrc, level, instrument, descriptor)
+    return dataSrc, level, instrument, descriptor
 
 
 if __name__ == '__main__':
