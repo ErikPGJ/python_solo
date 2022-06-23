@@ -398,16 +398,34 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
 '''
 
     # NOTE: Not a real constant since a string is inserted into it.
-    URL = f'http://soar.esac.esa.int/soar-sl-tap/data?' \
-        f'data_item_id={dataItemId}' \
-        f'&retrieval_type=LAST_PRODUCT&product_type=SCIENCE'
+    def get_URL(dataItemId, level):
+        if level in ('LL02', 'LL01'):
+            product_type = 'LOW_LATENCY'
+        else:
+            product_type = 'SCIENCE'
+        return (
+            f'http://soar.esac.esa.int/soar-sl-tap/data?'
+            f'data_item_id={dataItemId}'
+            f'&retrieval_type=LAST_PRODUCT&product_type={product_type}'
+        )
 
     assert type(dataItemId) == str
 
-    # IMPLEMENTATION NOTE: Can not use "with" statement since want to extract
-    # from HTTP response BEFORE writing to file.
+    # Extract level from item ID.
+    d1 = erikpgjohansson.solo.utils.parse_item_ID(dataItemId)
+    _, level, _, _ = erikpgjohansson.solo.utils.parse_DATASET_ID(
+        d1['DATASET_ID'],
+    )
 
-    HttpResponse = urllib.request.urlopen(URL)
+    url = get_URL(dataItemId, level)
+
+    # DEBUG
+    print(f'url              = {url}')
+    print(f'dataItemId       = {dataItemId}')
+    print(f'expectedFileName = {expectedFileName}')
+    print(f'level            = {level}')
+
+    HttpResponse = urllib.request.urlopen(url)
     fileName = _extract_HTTP_response_filename(HttpResponse)
 
     # ~ASSERTION

@@ -48,6 +48,12 @@ def test_get_IDDT_subdir():
         {}, 'swa/L1/2020/08/20',
     )
 
+    test(
+        'solo_LL02_epd-ept-north-rates_20200813T000026-20200814T000025_V03I'
+        '.cdf',
+        {}, 'epd/LL02/2020/08/13',
+    )
+
     # Non-datasets (according to filename).
     test('solo_L2_rpw-lfr-surv-bp1-cdag_20201001_V02.CDF', {}, None)
     test('SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG',                {}, None)

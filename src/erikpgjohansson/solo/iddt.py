@@ -111,7 +111,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
             datasetId, includeInstrument=dtdnInclInstrument,
         )
         return os.path.join(instrDirName, level, dtdn, yearStr, monthStr)
-    elif level in ['L1', 'L1R']:
+    elif level in ['LL02', 'LL03', 'L1', 'L1R']:
         return os.path.join(instrDirName, level, yearStr, monthStr, domStr)
     else:
         # NOTE: Includes HK.

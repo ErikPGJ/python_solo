@@ -40,8 +40,8 @@ include: bool
     START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
     STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
 
-    # LS_LEVELS = ['LL02', 'L1']
-    LS_LEVELS = ['L1']
+    LS_LEVELS = ['LL02', 'L1']
+    # LS_LEVELS = ['L1']
     if (instrument == 'EPD') \
             and (level in LS_LEVELS) \
             and (START_TIME <= beginTime) \
