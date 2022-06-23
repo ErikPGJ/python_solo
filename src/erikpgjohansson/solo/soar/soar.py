@@ -68,13 +68,13 @@ handle is added to SOAR, then that file type must be added to the list.
 
 
 @codetiming.Timer('download_SOAR_DST')
-def download_SOAR_DST(cacheFilePath=None):
+def download_SOAR_DST(CacheJsonFilePath=None):
     '''
 Download table of datasets (+metadata) available for download at SOAR.
 
 Parameters
 ----------
-cacheFilePath
+CacheJsonFilePath
     Path to file (may or may not pre-exist) to be used for caching.
     None: Do not cache.
 
@@ -97,11 +97,11 @@ PROPOSAL: Do not return JsonDict.
     PRO: Wrong data structure for debugging.
 PROPOSAL: Cache.
 '''
-    if cacheFilePath and os.path.isfile(cacheFilePath):
+    if CacheJsonFilePath and os.path.isfile(CacheJsonFilePath):
         # ===========================================
         # Retrieve SOAR datasets table from JSON file
         # ===========================================
-        with open(cacheFilePath) as f:
+        with open(CacheJsonFilePath) as f:
             with codetiming.Timer(name='json.load()', logger=None):
                 # NOTE: Is fast (as opposed to json.load()).
                 JsonDict = json.load(f)
@@ -110,11 +110,11 @@ PROPOSAL: Cache.
         # Download SOAR datasets table
         # ============================
         JsonDict = _download_raw_SOAR_datasets_table()
-    if cacheFilePath and not os.path.isfile(cacheFilePath):
+    if CacheJsonFilePath and not os.path.isfile(CacheJsonFilePath):
         # =====================================
         # Save SOAR datasets table to JSON file
         # =====================================
-        with open(cacheFilePath, mode='w', encoding='utf-8') as f:
+        with open(CacheJsonFilePath, mode='w', encoding='utf-8') as f:
             with codetiming.Timer(name='json.dump()', logger=None):
                 # NOTE: Takes time.
                 json.dump(JsonDict, f, indent=2)

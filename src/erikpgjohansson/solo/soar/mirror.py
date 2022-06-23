@@ -83,11 +83,6 @@ DEBUG_DOWNLOAD_DATASETS_DISABLED = False
 DEBUG_DELETE_LOCAL_DATASETS_DISABLED = False
 DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
 
-# Path to JSON file which is used for caching the SOAR table. May or may not
-# pre-exist.
-# None: Do not cache.
-SOAR_TABLE_CACHE_JSON_FILE = None
-
 # Command and arguments to use for removing old local datasets. Paths to
 # actual files to remove are added at the end.
 #
@@ -105,6 +100,7 @@ def sync(
     deleteOutsideSubset=False,
     downloadLogFormat='short',
     nMaxNetDatasetsToRemove=10,
+    SoarTableCacheJsonFilePath=None,
 ):
     '''
 Sync local directory with subset of online SOAR datasets.
@@ -132,6 +128,13 @@ nMaxNetDatasetsToRemove : int
     nNewDatasets"). This is a failsafe (assertion), to protect against deleting
     too many slow-to-redownload datasets due to bugs or misconfiguration (e.g.
     datasetsSubsetFunc).
+SoarTableCacheJsonFilePath
+    Path to JSON file which is used for caching the SOAR table. May or may not
+    pre-exist.
+    None: Do not cache.
+    This is useful for debugging (speeds up execution; can manually inspect
+    SOAR table).
+
 
 
 Returns
@@ -233,7 +236,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ======================================
     print('Downloading SOAR table of datasets.')
     soarDst, _JsonDict = erikpgjohansson.solo.soar.soar.download_SOAR_DST(
-        cacheFilePath=SOAR_TABLE_CACHE_JSON_FILE,
+        CacheJsonFilePath=SoarTableCacheJsonFilePath,
     )
     print(
         'All online SOAR datasets'

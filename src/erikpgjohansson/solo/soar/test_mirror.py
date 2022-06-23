@@ -59,14 +59,16 @@ def sync():
     # print('-'*80)
 
     ROOT_DIR = '/home/erjo/temp/soar_mirror'
+    SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/temp/soar.json"
 
     erikpgjohansson.solo.soar.mirror.sync(
-        syncDir                 = os.path.join(ROOT_DIR, 'mirror'),
-        tempDownloadDir         = os.path.join(ROOT_DIR, 'download'),
-        datasetsSubsetFunc      = _datasets_include_func,
-        downloadLogFormat       = 'long',
-        deleteOutsideSubset     = True,
-        nMaxNetDatasetsToRemove = 20,
+        syncDir                   = os.path.join(ROOT_DIR, 'mirror'),
+        tempDownloadDir           = os.path.join(ROOT_DIR, 'download'),
+        datasetsSubsetFunc        = _datasets_include_func,
+        downloadLogFormat         = 'long',
+        deleteOutsideSubset       = True,
+        nMaxNetDatasetsToRemove   = 20,
+        SoarTableCacheJsonFilePath=SOAR_TABLE_CACHE_JSON_FILE,
     )
 
 
