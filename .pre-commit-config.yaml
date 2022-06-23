@@ -16,10 +16,16 @@ repos:
     rev: "4.0.1"
     hooks:
       - id: flake8
-        args: ["--ignore=E203,E221,E226,E241,E251,E421,E731"]
+        args: ["--ignore=E203,E221,E226,E241,E251,E731"]
         # Exceptions that were made to make the the manual conversion from
-        # non-compliance with flake8 to compliance easier. Can be abandoned
-        # eventually.
+        # non-compliance with flake8 to compliance easier. Can possibly be
+        # abandoned eventually.
+        # E203  Whitespace before ':'
+        # E221  Multiple spaces before operator
+        # E226  Missing whitespace around arithmetic operator
+        # E241  Multiple spaces after ','
+        # E251  Unexpected spaces around keyword / parameter equals
+        # E731  Do not assign a lambda expression, use a def
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: "v2.7.1"
     hooks:
