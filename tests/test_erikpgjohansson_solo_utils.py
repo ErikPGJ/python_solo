@@ -1,12 +1,29 @@
 import erikpgjohansson.solo.utils
+import inspect
 import pytest
 
 
 def test_parse_dataset_filename():
 
     def test(filename, expResult):
-        actResult = erikpgjohansson.solo.utils.parse_dataset_filename(filename)
-        assert actResult == expResult
+        actFnResult = erikpgjohansson.solo.utils.parse_dataset_filename(
+            filename
+        )
+        assert actFnResult == expResult
+
+        if actFnResult is not None:
+            # =======================================================
+            # Assert consistency between parse_dataset_filename() and
+            # parse_item_ID()
+            # =======================================================
+            # II = Item ID
+            actIiResult = erikpgjohansson.solo.utils.parse_item_ID(
+                actFnResult['item ID'],
+            )
+            SHARED_KEYS = ('DATASET_ID', 'time vector 1')
+            assert all(
+                actIiResult[key] == actFnResult[key] for key in SHARED_KEYS
+            )
 
     test(
         'solo_HK_rpw-bia_20200301_V01.cdf',
@@ -85,6 +102,64 @@ def test_parse_dataset_filename():
     test('solo_L1_eui-fsi174-image_20200806T083130185_V01.txt', None)
 
 
+def test_parse_item_ID():
+    def test(itemId, expResult):
+        actResult = erikpgjohansson.solo.utils.parse_item_ID(itemId)
+        assert actResult == expResult
+
+    test(
+        'solo_HK_rpw-bia_20200301', {
+            'DATASET_ID': 'SOLO_HK_RPW-BIA',
+            'time vector 1': (2020, 3, 1, 0, 0, 0.0),
+        }
+    )
+    test('solo_L2_rpw-lfr-surv-cwf-e_20200213', {
+            'DATASET_ID': 'SOLO_L2_RPW-LFR-SURV-CWF-E',
+            'time vector 1': (2020, 2, 13, 0, 0, 0.0),
+    }
+    )
+    test('solo_L1_rpw-bia-sweep_20200307T053018-20200307T053330', {
+            'DATASET_ID': 'SOLO_L1_RPW-BIA-SWEEP',
+            'time vector 1': (2020, 3, 7, 5, 30, 18.0),
+        }
+    )
+    test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025', {
+            'DATASET_ID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
+            'time vector 1': (2020, 8, 13, 0, 0, 26.0),
+        }
+    )
+
+    test('abc', None)
+    test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025a',
+         None,
+    )
+
+
+def test_parse_time_interval_str():
+    def test(s, expResult):
+        if inspect.isclass(expResult) and issubclass(expResult, Exception):
+            expException = expResult
+            with pytest.raises(expException):
+                erikpgjohansson.solo.utils._parse_time_interval_str(s)
+        else:
+            expTv = expResult
+            actTv = erikpgjohansson.solo.utils._parse_time_interval_str(s)
+            assert len(actTv) == 6
+            assert all(type(x) == int for x in actTv[0:5])
+            assert type(actTv[5]) == float
+            assert actTv == expTv
+
+    test('20200623',                          (2020, 6, 23,  0,  0,  0.0))
+    test('20200623T112233',                   (2020, 6, 23, 11, 22, 33.0))
+    test('20200623T1122331',                  (2020, 6, 23, 11, 22, 33.1))
+    test('20200623T11223312',                 (2020, 6, 23, 11, 22, 33.12))
+    test('20200623T112233123',                (2020, 6, 23, 11, 22, 33.123))
+    test('20200623T1122331234',               Exception)
+    test('20200623-20200624',                 (2020, 6, 23,  0,  0,  0.0))
+    test('20200623T112233-20200624T112233',   (2020, 6, 23, 11, 22, 33.0))
+    test('20200623T1122331-20200624T1122331', Exception)
+
+
 def test_parse_DATASET_ID():
 
     def test(datasetId, expResult):
@@ -110,6 +185,7 @@ def test_parse_DATASET_ID():
 
 
 if __name__ == '__main__':
-    test_parse_DATASET_ID()
     test_parse_dataset_filename()
-    pass
+    test_parse_item_ID()
+    test_parse_time_interval_str()
+    test_parse_DATASET_ID()

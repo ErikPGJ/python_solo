@@ -114,10 +114,71 @@ def parse_dataset_filename(filename):
     return d
 
 
-def _parse_time_interval_str(timeIntervalStr):
-    ''''''
+def parse_item_ID(itemId: str):
     '''
-    TODO: Test code.
+    Parse an "item ID" as SOAR defines it.
+
+    NOTE: Does not support the RPW consortium-internal "-CDAG" extension to
+    the official filenaming conventions, since the "item ID" is not a
+    filename, and is only relevant in the contect of SOAR.
+
+    Parameters
+    ----------
+    itemId
+
+    Returns
+    -------
+    Dictionary: if can parse string.
+    None: if can not parse string.
+    '''
+    substrList, remainingStr, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            itemId, [
+                '.*',              # 0
+                '_',
+                RE_TIME_INTERVAL_STR,   # 2
+            ],
+            -1, 'permit non-match',
+        )
+    if not isPerfectMatch:
+        return None
+
+    datasetId       = substrList[0].upper()
+    timeIntervalStr = substrList[2]
+    try:
+        tv1 = _parse_time_interval_str(timeIntervalStr)
+    except Exception as e:
+        return None
+
+    return {'DATASET_ID': datasetId, 'time vector 1': tv1}
+
+
+def _parse_time_interval_str(timeIntervalStr: str):
+    '''
+    Parse time interval string.
+
+    Parameters
+    ----------
+    timeIntervalStr:
+        String on any one of the formats
+            YYYYMMDD
+            YYYYMMDD-YYYYMMDD
+            YYYYMMDDThhmmssddd    # ddd = 0-3 second decimals
+            YYYYMMDDThhmmss-YYYYMMDDThhmmss   # No second decimals
+
+    Returns
+    -------
+    year, month, day, hour, minute (all int)
+    second (float)
+
+    Exception
+    ---------
+    If can not parse string.
+    '''
+    '''
+    PROPOSAL: Refactor to return ~None if can not parse.
+        PRO: Analogous with parse_dataset_filename().
+        CON: Must reinterpret assertions.
     '''
 
     def parse_YYYYMMDD(s):
