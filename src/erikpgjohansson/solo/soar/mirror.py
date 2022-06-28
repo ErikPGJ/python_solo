@@ -538,6 +538,7 @@ bSubset : numpy array
             instrument=instrumentArray[i],
             level     =levelArray[i],
             beginTime =beginTimeArray[i],
+            datasetId =datasetIdArray[i],
         )
 
     return bSubset

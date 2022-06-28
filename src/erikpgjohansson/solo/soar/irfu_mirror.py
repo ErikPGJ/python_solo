@@ -12,7 +12,7 @@ import erikpgjohansson.solo.soar.mirror
 import os
 
 
-def _IRFU_datasets_include_func(instrument, level, beginTime):
+def _IRFU_datasets_include_func(instrument, level, beginTime, datasetId):
     '''
 Function that determines whether a specific dataset is included/excluded in
 the sync.

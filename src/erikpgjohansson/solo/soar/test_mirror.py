@@ -19,7 +19,7 @@ BOGIQ
 '''
 
 
-def _datasets_include_func(instrument, level, beginTime):
+def _datasets_include_func(instrument, level, beginTime, datasetId):
     '''
 Function that determines whether a specific dataset is included/excluded in
 the sync.
@@ -45,6 +45,7 @@ include: bool
     if (instrument == 'EPD') \
             and (level in LS_LEVELS) \
             and (START_TIME <= beginTime) \
+            and (datasetId == 'solo_LL02_epd-ept-asun-rates'.upper()) \
             and (beginTime < STOP_TIME):
         return True
 
