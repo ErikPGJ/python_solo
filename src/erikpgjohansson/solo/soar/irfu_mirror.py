@@ -35,7 +35,9 @@ include: bool
 '''
     # NOTE: Include all time periods. ==> Do not check beginTime (for now).
 
-    if instrument == 'MAG' and level in ['L2']:
+    if datasetId in ('SOLO_LL02_SWA-PAS-MOM', 'SOLO_LL02_MAG'):
+        return True
+    elif instrument == 'MAG' and level in ['L2']:
         return True
     elif instrument == 'EPD' and level in ['L1', 'L2']:
         return True
