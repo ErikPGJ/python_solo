@@ -194,6 +194,11 @@ def test_parse_DATASET_ID():
         'SOLO_LL02_EPD-HET-SOUTH-RATES',
         ('SOLO', 'LL02', 'EPD', 'EPD-HET-SOUTH-RATES'),
     )
+    test(
+        'SOLO_LL02_MAG',
+        ('SOLO', 'LL02', 'MAG', 'MAG'),
+    )
+
     with pytest.raises(Exception):
         erikpgjohansson.solo.utils.parse_DATASET_ID(
             'SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG',

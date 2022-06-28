@@ -307,6 +307,8 @@ def parse_DATASET_ID(datasetId):
         raise Exception(f'Not uppercase datasetId="{datasetId}"')
 
     # IMPLEMENTATION NOTE: Must search backwards because of -CDAG.
+    # IMPLEMENTATION NOTE: "instrument" and "descriptor" can be identical.
+    #   Ex: SOLO_LL02_MAG
     # NOTE: Only identifies -CDAG to giver custom error message.
     # NOTE: Have not seen any LL01 datasets. Not sure if such exist.
     substrList, remainingStr, isPerfectMatch = \
@@ -317,9 +319,9 @@ def parse_DATASET_ID(datasetId):
                 '_',
                 '(LL02|LL03|L1|L1R|L2|L3)',    # 2
                 '_',
-                '[A-Z]+',         # 4
-                '-[A-Z0-9-]+',    # 5
-                '(|-CDAG)',       # 6
+                '[A-Z]+',            # 4
+                '(|-[A-Z0-9-]+)',    # 5
+                '(|-CDAG)',          # 6
             ],
             -1, 'permit non-match',
         )
