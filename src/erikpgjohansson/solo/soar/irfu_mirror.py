@@ -9,7 +9,9 @@ Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 import erikpgjohansson.solo.soar.mirror
+import logging
 import os
+import sys
 
 
 def _IRFU_datasets_include_func(instrument, level, beginTime, datasetId):
@@ -44,21 +46,27 @@ include: bool
 
 
 def sync():
-    if 1:
-        # NOTE: Script can be used on irony if SO directories have been
-        # mounted.
-        assert os.uname().nodename in ['brain', 'spis', 'irony'], (
-            'This code is not intended to run on this machine (not'
-            ' configured for it.'
-        )
+    # NOTE: Script can be used on irony if SO directories have been
+    # mounted.
+    assert os.uname().nodename in ['brain', 'spis', 'irony'], (
+        'This code is not intended to run on this machine (not'
+        ' configured for it.'
+    )
+
+    # SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/soar/soar.json"
+
+    # Configuring the logger appears necessary to get all the logging output.
+    # stream = sys.stdout : Log to stdout (instead of stderr).
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     erikpgjohansson.solo.soar.mirror.sync(
-        syncDir                 = '/data/solo/soar',
-        tempDownloadDir         = '/data/solo/soar/downloads',
-        datasetsSubsetFunc      = _IRFU_datasets_include_func,
-        downloadLogFormat       = 'long',
-        deleteOutsideSubset     = True,
-        nMaxNetDatasetsToRemove = 25,
+        syncDir                   = '/data/solo/soar',
+        tempDownloadDir           = '/data/solo/soar/downloads',
+        datasetsSubsetFunc        = _IRFU_datasets_include_func,
+        downloadLogFormat         = 'long',
+        deleteOutsideSubset       = True,
+        nMaxNetDatasetsToRemove   = 25,
+        # SoarTableCacheJsonFilePath=SOAR_TABLE_CACHE_JSON_FILE,
     )
 
     # 2021-12-17: "AssertionError: Net number of datasets to remove (25) is

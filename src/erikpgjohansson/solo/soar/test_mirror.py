@@ -12,6 +12,7 @@ import erikpgjohansson.solo.soar.mirror
 import logging
 import numpy
 import os
+import sys
 
 
 '''
@@ -60,7 +61,9 @@ def sync():
     ROOT_DIR = '/home/erjo/temp/soar'
     SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/soar/soar.json"
 
-    logging.basicConfig(level=logging.INFO)
+    # Configuring the logger appears necessary to get all the logging output.
+    # stream = sys.stdout : Log to stdout (instead of stderr).
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                   = os.path.join(ROOT_DIR, 'mirror'),
