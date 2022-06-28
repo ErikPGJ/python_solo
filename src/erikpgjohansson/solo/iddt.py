@@ -1,19 +1,7 @@
 '''
 Functionality for handling IDDT.
 
-
-SHORTENINGS
-===========
-IDDT = IRFU (SolO) Datasets Directory Tree.
-    "SolO" is excluded from the name since it is implicit from parent package
-    "so".
-    The way datasets are organized for SolO L2 & L3 datasets at IRFU.
-    Directory paths: <instrument>/<DTDN>/<year>/<month>/<dataset file>.
-DTDN = Data Type Directory Name
-    Standardized (sub)directory name used for subset of DATASET_IDs in
-    the "IRFU SolO data directory structure".
-    Ex: lfr_wf_e
-
+See MISC_CONVENTIONS for shortenings.
 
 Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
@@ -66,20 +54,6 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     relative_directory path : String
         Relative directory path. Ex: 'RPW/L2/lfr_bp/2020/10'
         None : If can not parse filename.
-
-    '''
-    '''
-    Examples of in-flight dataset filenames
-    ---------------------------------------
-    solo_HK_rpw-bia_20200301_V01.cdf                   # NOTE: No -cdag.
-    solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V01.cdf   # NOTE: -cdag.
-    solo_L2_mag-rtn-burst_20200601_V02.cdf
-    solo_L2_mag-rtn-normal-1-minute_20200601_V02.cdf
-    solo_L2_mag-rtn-normal_20200601_V02.cdf
-    solo_L2_mag-srf-burst_20200601_V02.cdf
-    solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf
-    solo_L1_epd-sis-b-hehist_20200930_V01.cdf
-    solo_L2_swa-eas1-nm3d-psd_20200708T060012-20200708T120502_V01.cdf
     '''
     '''
     PROPOSAL: DATASET_ID+time (year+month) as argument?
@@ -98,7 +72,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
 
     yearStr  = f'{tv1[0]:04}'
     monthStr = f'{tv1[1]:02}'
-    domStr   = f'{tv1[2]:02}'
+    domStr   = f'{tv1[2]:02}'   # DOM = Day-Of-Month
     if instrDirCase == 'upper':
         instrDirName = instrument.upper()    # .lower() really unnecessary.
     elif instrDirCase == 'lower':
@@ -116,7 +90,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     else:
         # NOTE: Includes HK.
         raise Exception(
-            f'Can not generate IDDT subdirectory for level={level}.',
+            f'Can not generate IDDT subdirectory for level="{level}".',
         )
 
 

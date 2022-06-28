@@ -1,5 +1,8 @@
 '''
 Initially created by Erik P G Johansson 2020-10-16, IRF Uppsala, Sweden.
+
+Filenaming conventions are described in
+"Metadata Definition for Solar Orbiter Science Data", SOL-SGS-TN-0009.
 '''
 
 
@@ -10,14 +13,17 @@ import erikpgjohansson.solo.str
 BOGIQ
 =====
 PROPOSAL: Function for parsing "item_id".
-    PRO: Can use for deducing level, which can be used for handling special 
+    PRO: Can use for deducing level, which can be used for handling special
          case of LL when downloading.
     PRO: Can use to select sync subset based on e.g. dataset_ID (?).
+
+PROPOSAL: parse_item_ID() to solo.soar.
+    PRO: Is associated with SOAR, not SolO in general.
 '''
 
 
 # Regular Expressions (RE)
-RE_TIME_INTERVAL_STR = '[0-9T-]{8,31}'
+RE_TIME_INTERVAL_STR  = '[0-9T-]{8,31}'
 RE_YYYYMMDD           = '[0-9]{8,8}'
 RE_YYYYMMDDThhmmss    = '[0-9]{8,8}T[0-9]{6,6}'
 RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
@@ -103,7 +109,7 @@ def parse_dataset_filename(filename):
     versionStr      = substrList[5]
     try:
         tv1 = _parse_time_interval_str(timeIntervalStr)
-    except Exception as e:
+    except Exception:
         return None
 
     d = {
@@ -149,7 +155,7 @@ def parse_item_ID(itemId: str):
     timeIntervalStr = substrList[2]
     try:
         tv1 = _parse_time_interval_str(timeIntervalStr)
-    except Exception as e:
+    except Exception:
         return None
 
     return {'DATASET_ID': datasetId, 'time vector 1': tv1}

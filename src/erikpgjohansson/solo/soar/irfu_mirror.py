@@ -30,7 +30,6 @@ Returns
 -------
 include: bool
     Whether datasets should be included or not.
-
 '''
     # NOTE: Include all time periods. ==> Do not check beginTime (for now).
 
@@ -40,8 +39,8 @@ include: bool
         return True
     elif instrument == 'SWA' and level in ['L1', 'L2']:
         return True
-
-    return False
+    else:
+        return False
 
 
 def sync():

@@ -137,7 +137,7 @@ def assert_col_array(v, dtype=None):
 def index_DST(dst, bi):
     '''
 "Index" all arrays in dictionary, i.e. return dictionary where each dictionary
-value contains only that subset defined by the indices specified in "bi".
+na contains only that subset defined by the indices specified in "bi".
 
 Simple utility function to avoid having to remember exact syntax.
 
@@ -514,63 +514,3 @@ def log_codetiming():
     print('')
 
 
-def download_batch___MTEST(fileParentPath):
-    '''
-    Batch downloading with mostly hardcoded arguments.
-    '''
-    # dirDst = derive_DST_from_dir(fileParentPath)
-    # print('dirDst:')
-    # log_DST(dirDst)
-
-    (dst, _JsonDict) = erikpgjohansson.solo.soar.soar.download_SOAR_DST()
-    bLv = find_latest_versions(dst['item_ID'], dst['item_version'])
-    dst = index_DST(dst, bLv)
-    dst = filter_DST(
-        dst,
-        levelsSet=['L2'],
-        instrumentsSet=['MAG'],
-        intervalTimeStrs=('2020-07-01', '2020-07-01 12:00:00'),
-    )
-
-    download_latest_datasets_batch(
-        dst['item_id'], dst['file_size'], fileParentPath,
-    )
-
-
-def download_batch___MANUAL():
-    '''
-    Batch downloading with mostly hardcoded arguments.
-    '''
-    # def print_bytes():
-    #     totalBytes = dst['file_size'].sum()
-    #     print('Number of datasets:     {0:d}'.format(dst['file_size'].size))
-    # print('Total size of datasets: {0:.2f} [GiB]'.format(totalBytes / 2**30))
-
-    # OUTPUT_DIR = '/home/erjo/temp/soar/download'
-    OUTPUT_DIR = '/data/solo/soar/download'
-    # OUTPUT_DIR = '/homelocal/erjo/SOLAR_ORBITER/SOAR_download'
-    # intervalTimeStrs=('2020-07-01', '2020-07-02')
-    # intervalTimeStrs=('2020-01-01', '2020-12-31')
-
-    (dst, _JsonDict)  = erikpgjohansson.solo.soar.soar.download_SOAR_DST()
-    bLv = find_latest_versions(dst['item_id'], dst['item_version'])
-    dst = index_DST(dst, bLv)
-
-    # dst  = filter_DST_dir(dst, OUTPUT_DIR) # Remove already downloaded files.
-
-    ######################
-    intervalTimeStrs = ('2020-09-01', '2021-07-01 12:00:00')
-    dst2 = filter_DST(
-        dst, levelsSet=['L1', 'L2'],
-        instrumentsSet=['SWA', 'EPD'],
-        intervalTimeStrs=intervalTimeStrs,
-    )
-    log_DST(dst2)
-    download_latest_datasets_batch(
-        dst2['item_id'],
-        dst2['file_size'],
-        OUTPUT_DIR,
-        downloadByIncrFileSize=False,
-        debugDownloadingEnabled=True,
-    )
-    ######################

@@ -16,7 +16,7 @@ v1.18.5, but not numpy v1.19.5.
 DEFINITIONS
 ===========
 item_id
-    Type of value (column) returned from SOAR when requesting table.
+    Type of na (column) returned from SOAR when requesting table.
     Unique dataset except version.
     Ex:
         'solo_L2_rpw-tds-surv-tswf-b_20200707'
@@ -103,7 +103,8 @@ PROPOSAL: Cache.
         # ===========================================
         with open(CacheJsonFilePath) as f:
             with codetiming.Timer(name='json.load()', logger=None):
-                # NOTE: Is fast (as opposed to json.load()).
+                # NOTE: Reading file is fast (as opposed to
+                # writing file / json.load()).
                 JsonDict = json.load(f)
     else:
         # ============================
@@ -127,7 +128,7 @@ PROPOSAL: Cache.
 @codetiming.Timer('_download_raw_SOAR_datasets_table')
 def _download_raw_SOAR_datasets_table():
     '''
-Download list of datasets from SOAR, without modifying the list to more
+Download list of datasets from SOAR, without modifying the list to a more
 convenient format.
 
 NOTE: Uses SOAR list "v_public_files" which presumably contains all datasets.
@@ -420,10 +421,10 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
     url = get_URL(dataItemId, level)
 
     # DEBUG
-    print(f'url              = {url}')
-    print(f'dataItemId       = {dataItemId}')
-    print(f'expectedFileName = {expectedFileName}')
-    print(f'level            = {level}')
+    # print(f'url              = {url}')
+    # print(f'dataItemId       = {dataItemId}')
+    # print(f'expectedFileName = {expectedFileName}')
+    # print(f'level            = {level}')
 
     HttpResponse = urllib.request.urlopen(url)
     fileName = _extract_HTTP_response_filename(HttpResponse)

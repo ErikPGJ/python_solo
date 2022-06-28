@@ -7,7 +7,7 @@ def test_parse_dataset_filename():
 
     def test(filename, expResult):
         actFnResult = erikpgjohansson.solo.utils.parse_dataset_filename(
-            filename
+            filename,
         )
         assert actFnResult == expResult
 
@@ -76,7 +76,7 @@ def test_parse_dataset_filename():
             'version string': '02',
             'time vector 1': (699408000,),
             'item ID': 'solo_L0_epd-epthet2-ll_0699408000-0699494399',
-        }
+        },
     )
 
     # NOTE: "V03I".
@@ -121,34 +121,37 @@ def test_parse_item_ID():
         'solo_HK_rpw-bia_20200301', {
             'DATASET_ID': 'SOLO_HK_RPW-BIA',
             'time vector 1': (2020, 3, 1, 0, 0, 0.0),
-        }
+        },
     )
-    test('solo_L2_rpw-lfr-surv-cwf-e_20200213', {
+    test(
+        'solo_L2_rpw-lfr-surv-cwf-e_20200213', {
             'DATASET_ID': 'SOLO_L2_RPW-LFR-SURV-CWF-E',
             'time vector 1': (2020, 2, 13, 0, 0, 0.0),
-    }
+        },
     )
-    test('solo_L1_rpw-bia-sweep_20200307T053018-20200307T053330', {
+    test(
+        'solo_L1_rpw-bia-sweep_20200307T053018-20200307T053330', {
             'DATASET_ID': 'SOLO_L1_RPW-BIA-SWEEP',
             'time vector 1': (2020, 3, 7, 5, 30, 18.0),
-        }
+        },
     )
     test(
         'solo_L0_epd-epthet2-ll_0699408000-0699494399', {
             'DATASET_ID': 'SOLO_L0_EPD-EPTHET2-LL',
             'time vector 1': (699408000,),
-        }
+        },
     )
     test(
         'solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025', {
-                'DATASET_ID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
-                'time vector 1': (2020, 8, 13, 0, 0, 26.0),
+            'DATASET_ID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
+            'time vector 1': (2020, 8, 13, 0, 0, 26.0),
         },
     )
 
     test('abc', None)
-    test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025a',
-         None,
+    test(
+        'solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025a',
+        None,
     )
 
 

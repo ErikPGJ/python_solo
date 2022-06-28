@@ -213,7 +213,7 @@ def main(
             # CP_DPU_BIA_SWEEP_STEP_NR
             #       preceedes loading sweep table.
             # CP_DPU_BIA_SWEEP_STEP_CUR
-            #       gives sweep table value.
+            #       gives sweep table na.
             # TC_DPU_LOAD_BIAS_SWEEP
             #       precedes sweep table and has the last time stamp before it.
             #
@@ -222,7 +222,7 @@ def main(
             #       setting on one probe.
             # CP_BIA_SET_BIAS
             #       (substring) gives bias current on one probe.
-            #       Sometimes combined with "Raw" ==> non-readable(?) value.
+            #       Sometimes combined with "Raw" ==> non-readable(?) na.
 
             p = False   # Whether to print this row.
             if includeSweeps:

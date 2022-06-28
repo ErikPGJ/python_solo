@@ -71,6 +71,8 @@ PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
 
 PROPOSAL: Separate function for removing files instead of command+arguments
           (FILE_REMOVAL_COMMAND_LIST).
+
+PROPOSAL: Convert DEBUG_* constants into sync() argments.
 '''
 
 
@@ -96,7 +98,7 @@ CREATE_DIR_PERMISSIONS = 0o755
 
 @codetiming.Timer('sync')
 def sync(
-    syncDir, tempDownloadDir, datasetsSubsetFunc,
+    syncDir, tempDownloadDir, datasetsSubsetFunc: callable,
     deleteOutsideSubset=False,
     downloadLogFormat='short',
     nMaxNetDatasetsToRemove=10,
@@ -117,12 +119,10 @@ datasetsSubsetFunc : Function (instrument=str, level=str) --> bool
     Function which determines whether a specific dataset should be included
     in the sync.
 deleteOutsideSubset : Boolean
-    Whether local datasets not specified by datasetsSubsetFunc should be
-    deleted or not.
-    False: Local datasets which are excluded can not be removed by the syncing.
-    True:  Local datasets which are excluded will be removed by the syncing.
+    Whether local datasets for which datasetsSubsetFunc returns false should be
+    deleted or not, even if there is no newer version.
     NOTE: This distinction is important when one wants to
-        update only some of the local datasets but not other (e.g. for speed).
+    update only some of the local datasets but not other (e.g. for speed).
 nMaxNetDatasetsToRemove : int
     Maximum permitted net number of deleted datasets ("nDeletedDatasets minus
     nNewDatasets"). This is a failsafe (assertion), to protect against deleting
@@ -253,9 +253,10 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ==============================================
     bSoarSubset = _find_DST_subset(
         datasetsSubsetFunc,
-        instrumentArray=soarDst['instrument'],
-        levelArray     =soarDst['processing_level'],
-        beginTimeArray =soarDst['begin_time_FN'],
+        soarDst,
+        # instrumentArray=soarDst['instrument'],
+        # levelArray     =soarDst['processing_level'],
+        # beginTimeArray =soarDst['begin_time_FN'],
     )
     soarSubsetDst = erikpgjohansson.solo.soar.utils.index_DST(
         soarDst, bSoarSubset,
@@ -299,9 +300,10 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     if not deleteOutsideSubset:
         bLocalSubset = _find_DST_subset(
             datasetsSubsetFunc,
-            instrumentArray=localDst['instrument'],
-            levelArray     =localDst['processing_level'],
-            beginTimeArray =localDst['begin_time_FN'],
+            localDst,
+            # instrumentArray=localDst['instrument'],
+            # levelArray     =localDst['processing_level'],
+            # beginTimeArray =localDst['begin_time_FN'],
         )
         localDst = erikpgjohansson.solo.soar.utils.index_DST(
             localDst, bLocalSubset,
@@ -494,8 +496,8 @@ PROPOSAL: Include file sizes.
 
 @codetiming.Timer('_find_DST_subset')
 def _find_DST_subset(
-    datasetIncludeFunc,
-    instrumentArray, levelArray, beginTimeArray,
+    datasetIncludeFunc, dst,
+    # instrumentArray, levelArray, beginTimeArray,
 ):
     '''
 Returns indices to datasets that are permitted by datasetIncludeFunc.
@@ -506,23 +508,40 @@ Parameters
 ----------
 datasetIncludeFunc : Function handle.
     Checks whether a given dataset should be included.
-instrumentArray : numpy array
-levelArray : numpy array
 
 
 Returns
 -------
 bSubset : numpy array
 '''
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        instrumentArray, np.dtype('O'),
-    )
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        levelArray,      np.dtype('O'),
-    )
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        beginTimeArray,  np.dtype('<M8[ms]'),
-    )   # Omit type?
+    instrumentArray = dst['instrument']
+    levelArray      = dst['processing_level']
+    beginTimeArray  = dst['begin_time_FN']
+    ls_itemId = []
+    for i, itemId in enumerate(dst['item_id']):
+        d = erikpgjohansson.solo.utils.parse_item_ID(itemId)
+        # if type(d) != dict:
+        #     x = 2
+        datasetId = d['DATASET_ID']
+        ls_itemId.append(datasetId)
+    datasetIdArray = np.array(ls_itemId)
+
+    # datasetIdArray  = np.array(
+    #     tuple(
+    #         erikpgjohansson.solo.utils.parse_item_ID(itemId)['DATASET_ID']
+    #         for itemId in dst['item_id']
+    #     )
+    # )
+
+    # erikpgjohansson.solo.soar.utils.assert_col_array(
+    #     instrumentArray, np.dtype('O'),
+    # )
+    # erikpgjohansson.solo.soar.utils.assert_col_array(
+    #     levelArray,      np.dtype('O'),
+    # )
+    # erikpgjohansson.solo.soar.utils.assert_col_array(
+    #     beginTimeArray,  np.dtype('<M8[ms]'),
+    # )   # Omit type?
 
     bSubset = np.zeros(instrumentArray.shape, dtype=bool)
     # for i, _instrument in enumerate(instrumentArray):

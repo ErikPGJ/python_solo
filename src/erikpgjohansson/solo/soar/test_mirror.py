@@ -45,7 +45,7 @@ include: bool
     if (instrument == 'EPD') \
             and (level in LS_LEVELS) \
             and (START_TIME <= beginTime) \
-            and (datasetId == 'solo_LL02_epd-ept-asun-rates'.upper()) \
+            and (datasetId == 'SOLO_LL02_EPD-EPT-ASUN-RATES') \
             and (beginTime < STOP_TIME):
         return True
 
@@ -53,11 +53,11 @@ include: bool
 
 
 def sync():
-    assert os.uname().nodename in ['brain', 'spis', 'irony'],\
+    assert os.uname().nodename in ['brain', 'spis', 'irony'], \
         'This code is not meant to run on this machine.'
 
-    ROOT_DIR = '/home/erjo/temp/soar_mirror'
-    SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/temp/soar.json"
+    ROOT_DIR = '/home/erjo/temp/soar'
+    SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/soar/soar.json"
 
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                   = os.path.join(ROOT_DIR, 'mirror'),
@@ -65,7 +65,7 @@ def sync():
         datasetsSubsetFunc        = _datasets_include_func,
         downloadLogFormat         = 'long',
         deleteOutsideSubset       = True,
-        nMaxNetDatasetsToRemove   = 20,
+        nMaxNetDatasetsToRemove   = 25,
         SoarTableCacheJsonFilePath=SOAR_TABLE_CACHE_JSON_FILE,
     )
 
