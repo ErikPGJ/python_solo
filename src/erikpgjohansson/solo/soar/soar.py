@@ -36,8 +36,9 @@ Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 
 import codetiming
 import datetime
-import erikpgjohansson.solo.utils
+import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.utils
+import erikpgjohansson.solo.utils
 import json
 import numpy as np
 import os.path
@@ -200,7 +201,7 @@ dst : Dictionary of numpy arrays.
     ]
     dataTuples     = JsonDict['data']
 
-    dst = dict()
+    dst = erikpgjohansson.solo.soar.dst.DatasetsTable()
     for iCol in range(len(columnNameList)):
         colName    = columnNameList[iCol]
         columnList = [value[iCol] for value in dataTuples]
@@ -309,7 +310,6 @@ dst : Dictionary of numpy arrays.
 
     dst['begin_time_FN'] = beginTimeFnArray
 
-    erikpgjohansson.solo.soar.utils.assert_DST(dst)
     return dst
 
 

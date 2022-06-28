@@ -74,42 +74,6 @@ PROPOSAL: DST filtering functions should accept DST+relevant column names.
 '''
 
 
-def assert_DST(dst):
-    '''
-Assert that an argument is a legal DST (DataSets Table).
-
-Parameters
-----------
-dst : A DST
-
-Returns
--------
-Number of rows in DST.
-'''
-    assert type(dst == dict)
-
-    nRows = None
-    for (k, v) in dst.items():
-        assert type(k) == str
-        erikpgjohansson.solo.soar.utils.assert_col_array(v)
-        # assert type(v) == np.ndarray
-        # assert v.ndim == 1
-
-        if nRows is None:
-            nRows = v.size
-        else:
-            assert nRows == v.size
-
-    # ASSERTION: Implicitly that there are >=1 COLUMNS (not >= rows).
-    assert nRows is not None
-
-    return nRows
-
-
-def nRows_DST(dst):
-    return assert_DST(dst)
-
-
 def assert_col_array(v, dtype=None):
 
     # PROPOSAL: Use numpy.issubdtype()
@@ -133,26 +97,6 @@ def assert_col_array(v, dtype=None):
         assert v.dtype == dtype
 
     # return v.size   # Exclude?
-
-
-def index_DST(dst, bi):
-    '''
-"Index" all arrays in dictionary, i.e. return dictionary where each dictionary
-na contains only that subset defined by the indices specified in "bi".
-
-Simple utility function to avoid having to remember exact syntax.
-
-
-Parameters
-----------
-bi : numpy array
-    boolean index or integer index.
-
-    '''
-    assert_DST(dst)
-    assert type(bi) == np.ndarray
-
-    return {k: v[bi] for k, v in dst.items()}
 
 
 @codetiming.Timer('download_latest_datasets_batch')
@@ -422,60 +366,62 @@ dst
                 tv1[5] = int(tv1[5])
                 beginTimeFnList += [datetime.datetime(*tv1)]
 
-    return {
-        'file_name'       : np.array(fileNameList,    dtype=object),
-        'file_path'       : np.array(filePathList,    dtype=object),
-        'item_version'    : np.array(fileVerList,     dtype=np.int),
-        'item_id'         : np.array(itemIdList,      dtype=object),
-        'file_size'       : np.array(fileSizeList,    dtype=np.int),
-        'begin_time_FN'   : np.array(beginTimeFnList, dtype='datetime64[ms]'),
-        'instrument'      : np.array(instrumentList,  dtype=object),
-        'processing_level': np.array(levelList,       dtype=object),
-    }
-    # NOTE: Column name "processing_level" chose to be in agreement with
+    dst = erikpgjohansson.solo.soar.dst.DatasetsTable()
+    dst['file_name']        = np.array(fileNameList,    dtype=object)
+    dst['file_path']        = np.array(filePathList,    dtype=object)
+    dst['item_version']     = np.array(fileVerList,     dtype=np.int)
+    dst['item_id']          = np.array(itemIdList,      dtype=object)
+    dst['file_size']        = np.array(fileSizeList,    dtype=np.int)
+    dst['begin_time_FN']    = np.array(beginTimeFnList, dtype='datetime64[ms]')
+    dst['instrument']       = np.array(instrumentList,  dtype=object)
+    dst['processing_level'] = np.array(levelList,       dtype=object)
+    # NOTE: Key name "processing_level" chosen to be in agreement with
     # erikpgjohansson.solo.soar.soar.download_SOAR_DST().
+    return dst
 
 
-def filter_DST(
-    dst, levelsSet=None, instrumentsSet=None,
-    intervalTimeStrs=None,
-):
-    '''
-General-purpose customizable DST filter. In particular for manualy selecting
-which subset of datasets that should be downloaded or synced. Datasets in DST
-that match all arguments will be kept. All other datasets will be removed.
+# def filter_DST(
+#     dst, levelsSet=None, instrumentsSet=None,
+#     intervalTimeStrs=None,
+# ):
+#     '''
+# General-purpose customizable DST filter. In particular for manually selecting
+# which subset of datasets that should be downloaded or synced. Datasets in DST
+# that match all arguments will be kept. All other datasets will be removed.
+#
+# Parameters
+# ----------
+# dst :
+# levelsSet : Set of strings
+# instrumentsSet : Set of instruments
+# intervalTimeStrs : Two UTC strings, start & stop.
+#     Approximate time interval to keep. Applies to column begin_time.
+#
+# Returns
+# -------
+# dict
+#     '''
+#     assert type(dst) == erikpgjohansson.solo.soar.dst.DatasetsTable
+#
+#     b = np.full(dst.n(), True)
+#
+#     if levelsSet:
+#         b = b & np.isin(dst['processing_level'], np.array(list(levelsSet)))
+#     if instrumentsSet:
+#         b = b & np.isin(dst['instrument'], np.array(list(instrumentsSet)))
+#
+#     if intervalTimeStrs:
+#         assert len(intervalTimeStrs) == 2
+#         DtMin = np.datetime64(intervalTimeStrs[0])
+#         DtMax = np.datetime64(intervalTimeStrs[1])
+#         bta = dst['begin_time']   # BTA = Begin Time Array
+#         b = b & (DtMin <= bta) & (bta <= DtMax)
+#
+#     return dst.index(b)
 
-Parameters
-----------
-dst :
-levelsSet : Set of strings
-instrumentsSet : Set of instruments
-intervalTimeStrs : Two UTC strings, start & stop.
-    Approximate time interval to keep. Applies to column begin_time.
 
-Returns
--------
-dict
-    '''
-    b = np.full(len(dst['processing_level']), True)
-
-    if levelsSet:
-        b = b & np.isin(dst['processing_level'], np.array(list(levelsSet)))
-    if instrumentsSet:
-        b = b & np.isin(dst['instrument'], np.array(list(instrumentsSet)))
-
-    if intervalTimeStrs:
-        assert len(intervalTimeStrs) == 2
-        DtMin = np.datetime64(intervalTimeStrs[0])
-        DtMax = np.datetime64(intervalTimeStrs[1])
-        bta = dst['begin_time']   # BTA = Begin Time Array
-        b = b & (DtMin <= bta) & (bta <= DtMax)
-
-    return index_DST(dst, b)
-
-
-def log_DST(dst):
-    assert_DST(dst)
+def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable):
+    assert type(dst) == erikpgjohansson.solo.soar.dst.DatasetsTable
 
     L = logging.getLogger(__name__)
 

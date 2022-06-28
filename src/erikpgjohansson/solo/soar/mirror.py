@@ -250,25 +250,16 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # --------------------------------
     # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero datasets
     # by mistake. This could in turn lead to deleting all local datasets.
-    nRows = erikpgjohansson.solo.soar.utils.nRows_DST(soarDst)
-    assert nRows > 0, (
-        'SOAR returns a zero-size datasets table.'
+    assert soarDst.n() > 0, (
+        'SOAR returned a zero-size datasets table.'
         ' There seems to be something wrong with SOAR.'
     )
 
     # ==============================================
     # Select specified subset of datasets (item IDs)
     # ==============================================
-    bSoarSubset = _find_DST_subset(
-        datasetsSubsetFunc,
-        soarDst,
-        # instrumentArray=soarDst['instrument'],
-        # levelArray     =soarDst['processing_level'],
-        # beginTimeArray =soarDst['begin_time_FN'],
-    )
-    soarSubsetDst = erikpgjohansson.solo.soar.utils.index_DST(
-        soarDst, bSoarSubset,
-    )
+    bSoarSubset = _find_DST_subset(datasetsSubsetFunc, soarDst)
+    soarSubsetDst = soarDst.index(bSoarSubset)
     L.info(
         'Subset of online SOAR datasets that should be synced with local'
         ' datasets:',
@@ -286,9 +277,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
         soarSubsetDst['item_id'],
         soarSubsetDst['item_version'],
     )
-    soarSubsetLvDst = erikpgjohansson.solo.soar.utils.index_DST(
-        soarSubsetDst, bLv,
-    )
+    soarSubsetLvDst = soarSubsetDst.index(bLv)
 
     L.info(
         'Latest versions of all online SOAR datasets (synced and non-synced):',
@@ -299,23 +288,15 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ASSERT: The subset of SOAR is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
     # files due to faulty datasetsSubsetFunc.
-    assert erikpgjohansson.solo.soar.utils.nRows_DST(soarSubsetLvDst) > 0, (
+    assert soarSubsetLvDst.n() > 0, (
         'Trying to sync with empty subset of SOAR datasets.'
         ' datasetsSubsetFunc could be faulty.'
     )
 
     # Local datasets
     if not deleteOutsideSubset:
-        bLocalSubset = _find_DST_subset(
-            datasetsSubsetFunc,
-            localDst,
-            # instrumentArray=localDst['instrument'],
-            # levelArray     =localDst['processing_level'],
-            # beginTimeArray =localDst['begin_time_FN'],
-        )
-        localDst = erikpgjohansson.solo.soar.utils.index_DST(
-            localDst, bLocalSubset,
-        )
+        bLocalSubset = _find_DST_subset(datasetsSubsetFunc, localDst)
+        localDst = localDst.index(bLocalSubset)
         L.info(
             'NOTE: Only syncing against subset of local datasets.'
             ' Will NOT delete outside datasets outside the specified subset.',
@@ -341,12 +322,8 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
         localDst['file_size'],
     )
 
-    soarMissingDst = erikpgjohansson.solo.soar.utils.index_DST(
-        soarSubsetLvDst, bSoarMissing,
-    )
-    localExcessDst = erikpgjohansson.solo.soar.utils.index_DST(
-        localDst, bLocalExcess,
-    )
+    soarMissingDst = soarSubsetLvDst.index(bSoarMissing)
+    localExcessDst = localDst.index(bLocalExcess)
 
     L.info('Online SOAR datasets that need to be downloaded:')
     erikpgjohansson.solo.soar.utils.log_DST(soarMissingDst)
@@ -356,9 +333,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ASSERTION
     # NOTE: Deliberately doing this first after logging which datasets to
     # download and delete.
-    nNetDatasetsToRemove = \
-        erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst) \
-        - erikpgjohansson.solo.soar.utils.nRows_DST(soarMissingDst)
+    nNetDatasetsToRemove = localExcessDst.n() - soarMissingDst.n()
     if nNetDatasetsToRemove > nMaxNetDatasetsToRemove:
         msg = (
             f'Net number of datasets to remove ({nNetDatasetsToRemove})'
@@ -405,7 +380,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # new ones (including potential replacements for removed files).
     # This is to avoid that bugs lead to unnecessarily deleting datasets that
     # are hard/slow to replace.
-    nRows = erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst)
+    nRows = localExcessDst.n()
     L.info(f'Removing {nRows} local datasets')
     if not DEBUG_DELETE_LOCAL_DATASETS_DISABLED:
         if nRows > 0:
@@ -517,8 +492,7 @@ PROPOSAL: Include file sizes.
 
 @codetiming.Timer('_find_DST_subset')
 def _find_DST_subset(
-    datasetIncludeFunc, dst,
-    # instrumentArray, levelArray, beginTimeArray,
+    datasetIncludeFunc, dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
 ):
     '''
 Returns indices to datasets that are permitted by datasetIncludeFunc.
