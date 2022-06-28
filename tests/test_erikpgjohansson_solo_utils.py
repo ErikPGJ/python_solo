@@ -69,6 +69,16 @@ def test_parse_dataset_filename():
         },
     )
 
+    test(
+        'solo_L0_epd-epthet2-ll_0699408000-0699494399_V02.bin', {
+            'DATASET_ID': 'SOLO_L0_EPD-EPTHET2-LL',
+            'time interval string': '0699408000-0699494399',
+            'version string': '02',
+            'time vector 1': (699408000,),
+            'item ID': 'solo_L0_epd-epthet2-ll_0699408000-0699494399',
+        }
+    )
+
     # NOTE: "V03I".
     test(
         'solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025_V03I'
@@ -123,10 +133,17 @@ def test_parse_item_ID():
             'time vector 1': (2020, 3, 7, 5, 30, 18.0),
         }
     )
-    test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025', {
-            'DATASET_ID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
-            'time vector 1': (2020, 8, 13, 0, 0, 26.0),
+    test(
+        'solo_L0_epd-epthet2-ll_0699408000-0699494399', {
+            'DATASET_ID': 'SOLO_L0_EPD-EPTHET2-LL',
+            'time vector 1': (699408000,),
         }
+    )
+    test(
+        'solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025', {
+                'DATASET_ID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
+                'time vector 1': (2020, 8, 13, 0, 0, 26.0),
+        },
     )
 
     test('abc', None)

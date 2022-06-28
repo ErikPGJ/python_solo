@@ -21,7 +21,9 @@ RE_TIME_INTERVAL_STR = '[0-9T-]{8,31}'
 RE_YYYYMMDD           = '[0-9]{8,8}'
 RE_YYYYMMDDThhmmss    = '[0-9]{8,8}T[0-9]{6,6}'
 RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
-
+# L0 filenames contain OBT, not UTC. It is not known how many digits these
+# may use, but empirically it is always ten.
+RE_OBT                = '[0-9]{10,10}'
 
 
 def parse_dataset_filename(filename):
@@ -85,7 +87,7 @@ def parse_dataset_filename(filename):
                 RE_TIME_INTERVAL_STR,   # 3
                 '_V',
                 '[0-9][0-9]+',     # 5
-                '[CIU]?', r'(\.cdf|\.fits)',
+                '[CIU]?', r'\.(cdf|fits|bin)',
             ],
             -1, 'permit non-match',
         )
@@ -203,6 +205,11 @@ def _parse_time_interval_str(timeIntervalStr: str):
         second = int(secondsStr) / 10**(len(secondsStr)-2)   # Always float
         return year, month, day, hour, minute, second
 
+    def parse_OBT(s):
+        assert len(s) == 10
+        # NOTE: Returns length-1 tuple.
+        return (int(s),)   # Return size-1 tuple!
+
     _, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
@@ -238,6 +245,16 @@ def _parse_time_interval_str(timeIntervalStr: str):
         )
     if isPerfectMatch:
         return parse_YYYYMMDDThhmmssddd(substrList[0])
+
+    # L0 filenames contain OBT, not UTC.
+    substrList, _, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            timeIntervalStr,
+            [RE_OBT, '-', RE_OBT],
+            1, 'permit non-match',
+        )
+    if isPerfectMatch:
+        return parse_OBT(substrList[0])
 
     raise Exception(f'Can not parse time interval string "{timeIntervalStr}".')
 

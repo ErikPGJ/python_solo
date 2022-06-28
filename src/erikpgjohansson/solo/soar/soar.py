@@ -276,7 +276,7 @@ dst : Dictionary of numpy arrays.
         # which have a valid non-null begin_time. Is therefore dependent on how
         # well-implemented that function is.
 
-        if di:
+        if di and len(di['time vector 1']) == 6:
             # CASE: Can parse filename as dataset filename.
 
             # NOTE: datetime.datetime requires integer seconds+microseconds
