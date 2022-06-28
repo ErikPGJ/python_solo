@@ -70,9 +70,6 @@ PROPOSAL: Basic syncing algorithm:
 PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
           indented by caller.
 
-PROPOSAL: Separate function for removing files instead of command+arguments
-          (FILE_REMOVAL_COMMAND_LIST).
-
 PROPOSAL: Convert DEBUG_* constants into sync() argments.
 '''
 
@@ -385,11 +382,8 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     if not DEBUG_DELETE_LOCAL_DATASETS_DISABLED:
         if nRows > 0:
             pathsToRemoveList = localExcessDst['file_path'].tolist()
-            stdoutBytes = subprocess.check_output(
-                FILE_REMOVAL_COMMAND_LIST + pathsToRemoveList,
-            )
-            stdoutStr = str(stdoutBytes, 'utf-8')
-            L.info(stdoutStr)    # NOTE: Always prints line break.
+            stdoutStr = remove_files(pathsToRemoveList)
+            L.info(stdoutStr)
     else:
         L.info('DEBUG: Disabled removing local datasets.')
         for iRow in range(nRows):
@@ -417,6 +411,14 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
             'DEBUG: Disabled moving downloaded datasets'
             ' to local datasets (IDDT).',
         )
+
+
+def remove_files(pathsToRemoveList):
+    stdoutBytes = subprocess.check_output(
+        FILE_REMOVAL_COMMAND_LIST + pathsToRemoveList,
+    )
+    stdoutStr = str(stdoutBytes, 'utf-8')
+    return stdoutStr
 
 
 def find_DST_difference(
