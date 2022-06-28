@@ -99,7 +99,7 @@ def assert_col_array(v, dtype=None):
     # return v.size   # Exclude?
 
 
-@codetiming.Timer('download_latest_datasets_batch')
+@codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
     itemIdArray,
     fileSizeArray,
@@ -233,7 +233,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
             assert logFormat == 'short'
 
 
-@codetiming.Timer('find_latest_versions')
+@codetiming.Timer('find_latest_versions', logger=None)
 def find_latest_versions(itemIdArray, itemVerNbrArray):
     '''
 Find boolean indices for datasets which have the latest version (for that
@@ -311,7 +311,7 @@ bLvArray : 1D numpy bool array.
     return bLvArray
 
 
-@codetiming.Timer('derive_DST_from_dir')
+@codetiming.Timer('derive_DST_from_dir', logger=None)
 def derive_DST_from_dir(rootDir):
     '''
 Derive a DST from a directory tree datasets. Searches directory recursively.

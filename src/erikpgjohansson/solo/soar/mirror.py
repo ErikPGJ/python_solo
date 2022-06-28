@@ -99,7 +99,7 @@ CREATE_DIR_PERMISSIONS = 0o755
 N_EXCESS_DATASETS_PRINT = 25
 
 
-@codetiming.Timer('sync')
+@codetiming.Timer('sync', logger=None)
 def sync(
     syncDir, tempDownloadDir, datasetsSubsetFunc: callable,
     deleteOutsideSubset=False,
@@ -481,20 +481,21 @@ PROPOSAL: Include file sizes.
         ],
     )
 
-    bDiff1 = ~np.isin(fnsArray1, fnsArray2)
-    bDiff2 = ~np.isin(fnsArray2, fnsArray1)
+    bDiff12 = ~np.isin(fnsArray1, fnsArray2)
+    bDiff21 = ~np.isin(fnsArray2, fnsArray1)
 
     # ASSERTIONS
     # NOTE: Many re-implementations have failed this assertion.
-    assert type(bDiff1) == np.ndarray
-    assert type(bDiff2) == np.ndarray
+    assert type(bDiff12) == np.ndarray
+    assert type(bDiff21) == np.ndarray
 
-    return bDiff1, bDiff2
+    return bDiff12, bDiff21
 
 
-@codetiming.Timer('_find_DST_subset')
+@codetiming.Timer('_find_DST_subset', logger=None)
 def _find_DST_subset(
-    datasetIncludeFunc, dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
+    datasetIncludeFunc: callable,
+    dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
 ):
     '''
 Returns indices to datasets that are permitted by datasetIncludeFunc.
@@ -514,42 +515,16 @@ bSubset : numpy array
     instrumentArray = dst['instrument']
     levelArray      = dst['processing_level']
     beginTimeArray  = dst['begin_time_FN']
-    ls_itemId = []
-    for i, itemId in enumerate(dst['item_id']):
-        d = erikpgjohansson.solo.utils.parse_item_ID(itemId)
-        # if type(d) != dict:
-        #     x = 2
-        datasetId = d['DATASET_ID']
-        ls_itemId.append(datasetId)
-    datasetIdArray = np.array(ls_itemId)
 
-    # datasetIdArray  = np.array(
-    #     tuple(
-    #         erikpgjohansson.solo.utils.parse_item_ID(itemId)['DATASET_ID']
-    #         for itemId in dst['item_id']
-    #     )
-    # )
-
-    # erikpgjohansson.solo.soar.utils.assert_col_array(
-    #     instrumentArray, np.dtype('O'),
-    # )
-    # erikpgjohansson.solo.soar.utils.assert_col_array(
-    #     levelArray,      np.dtype('O'),
-    # )
-    # erikpgjohansson.solo.soar.utils.assert_col_array(
-    #     beginTimeArray,  np.dtype('<M8[ms]'),
-    # )   # Omit type?
+    datasetIdArray = np.array(
+        tuple(
+            erikpgjohansson.solo.utils.parse_item_ID(itemId)['DATASET_ID']
+            for itemId in dst['item_id']
+        ),
+    )
 
     bSubset = np.zeros(instrumentArray.shape, dtype=bool)
-    # for i, _instrument in enumerate(instrumentArray):
     for i in range(instrumentArray.size):
-
-        # DEBUG
-        # isMag = (soarDst['instrument'][i]       == 'MAG')
-        # isL2  = (soarDst['processing_level'][i] =='L2')
-        # if isMag & isL2:
-        #     print('MAG L2')
-
         bSubset[i] = datasetIncludeFunc(
             instrument=instrumentArray[i],
             level     =levelArray[i],
@@ -560,7 +535,7 @@ bSubset : numpy array
     return bSubset
 
 
-def test_datasets_include_func(instrument, level, beginTime):
+def test_datasets_include_func(instrument: str, level, beginTime):
     '''
 Function that determines whether a dataset is included/excluded in syncing.
 

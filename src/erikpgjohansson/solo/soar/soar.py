@@ -68,7 +68,7 @@ handle is added to SOAR, then that file type must be added to the list.
 '''
 
 
-@codetiming.Timer('download_SOAR_DST')
+@codetiming.Timer('download_SOAR_DST', logger=None)
 def download_SOAR_DST(CacheJsonFilePath=None):
     '''
 Download table of datasets (+metadata) available for download at SOAR.
@@ -126,7 +126,7 @@ PROPOSAL: Cache.
     return dst, JsonDict
 
 
-@codetiming.Timer('_download_raw_SOAR_datasets_table')
+@codetiming.Timer('_download_raw_SOAR_datasets_table', logger=None)
 def _download_raw_SOAR_datasets_table():
     '''
 Download list of datasets from SOAR, without modifying the list to a more
@@ -154,7 +154,7 @@ JsonDict : Representation of SOAR data list.
     return JsonDict
 
 
-@codetiming.Timer('_convert_raw_SOAR_datasets_table')
+@codetiming.Timer('_convert_raw_SOAR_datasets_table', logger=None)
 def _convert_raw_SOAR_datasets_table(JsonDict):
     '''
 Convert downloaded SOAR datasets table to better format.
@@ -265,7 +265,7 @@ dst : Dictionary of numpy arrays.
     # =================================
     # Add extra column "begin_time_FN"
     # =================================
-    filenameArray   = dst['file_name']
+    filenameArray = dst['file_name']
     beginTimeFnArray = np.full(
         nRows,
         np.datetime64('nat'),
