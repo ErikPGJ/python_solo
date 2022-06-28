@@ -9,6 +9,7 @@ Initially created 2021-04-23 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 import erikpgjohansson.solo.soar.mirror
+import logging
 import numpy
 import os
 
@@ -58,6 +59,8 @@ def sync():
 
     ROOT_DIR = '/home/erjo/temp/soar'
     SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/soar/soar.json"
+
+    logging.basicConfig(level=logging.INFO)
 
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                   = os.path.join(ROOT_DIR, 'mirror'),

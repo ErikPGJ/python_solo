@@ -10,6 +10,7 @@ import codetiming
 import datetime
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.soar.soar
+import logging
 import numpy as np
 import os
 
@@ -211,6 +212,8 @@ PROPOSAL: Keyword argument for file-size sorted download.
     )
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
+    L = logging.getLogger(__name__)
+
     if downloadByIncrFileSize:
         iSort         = np.argsort(fileSizeArray)
         itemIdArray   = itemIdArray[iSort]
@@ -225,7 +228,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
         fileSize = fileSizeArray[i]
 
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(
+        L.info(
             '{}: Downloading: {:.2f} [MiB], {}'.format(
                 nowStr, fileSize / 2**20, itemId,
             ),
@@ -251,37 +254,37 @@ PROPOSAL: Keyword argument for file-size sorted download.
         completionDt     = StartDt + SoFarTd + RemainingTimeTd
 
         if logFormat == 'long':
-            print(
+            L.info(
                 'So far:        {:.2f} [MiB] of {:.2f} [MiB]'.format(
                     soFarBytes / 2**20,
                     totalBytes / 2**20,
                 ),
             )
-            print(
+            L.info(
                 '               {:.2f} [s] = {}'.format(
                     soFarSec,
                     SoFarTd,
                 ),
             )
-            print(
+            L.info(
                 '               {:.2f} [MiB/s], on average'.format(
                     (soFarBytes / soFarSec) / 2**20,
                 ),
             )
 
-            print(
+            L.info(
                 'Remainder:     {:.2f} [MiB] of {:.2f} [MiB]'.format(
                     remainingBytes / 2**20,
                     totalBytes     / 2**20,
                 ),
             )
-            print(
+            L.info(
                 '               {:.0f} [s] = {} (prediction)'.format(
                     remainingTimeSec,
                     RemainingTimeTd,
                 ),
             )
-            print(f'Expected completion at: {completionDt} (prediction)')
+            L.info(f'Expected completion at: {completionDt} (prediction)')
         else:
             assert logFormat == 'short'
 
@@ -474,43 +477,44 @@ dict
 def log_DST(dst):
     assert_DST(dst)
 
+    L = logging.getLogger(__name__)
+
     totalBytes = dst['file_size'].sum()
     bta        = dst['begin_time_FN']
     assert bta.dtype == np.dtype('datetime64[ms]')
     nonNullBta = bta[~np.isnat(bta)]
 
-    print('=' * 80)
-    print('Totals: Unique instruments:       ' + str(set(dst['instrument'])))
-    print(
+    L.info('=' * 80)
+    L.info('Totals: Unique instruments:       ' + str(set(dst['instrument'])))
+    L.info(
         '        Unique processing levels: ' + str(
             set(dst['processing_level']),
         ),
     )
-    print(
+    L.info(
         '                                  {:d} datasets'.format(
             dst['file_size'].size,
         ),
     )
-    print(
+    L.info(
         '                                  {:.2f} [GiB]'.format(
             totalBytes / 2**30,
         ),
     )
     if nonNullBta.size > 0:
-        print('   begin_time_FN (non-null): Min: ' + str(nonNullBta.min()))
-        print('                             Max: ' + str(nonNullBta.max()))
-    print('=' * 80)
+        L.info('   begin_time_FN (non-null): Min: ' + str(nonNullBta.min()))
+        L.info('                             Max: ' + str(nonNullBta.max()))
+    L.info('=' * 80)
 
 
 def log_codetiming():
     '''Quick-and-dirty function for logging codetiming results.
     '''
-    print('')
+    L = logging.getLogger(__name__)
+    L.info('')
     TITLE = 'Time used for various labelled parts of code (codetiming)'
-    print(TITLE)
-    print('-' * len(TITLE))
+    L.info(TITLE)
+    L.info('-' * len(TITLE))
     for key, value in codetiming.Timer.timers.items():
-        print(f'{key:40s} {value:10.2f} [s]')
-    print('')
-
-
+        L.info(f'{key:40s} {value:10.2f} [s]')
+    L.info('')

@@ -9,6 +9,7 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 import codetiming
 import erikpgjohansson.solo.soar.soar
 import erikpgjohansson.solo.iddt
+import logging
 import numpy as np
 import subprocess
 
@@ -94,6 +95,11 @@ DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
 FILE_REMOVAL_COMMAND_LIST = ['remove_to_trash', 'SOAR_sync']
 # FILE_REMOVAL_COMMAND_LIST = ['rm', '-v']
 CREATE_DIR_PERMISSIONS = 0o755
+
+
+# Number of local datasets to log, and that would be removed if it were not
+# for the triggering of the nMaxNetDatasetsToRemove failsafe.
+N_EXCESS_DATASETS_PRINT = 25
 
 
 @codetiming.Timer('sync')
@@ -203,6 +209,8 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
             CON-PROBLEM: When should one remove datasets? Before? After? During
                          somehow?
     '''
+    L = logging.getLogger(__name__)
+
     # ASSERTIONS
     erikpgjohansson.solo.asserts.is_dir(syncDir)
     erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
@@ -217,21 +225,21 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # but if there are more, then they should be included so that they can be
     # removed (or kept in the rare but possible case of SOAR
     # downversioning datasets).
-    print('Producing table of pre-existing local datasets.')
+    L.info('Producing table of pre-existing local datasets.')
     localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
     # NOTE: Not logging this to reduce amount of logging.
     # NOTE: Identical to later logging when deleteOutsideSubset=False.
-    # print('Pre-existing local datasets that should be synced:')
+    # L.info('Pre-existing local datasets that should be synced:')
     # erikpgjohansson.solo.soar.utils.log_DST(localDst)
 
     # ======================================
     # Download table of online SOAR datasets
     # ======================================
-    print('Downloading SOAR table of datasets.')
+    L.info('Downloading SOAR table of datasets.')
     soarDst, _JsonDict = erikpgjohansson.solo.soar.soar.download_SOAR_DST(
         CacheJsonFilePath=SoarTableCacheJsonFilePath,
     )
-    print(
+    L.info(
         'All online SOAR datasets'
         ' (synced and non-synced; all dataset versions):',
     )
@@ -261,7 +269,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     soarSubsetDst = erikpgjohansson.solo.soar.utils.index_DST(
         soarDst, bSoarSubset,
     )
-    print(
+    L.info(
         'Subset of online SOAR datasets that should be synced with local'
         ' datasets:',
     )
@@ -282,7 +290,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
         soarSubsetDst, bLv,
     )
 
-    print(
+    L.info(
         'Latest versions of all online SOAR datasets (synced and non-synced):',
     )
     erikpgjohansson.solo.soar.utils.log_DST(soarSubsetLvDst)
@@ -308,18 +316,18 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
         localDst = erikpgjohansson.solo.soar.utils.index_DST(
             localDst, bLocalSubset,
         )
-        print(
+        L.info(
             'NOTE: Only syncing against subset of local datasets.'
             ' Will NOT delete outside datasets outside the specified subset.',
         )
     else:
-        print(
+        L.info(
             'NOTE: Syncing against all local datasets'
             ' (in specified directory).'
             ' Will DELETE datasets outside the specified subset.',
         )
     # NOTE: localDst has no begin_time. Can therefore not log.
-    print('Pre-existent set of local datasets that should be synced/updated:')
+    L.info('Pre-existent set of local datasets that should be synced/updated:')
     erikpgjohansson.solo.soar.utils.log_DST(localDst)
     erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
@@ -340,9 +348,9 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
         localDst, bLocalExcess,
     )
 
-    print('Online SOAR datasets that need to be downloaded:')
+    L.info('Online SOAR datasets that need to be downloaded:')
     erikpgjohansson.solo.soar.utils.log_DST(soarMissingDst)
-    print('Local datasets that need to be removed:')
+    L.info('Local datasets that need to be removed:')
     erikpgjohansson.solo.soar.utils.log_DST(localExcessDst)
 
     # ASSERTION
@@ -351,18 +359,28 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     nNetDatasetsToRemove = \
         erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst) \
         - erikpgjohansson.solo.soar.utils.nRows_DST(soarMissingDst)
-    assert nNetDatasetsToRemove <= nMaxNetDatasetsToRemove, (
-        f'Net number of datasets to remove ({nNetDatasetsToRemove}) is larger'
-        f' than permitted ({nMaxNetDatasetsToRemove}).'
-        ' This might indicate a bug or configuration error.'
-        ' This assertion is a failsafe.',
-    )
+    if nNetDatasetsToRemove > nMaxNetDatasetsToRemove:
+        msg = (
+            f'Net number of datasets to remove ({nNetDatasetsToRemove})'
+            f' is larger than permitted ({nMaxNetDatasetsToRemove}).'
+            ' This might indicate a bug or configuration error.'
+            ' This assertion is a failsafe.'
+        )
+        L.error(msg)
+        L.error(
+            f'First {N_EXCESS_DATASETS_PRINT} dataset that would have been '
+            f'deleted:',
+        )
+        for fileName in localExcessDst['file_name'][0:N_EXCESS_DATASETS_PRINT]:
+            L.error(f'    {fileName}')
+
+        raise AssertionError(msg)
 
     # =========================
     # Download missing datasets
     # =========================
     n_datasets = soarMissingDst['item_id'].size
-    print(f'Downloading {n_datasets} datasets')
+    L.info(f'Downloading {n_datasets} datasets')
     if not DEBUG_DOWNLOAD_DATASETS_DISABLED:
         erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
             soarMissingDst['item_id'],
@@ -373,9 +391,12 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
             debugCreateEmptyFiles=DEBUG_DOWNLOAD_EMPTY_DATASETS,
         )
     else:
-        print('DEBUG: Disabled downloading datasets.')
+        L.warning('DEBUG: Disabled downloading datasets.')
         for fileName in soarMissingDst['file_name']:
-            print(f'Virtually downloading "{fileName}"')
+            L.info(
+                f'Virtually downloading "{fileName}" (doing nothing'
+                ' instead of downloading)',
+            )
 
     # ============================
     # Remove (some) local datasets
@@ -385,7 +406,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # This is to avoid that bugs lead to unnecessarily deleting datasets that
     # are hard/slow to replace.
     nRows = erikpgjohansson.solo.soar.utils.nRows_DST(localExcessDst)
-    print(f'Removing {nRows} local datasets')
+    L.info(f'Removing {nRows} local datasets')
     if not DEBUG_DELETE_LOCAL_DATASETS_DISABLED:
         if nRows > 0:
             pathsToRemoveList = localExcessDst['file_path'].tolist()
@@ -393,11 +414,11 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
                 FILE_REMOVAL_COMMAND_LIST + pathsToRemoveList,
             )
             stdoutStr = str(stdoutBytes, 'utf-8')
-            print(stdoutStr)    # NOTE: Always prints line break.
+            L.info(stdoutStr)    # NOTE: Always prints line break.
     else:
-        print('DEBUG: Disabled removing local datasets.')
+        L.info('DEBUG: Disabled removing local datasets.')
         for iRow in range(nRows):
-            print(
+            L.info(
                 'Virtually removing "{}" ({} bytes)'.format(
                     localExcessDst['file_path'][iRow],
                     localExcessDst['file_size'][iRow],
@@ -408,7 +429,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # Move downloaded datasets into local directory tree
     # ==================================================
     if not DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED:
-        print(
+        L.info(
             'Moving downloaded datasets to'
             ' selected directory structure (if there are any).',
         )
@@ -417,7 +438,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
             dirCreationPermissions=CREATE_DIR_PERMISSIONS,
         )
     else:
-        print(
+        L.info(
             'DEBUG: Disabled moving downloaded datasets'
             ' to local datasets (IDDT).',
         )
