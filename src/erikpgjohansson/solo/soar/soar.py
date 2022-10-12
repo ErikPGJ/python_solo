@@ -16,18 +16,9 @@ v1.18.5, but not numpy v1.19.5.
 DEFINITIONS
 ===========
 item_id
-    Type of na (column) returned from SOAR when requesting table.
-    Unique dataset except version.
-    Ex:
-        'solo_L2_rpw-tds-surv-tswf-b_20200707'
-        'solo_L2_epd-ept-south-rates_20200720'
-        'solo_LL02_epd-het-sun-rates_20201012T000034-20201013T000034'
 data_item_id
     Appears to be same as "item_id". Term used in call to SOAR to download
     datasets.
-DST = DataSets Tables
-    [iColumnName][iRecord]. Dictionary of equal length 1D numpy.array
-    describing set of datasets. The exact set of columns is not fixed.
 
 
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
@@ -55,6 +46,9 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
           conventions, and FILE_SUFFIX_IGNORE_LIST.
     PRO: Makes module handle ONLY communication with SOAR. More pure.
     PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
+PROPOSAL: Rename
+    ~download
+    ~communication, ~comm
 '''
 
 

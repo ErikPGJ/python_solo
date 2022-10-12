@@ -3,10 +3,11 @@ import numpy as np
 
 
 class DatasetsTable:
-    '''Datasets table.
+    '''Datasets table. Stores table of datasets.
 
-    Encapsulates a dictionary in which each entry is a same-sized 1D numpy
-    array, and in which entries can not be overwritten.
+    Encapsulates a dictionary in which each key is a string and each value
+    is a same-sized 1D numpy array. Entries can not be overwritten (i.e. class
+    is semi-immutable).
     '''
     '''
     PROPOSAL: Initialize by submitting dictionary.

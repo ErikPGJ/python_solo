@@ -377,7 +377,7 @@ None.
                 raise Exception(f'Copy command failed: {cmd}')
 
     def move_file(oldPath, newDirPath):
-        # NOTE: os.replace() more cross-platform than os.rename().
+        # NOTE: os.replace() is more cross-platform than os.rename().
         # NOTE: Can handle old & new path being identical.
         # NOTE: os.rename requires destination to also be a file.
         newPath = os.path.join(newDirPath, os.path.basename(oldPath))
