@@ -250,6 +250,29 @@ PROPOSAL: Abbreviations for specific subsets.
         'SOAR, or (2) this code.'
     )
 
+    soarMissingDst, localExcessDst = _calculate_sync_dir_update(
+        soarDst=soarDst,
+        localDst=localDst,
+        datasetsSubsetFunc=datasetsSubsetFunc,
+        deleteOutsideSubset=deleteOutsideSubset,
+        nMaxNetDatasetsToRemove=nMaxNetDatasetsToRemove,
+    )
+
+    _execute_sync_dir_update(
+        soarMissingDst=soarMissingDst,
+        localExcessDst=localExcessDst,
+        syncDir=syncDir,
+        tempDownloadDir=tempDownloadDir,
+        downloadLogFormat=downloadLogFormat,
+    )
+
+
+def _calculate_sync_dir_update(
+    soarDst, localDst, datasetsSubsetFunc,
+    deleteOutsideSubset, nMaxNetDatasetsToRemove,
+):
+    L = logging.getLogger(__name__)
+
     # =====================================================================
     # Select subset of SOAR datasets (item IDs) to be synced (all versions)
     # =====================================================================
@@ -309,7 +332,7 @@ PROPOSAL: Abbreviations for specific subsets.
     # ==============================================================#
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
-    (bSoarMissing, bLocalExcess) = find_DST_difference(
+    (bSoarMissing, bLocalExcess) = _find_DST_difference(
         soarSubsetLvDst['file_name'],
         localDst['file_name'],
         soarSubsetLvDst['file_size'],
@@ -347,9 +370,38 @@ PROPOSAL: Abbreviations for specific subsets.
 
         raise AssertionError(msg)
 
-    # =========================
-    # Download missing datasets
-    # =========================
+    return soarMissingDst, localExcessDst
+
+
+def _execute_sync_dir_update(
+    soarMissingDst, localExcessDst, syncDir, tempDownloadDir,
+    downloadLogFormat,
+):
+    '''Execute a pre-calculated syncing of local directory by downloading
+    specified datasets and removing specified local datasets.
+
+    Deliberately combines downloads and removals in one function so that
+    errors and interruptions do not unnecessarily lead to leaving the synced
+    directory in "corrupted state", i.e. either having
+    (1) duplicate dataset versions, or
+    (2) file removal without downloaded replacements.
+
+    Downloads are made via a temporary directory and are only transferred
+    to their final locations after
+    (1) the entire download is complete, and
+    (2) all file removals have been completed successfully.
+    '''
+    '''
+    PROPOSAL: Better name.
+        ~Sync, ~update, ~refresh, ~execute, ~download, ~remove
+        update_sync_dir
+        execute_sync
+    '''
+    L = logging.getLogger(__name__)
+
+    # =================
+    # Download datasets
+    # =================
     n_datasets = soarMissingDst['item_id'].size
     L.info(f'Downloading {n_datasets} datasets')
     if not const.DEBUG_DOWNLOAD_DATASETS_DISABLED:
@@ -369,9 +421,9 @@ PROPOSAL: Abbreviations for specific subsets.
                 ' instead of downloading)',
             )
 
-    # ============================
-    # Remove (some) local datasets
-    # ============================
+    # =====================
+    # Remove local datasets
+    # =====================
     # NOTE: Deliberately removing datasets AFTER having successfully downloaded
     # new ones (including potential replacements for removed files).
     # This is to avoid that bugs lead to unnecessarily deleting datasets that
@@ -417,7 +469,7 @@ def remove_files(pathsToRemoveList):
     return stdoutStr
 
 
-def find_DST_difference(
+def _find_DST_difference(
     fileNameArray1, fileNameArray2,
     fileSizeArray1, fileSizeArray2,
 ):
