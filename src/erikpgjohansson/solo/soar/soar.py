@@ -36,6 +36,7 @@ Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 
 import codetiming
 import datetime
+import erikpgjohansson.solo.soar.const as const
 import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.utils
 import erikpgjohansson.solo.utils
@@ -54,17 +55,6 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
           conventions, and FILE_SUFFIX_IGNORE_LIST.
     PRO: Makes module handle ONLY communication with SOAR. More pure.
     PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
-'''
-
-
-FILE_SUFFIX_IGNORE_LIST = ['.zip', '.jp2', '.h5', '.bin', '.fits']
-'''File suffixes of SOAR files whose dataset filenames are permitted to not be
-recognized (parsable) by the code. These files will effectively be ignored.
-
-NOTE: It is assumed that all filenames with any other file suffix than listed
-here can be handled. This means effectively that all file types are explicitly
-"listed" one way or another. In case a new file type which this code can not
-handle is added to SOAR, then that file type must be added to the list.
 '''
 
 
@@ -149,7 +139,7 @@ Returns
 JsonDict : Representation of SOAR data list.
 '''
     URL = (
-        'http://soar.esac.esa.int/soar-sl-tap/tap/sync?REQUEST=doQuery'
+        f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
         '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
     )
 
@@ -307,7 +297,7 @@ dst : Dictionary of numpy arrays.
             # ASSERTION: Assert that file is any of the known cases that
             # erikpgjohansson.solo.parse_dataset_filename() can not handle.
             fileNameSuffix = pathlib.Path(fileName).suffix
-            assert (fileNameSuffix in FILE_SUFFIX_IGNORE_LIST), (
+            assert (fileNameSuffix in const.FILE_SUFFIX_IGNORE_LIST), (
                 f'Can neither parse SOAR file name "{fileName}", nor recognize'
                 f' the file suffix "{fileNameSuffix}" as a file type'
                 ' that should be ignored.'
@@ -409,8 +399,9 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
             product_type = 'LOW_LATENCY'
         else:
             product_type = 'SCIENCE'
+
         return (
-            f'http://soar.esac.esa.int/soar-sl-tap/data?'
+            f'{const.SOAR_TAP_URL}/data?'
             f'data_item_id={dataItemId}'
             f'&retrieval_type=LAST_PRODUCT&product_type={product_type}'
         )

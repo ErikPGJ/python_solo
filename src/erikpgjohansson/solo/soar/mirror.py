@@ -9,6 +9,8 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 import codetiming
 import erikpgjohansson.solo.iddt
 import erikpgjohansson.solo.soar.soar
+import erikpgjohansson.solo.soar.const as const
+import erikpgjohansson.solo.utils
 import logging
 import numpy as np
 import subprocess
@@ -71,35 +73,7 @@ PROPOSAL: Basic syncing algorithm:
 
 PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
           indented by caller.
-
-PROPOSAL: Convert DEBUG_* constants into sync() argments.
-PROPOSAL: Move constants to "const" module.
 '''
-
-
-# DEBUG: Settings for debugging.
-# --
-# NOTE: Does not by itself change SOAR datasets to be listed as 0 bytes.
-# Default = False
-DEBUG_DOWNLOAD_EMPTY_DATASETS = False
-DEBUG_DOWNLOAD_DATASETS_DISABLED = False
-DEBUG_DELETE_LOCAL_DATASETS_DISABLED = False
-DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
-
-# Command and arguments to use for removing old local datasets. Paths to
-# actual files to remove are added at the end.
-#
-# "remove_to_trash" is one of Erik P G Johansson's private bash scripts
-# that moves files/directories to an automatically selected "trash"
-# directory ("recycle bin").
-FILE_REMOVAL_COMMAND_LIST = ['remove_to_trash', 'SOAR_sync']
-# FILE_REMOVAL_COMMAND_LIST = ['rm', '-v']
-CREATE_DIR_PERMISSIONS = 0o755
-
-
-# Number of local datasets to log, and that would be removed if it were not
-# for the triggering of the nMaxNetDatasetsToRemove failsafe.
-N_EXCESS_DATASETS_PRINT = 25
 
 
 @codetiming.Timer('sync', logger=None)
@@ -348,10 +322,12 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
         )
         L.error(msg)
         L.error(
-            f'First {N_EXCESS_DATASETS_PRINT} dataset that would have been '
-            f'deleted:',
+            f'First {const.N_EXCESS_DATASETS_PRINT} dataset that would have '
+            f' been deleted:',
         )
-        for fileName in localExcessDst['file_name'][0:N_EXCESS_DATASETS_PRINT]:
+        for fileName in localExcessDst['file_name'][
+                0:const.N_EXCESS_DATASETS_PRINT
+        ]:
             L.error(f'    {fileName}')
 
         raise AssertionError(msg)
@@ -361,14 +337,14 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # =========================
     n_datasets = soarMissingDst['item_id'].size
     L.info(f'Downloading {n_datasets} datasets')
-    if not DEBUG_DOWNLOAD_DATASETS_DISABLED:
+    if not const.DEBUG_DOWNLOAD_DATASETS_DISABLED:
         erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
             soarMissingDst['item_id'],
             soarMissingDst['file_size'],
             tempDownloadDir,
             logFormat=downloadLogFormat,
             debugDownloadingEnabled=True,
-            debugCreateEmptyFiles=DEBUG_DOWNLOAD_EMPTY_DATASETS,
+            debugCreateEmptyFiles=const.DEBUG_DOWNLOAD_EMPTY_DATASETS,
         )
     else:
         L.warning('DEBUG: Disabled downloading datasets.')
@@ -387,7 +363,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # are hard/slow to replace.
     nRows = localExcessDst.n()
     L.info(f'Removing {nRows} local datasets')
-    if not DEBUG_DELETE_LOCAL_DATASETS_DISABLED:
+    if not const.DEBUG_DELETE_LOCAL_DATASETS_DISABLED:
         if nRows > 0:
             pathsToRemoveList = localExcessDst['file_path'].tolist()
             stdoutStr = remove_files(pathsToRemoveList)
@@ -402,14 +378,14 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ==================================================
     # Move downloaded datasets into local directory tree
     # ==================================================
-    if not DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED:
+    if not const.DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED:
         L.info(
             'Moving downloaded datasets to'
             ' selected directory structure (if there are any).',
         )
         erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
             'move', tempDownloadDir, syncDir,
-            dirCreationPermissions=CREATE_DIR_PERMISSIONS,
+            dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
         )
     else:
         L.info(
@@ -420,7 +396,7 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
 
 def remove_files(pathsToRemoveList):
     stdoutBytes = subprocess.check_output(
-        FILE_REMOVAL_COMMAND_LIST + pathsToRemoveList,
+        const.FILE_REMOVAL_COMMAND_LIST + pathsToRemoveList,
     )
     stdoutStr = str(stdoutBytes, 'utf-8')
     return stdoutStr
