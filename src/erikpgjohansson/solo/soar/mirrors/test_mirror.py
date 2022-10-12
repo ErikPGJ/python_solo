@@ -36,7 +36,7 @@ level      : String
 Returns
 -------
 include: bool
-    Whether datasets should be included or not
+    Whether datasets should be included or not.
 '''
     # NOTE: Should be configured to match only ONE dataset (file)
     START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')

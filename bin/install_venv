@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Generic script to "install" python_so as a standalone application.
+#
+# Given
+#   (1) a local, pre-existing python distribution package directory
+# do
+#   (1) install new venv environment, and
+#   (2) pip install package in venv environment (for a developer setup).
+# =============================================================================
+# BOGIQ:
+# ------
+# PROPOSAL: Have script create standard directory structure with one root.
+#   Ex: python_so_standalone/
+#                            python_so/
+#                            venv/
+#   NOTE: Only for installing python_so as a standalone application.
+#   CON: Installation still requires user to create python_so/ directory
+#        first, which is then inside the root directory.
+#   NOTE: Need a way for user to sync source code irony-brain/spis, and then
+#         install.
+#   CON-PROPOSAL: Manually maintain that directory structure.
+# PROPOSAL: Argument for venv dir. -- IMPLEMENTED
+# PROPOSAL: Rename to indicate that it does a "developer install".
+#   install_venv_dev
+# PROPOSAL: Rename to indicate that it does a "standalone install".
+#   install_venv_standalone
+# =============================================================================
+
+if [[ "$#" != 3 ]] ; then
+    echo "Wrong number of arguments." >> /dev/stderr
+    exit 1
+fi
+PYTHON_EXECUTABLE=$1
+PROJECT_DIR=$2   # Python distribution package
+VENV_DIR=$3
+
+if [[ -d "$VENV_DIR" ]] ; then
+    echo "VENV__DIR=\"$VENV_DIR\" already exists." >> /dev/stderr
+    exit 1
+fi
+
+"$PYTHON_EXECUTABLE" -m venv "$VENV_DIR"
+source "$VENV_DIR/bin/activate"
+pip install --upgrade pip
+pip install -e "$PROJECT_DIR"
+pip install -r "${PROJECT_DIR}/requirements-dev.txt"
