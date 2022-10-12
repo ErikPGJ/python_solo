@@ -9,6 +9,7 @@ Initially created 2020-12-17 by Erik P G Johansson, IRF Uppsala, Sweden.
 import codetiming
 import datetime
 import erikpgjohansson.solo.asserts
+import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.soar
 import logging
 import numpy as np
@@ -18,11 +19,6 @@ import os
 '''
 BOGIQ
 =====
-PROPOSAL: Assertion function: table on format dictionary, with same-length
-          arrays as values.
-PROPOSAL: Class for dataset tables/DSTs. Constant set of columns.
-        Use "None"/NaN for unknown values.
-
 NOTE: download_latest_dataset() downloads latest dataset
           version, not specified dataset version?
     PROPOSAL: Compare downloaded datasets with online list.
@@ -54,8 +50,6 @@ PROPOSAL: Function: Difference between DSTs.
 
 
 PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
-    NOTE: Should exclude so.iddt since it is unrelated to SOAR. It is used also
-          for pure IRFU processing!
     TODO-DEC: Should functionality for managing DSTs be considered ~SOAR?
     TODO-DEC: Should separate SOAR and mirroring code?
         PROPOSAL: so.soar + so.soar_mirror
@@ -117,7 +111,6 @@ Will log progress, speed, predicted remainder & completion to stdout.
 
 Parameters
 ----------
-dst
 fileSizeArray : 1D numpy.ndarray of integers.
     NOTE: The code needs it at the very least for logging predicted remainder.
 downloadByIncrFileSize : bool
@@ -456,9 +449,10 @@ def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable):
 def log_codetiming():
     '''Quick-and-dirty function for logging codetiming results.
     '''
+    TITLE = 'Time used for various labelled parts of code (codetiming)'
+
     L = logging.getLogger(__name__)
     L.info('')
-    TITLE = 'Time used for various labelled parts of code (codetiming)'
     L.info(TITLE)
     L.info('-' * len(TITLE))
     for key, value in codetiming.Timer.timers.items():

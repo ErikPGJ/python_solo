@@ -7,11 +7,13 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 import codetiming
-import erikpgjohansson.solo.soar.soar
 import erikpgjohansson.solo.iddt
+import erikpgjohansson.solo.soar.soar
 import logging
 import numpy as np
 import subprocess
+import sys
+import typing
 
 
 '''
@@ -71,6 +73,7 @@ PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
           indented by caller.
 
 PROPOSAL: Convert DEBUG_* constants into sync() argments.
+PROPOSAL: Move constants to "const" module.
 '''
 
 
@@ -101,7 +104,7 @@ N_EXCESS_DATASETS_PRINT = 25
 
 @codetiming.Timer('sync', logger=None)
 def sync(
-    syncDir, tempDownloadDir, datasetsSubsetFunc: callable,
+    syncDir, tempDownloadDir, datasetsSubsetFunc: typing.Callable,
     deleteOutsideSubset=False,
     downloadLogFormat='short',
     nMaxNetDatasetsToRemove=10,
@@ -140,8 +143,8 @@ SoarTableCacheJsonFilePath
 
 
 
-Returns
--------
+Return values
+-------------
 None.
 '''
     '''
@@ -214,6 +217,10 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     assert callable(datasetsSubsetFunc)
     assert type(nMaxNetDatasetsToRemove) in [int, float]
 
+    # IMPLEMENTATION NOTE: Useful to print Python executable to verify that
+    # the correct Python environment is used.
+    L.info(f'sys.executable = "{sys.executable}"')
+
     # ==============================
     # Create table of local datasets
     # ==============================
@@ -246,7 +253,8 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     # ASSERTION: SOAR DST is not empty
     # --------------------------------
     # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero datasets
-    # by mistake. This could in turn lead to deleting all local datasets.
+    # by mistake or due to bug. This could in turn lead to deleting all local
+    # datasets.
     assert soarDst.n() > 0, (
         'SOAR returned a zero-size datasets table.'
         ' There seems to be something wrong with SOAR.'
@@ -387,12 +395,9 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     else:
         L.info('DEBUG: Disabled removing local datasets.')
         for iRow in range(nRows):
-            L.info(
-                'Virtually removing "{}" ({} bytes)'.format(
-                    localExcessDst['file_path'][iRow],
-                    localExcessDst['file_size'][iRow],
-                ),
-            )
+            file_path = localExcessDst['file_path'][iRow]
+            file_size = localExcessDst['file_size'][iRow]
+            L.info(f'Virtually removing "{file_path}" ({file_size} bytes)')
 
     # ==================================================
     # Move downloaded datasets into local directory tree
@@ -448,6 +453,7 @@ Returns
     '''
 PROPOSAL: Use filenames, not itemId+version.
 PROPOSAL: Include file sizes.
+PROPOSAL: Use DSTs.
     '''
     erikpgjohansson.solo.soar.utils.assert_col_array(
         fileNameArray1, np.dtype('O'),
@@ -494,7 +500,7 @@ PROPOSAL: Include file sizes.
 
 @codetiming.Timer('_find_DST_subset', logger=None)
 def _find_DST_subset(
-    datasetIncludeFunc: callable,
+    datasetIncludeFunc: typing.Callable,
     dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
 ):
     '''
@@ -533,26 +539,3 @@ bSubset : numpy array
         )
 
     return bSubset
-
-
-def test_datasets_include_func(instrument: str, level, beginTime):
-    '''
-Function that determines whether a dataset is included/excluded in syncing.
-
-NOTE: For testing purposes.
-
-
-Parameters
-----------
-beginTime : numpy array, shape=(), numpy.datetime64
-'''
-    MIN_DT64 = np.datetime64('2020-06-30T23:00:00.000')
-    MAX_DT64 = np.datetime64('2020-07-01T00:00:00.000')
-
-    assert type(beginTime) == np.datetime64
-
-    return (
-        instrument == 'EPD'
-        and level in ['L1']                       # noqa: W503
-        and (MIN_DT64 <= beginTime <= MAX_DT64)   # noqa: W503
-    )

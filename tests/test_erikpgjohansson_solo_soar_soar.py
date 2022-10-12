@@ -1,20 +1,30 @@
 import erikpgjohansson.solo.soar.soar
 import os.path
-import pytest
+import pathlib
+import tempfile
 
 
-def test_download_latest_dataset(tmp_path_factory):
+def test_download_latest_dataset(tmp_path):
     '''
     NOTE: Downloads from internet. Assumes that certain files are available
-    online at SOAR.
+    online at SOAR. If these files are missing from SOAR, then the test
+    fails even if the code is OK.
     '''
+    i_test = 0
+
+    # Normalize. Can be string if called from non-pytest.
+    tmp_path = pathlib.Path(tmp_path)
+
     def test(dataItemId):
         '''
         IMPLEMENTATION NOTE: The test deliberately does NOT accept arguments
         expectedFileName and expectedFileSize since they vary with dataset
         version, i.e. are more likely to vary with time.
         '''
-        fileParentPath = tmp_path_factory.mktemp('test', numbered=True)
+        nonlocal i_test
+        fileParentPath = pathlib.Path(tmp_path) / f'test_{i_test}'
+        i_test = i_test + 1
+        os.mkdir(fileParentPath)
 
         print(f'Downloading online data from SOAR: dataItemId={dataItemId}')
         actFilePath = erikpgjohansson.solo.soar.soar.download_latest_dataset(
@@ -48,14 +58,12 @@ def test_download_latest_dataset(tmp_path_factory):
     test('solo_L1_epd-sis-a-rates-slow_20200813')
     test('solo_L1_epd-step-nom-close_20200813')
 
-
-    # Does not work since code can not yet handle LL.
-    if 0:
-        test('solo_LL02_mag_20220621T000205-20220622T000204')
-        test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025')
+    # Test LL
+    test('solo_LL02_mag_20220621T000205-20220622T000204')
+    test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025')
 
 
-# if __name__ == '__main__':
-#     tpf = pytest.TempPathFactory()
-#     test_download_latest_dataset()
-#     pass
+if __name__ == '__main__':
+    t = tempfile.TemporaryDirectory()
+    test_download_latest_dataset(t.name)
+    pass

@@ -58,7 +58,7 @@ def sync():
         'This code is not meant to run on this machine.'
 
     ROOT_DIR = '/home/erjo/temp/soar'
-    SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/soar/soar.json"
+    SOAR_TABLE_CACHE_JSON_FILE = os.path.join(ROOT_DIR, "soar.json")
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
@@ -71,7 +71,7 @@ def sync():
         downloadLogFormat         = 'long',
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,
-        SoarTableCacheJsonFilePath=SOAR_TABLE_CACHE_JSON_FILE,
+        SoarTableCacheJsonFilePath= SOAR_TABLE_CACHE_JSON_FILE,
     )
 
 

@@ -1,3 +1,4 @@
+# import erikpgjohansson.solo.soar.utils
 import numpy as np
 
 
@@ -8,15 +9,28 @@ class DatasetsTable:
     array, and in which entries can not be overwritten.
     '''
     '''
-    PROPOSAL: Initialize by submitting dictionary. Immutable.
+    PROPOSAL: Initialize by submitting dictionary.
+    PROPOSAL: Make immutable.
+        PRO: Easy. Only needs to abolish __setitem__().
+    PROPOSAL: Change name "index()".
+        get_subset()
+    PROPOSAL: Change name "n()".
+        size()
+    PROPOSAL: Use "None"/NaN for unknown values.
     '''
 
     def __init__(self, dc={}):
+        assert isinstance(dc, dict)
+        for key, na in dc.items():
+            assert type(key) == str
+            # Can not due to circular imports.
+            # erikpgjohansson.solo.soar.utils.assert_col_array(na)
+
         # Dictionary of numpy arrays.
         self._dc_na = {}
 
         # Number of elements per (1D) numpy array.
-        self._n = None
+        self._n = None   # Undefined length.
 
         for key, na in dc.items():
             self[key] = na
@@ -39,8 +53,8 @@ class DatasetsTable:
         else:
             assert self._n == na.shape[0], (
                 f'Adding array with a size that is incompatible with other'
-                ' entries. '
-                f'value.shape[0] = {na.shape[0]}, self._n = {self._n}.'
+                f' entries.'
+                f' value.shape[0] = {na.shape[0]}, self._n = {self._n}.'
             )
 
         self._dc_na[key] = na

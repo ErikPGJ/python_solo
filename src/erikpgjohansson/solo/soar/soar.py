@@ -96,9 +96,10 @@ NOTE: Same dataset may have multiple versions in list.
     '''
 PROPOSAL: Do not return JsonDict.
     PRO: Wrong data structure for debugging.
-PROPOSAL: Cache.
 '''
     if CacheJsonFilePath and os.path.isfile(CacheJsonFilePath):
+        # CASE: Caching enabled AND there is a cache file.
+
         # ===========================================
         # Retrieve SOAR datasets table from JSON file
         # ===========================================
@@ -108,11 +109,15 @@ PROPOSAL: Cache.
                 # writing file / json.load()).
                 JsonDict = json.load(f)
     else:
+        # CASE: There shall be no caching.
         # ============================
         # Download SOAR datasets table
         # ============================
         JsonDict = _download_raw_SOAR_datasets_table()
+
     if CacheJsonFilePath and not os.path.isfile(CacheJsonFilePath):
+        # Caching enabled AND there is no cache file
+
         # =====================================
         # Save SOAR datasets table to JSON file
         # =====================================
