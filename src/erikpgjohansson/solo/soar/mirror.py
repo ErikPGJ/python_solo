@@ -8,7 +8,7 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 import codetiming
 import erikpgjohansson.solo.iddt
-import erikpgjohansson.solo.soar.soar
+import erikpgjohansson.solo.soar.dwld
 import erikpgjohansson.solo.soar.const as const
 import erikpgjohansson.solo.utils
 import logging
@@ -239,7 +239,7 @@ PROPOSAL: Abbreviations for specific subsets.
     # Download table of online SOAR datasets
     # ======================================
     L.info('Downloading SOAR table of datasets.')
-    soarDst, _JsonDict = erikpgjohansson.solo.soar.soar.download_SOAR_DST(
+    soarDst, _JsonDict = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(
         CacheJsonFilePath=SoarTableCacheJsonFilePath,
     )
 

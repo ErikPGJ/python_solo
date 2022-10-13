@@ -1,4 +1,4 @@
-import erikpgjohansson.solo.soar.soar
+import erikpgjohansson.solo.soar.dwld
 import os.path
 import pathlib
 import tempfile
@@ -27,7 +27,7 @@ def test_download_latest_dataset(tmp_path):
         os.mkdir(fileParentPath)
 
         print(f'Downloading online data from SOAR: dataItemId={dataItemId}')
-        actFilePath = erikpgjohansson.solo.soar.soar.download_latest_dataset(
+        actFilePath = erikpgjohansson.solo.soar.dwld.download_latest_dataset(
             dataItemId, fileParentPath,
             expectedFileName=None, expectedFileSize=None,
             debugCreateEmptyFile=False,

@@ -10,7 +10,7 @@ import codetiming
 import datetime
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.soar.dst
-import erikpgjohansson.solo.soar.soar
+import erikpgjohansson.solo.soar.dwld
 import logging
 import numpy as np
 import os
@@ -172,7 +172,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
             ),
         )
         if debugDownloadingEnabled:
-            erikpgjohansson.solo.soar.soar.download_latest_dataset(
+            erikpgjohansson.solo.soar.dwld.download_latest_dataset(
                 itemId,
                 outputDirPath,
                 debugCreateEmptyFile=debugCreateEmptyFiles,
@@ -370,7 +370,7 @@ dst
     dst['instrument']       = np.array(instrumentList,  dtype=object)
     dst['processing_level'] = np.array(levelList,       dtype=object)
     # NOTE: Key name "processing_level" chosen to be in agreement with
-    # erikpgjohansson.solo.soar.soar.download_SOAR_DST().
+    # erikpgjohansson.solo.soar.dwld.download_SOAR_DST().
     return dst
 
 

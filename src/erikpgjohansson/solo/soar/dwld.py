@@ -1,5 +1,7 @@
 '''
-Code directly related to SOAR (Solar Orbiter ARchive).
+Code directly related to downloading from SOAR (Solar Orbiter ARchive).
+
+dwld=download
 
 NOTE: Does/should not include code related to how datasets downloaded from SOAR
 are stored/organized locally at e.g. IRFU (e.g. IDDT functionality, mirroring).
@@ -48,7 +50,7 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
     PRO: Makes module handle ONLY communication with SOAR. More pure.
     PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
 PROPOSAL: Rename
-    ~download
+    ~download, dwld -- IMPLEMENTED
     ~communication, ~comm
 '''
 
