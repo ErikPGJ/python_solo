@@ -19,7 +19,7 @@ item_id
 data_item_id
     Appears to be same as "item_id". Term used in call to SOAR to download
     datasets.
-
+Note: See MISC_CONVENTIONS.md.
 
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 '''
@@ -32,6 +32,7 @@ import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.utils
 import erikpgjohansson.solo.utils
 import json
+import logging
 import numpy as np
 import os.path
 import pathlib
@@ -81,6 +82,7 @@ NOTE: Same dataset may have multiple versions in list.
 PROPOSAL: Do not return JsonDict.
     PRO: Wrong data structure for debugging.
 '''
+    L = logging.getLogger(__name__)
     if CacheJsonFilePath and os.path.isfile(CacheJsonFilePath):
         # CASE: Caching enabled AND there is a cache file.
 
@@ -92,6 +94,17 @@ PROPOSAL: Do not return JsonDict.
                 # NOTE: Reading file is fast (as opposed to
                 # writing file / json.load()).
                 JsonDict = json.load(f)
+                if type(JsonDict) != dict:
+                    msg = (
+                        f'Downloaded list of datasets from SOAR:'
+                        f' Has been successfully\n'
+                        f'    (1) loaded from file (cache) at'
+                        f' "{CacheJsonFilePath}", and\n'
+                        f'    (2) interpreted as JSON,\n'
+                        f'but it is not a dictionary as expected.'
+                    )
+                    L.error(msg)
+                    raise Exception(msg)
     else:
         # CASE: There shall be no caching.
         # ============================
@@ -126,19 +139,33 @@ It does include LL02 and ANC.
 
 NOTE: begin_time may contain string "null".
 NOTE: item_version == string, e.g. "V02".
-NOTE: This call is SLOW.
+NOTE: This call is slow.
 
 Returns
 -------
 JsonDict : Representation of SOAR data list.
 '''
+    L = logging.getLogger(__name__)
     URL = (
         f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
         '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
     )
 
+    L.info(f'Calling URL = {URL}')
     HttpResponse = urllib.request.urlopen(URL)
-    JsonDict = json.loads(HttpResponse.read().decode())
+
+    s = HttpResponse.read().decode()
+    L.info(f'List of datasets downloaded from SOAR: Size: {len(s)} bytes')
+
+    JsonDict = json.loads(s)
+    if type(JsonDict) != dict:
+        msg = (
+            'List of datasets downloaded from SOAR:'
+            ' Has been successfully interpreted as JSON,'
+            ' but is not a dictionary as expected.'
+        )
+        L.error(msg)
+        raise Exception(msg)
 
     return JsonDict
 
@@ -184,11 +211,19 @@ dst : Dictionary of numpy arrays.
 
     TIME_STR_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
+    assert type(JsonDict) == dict
+
+    L = logging.getLogger(__name__)
+    # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
+    L.info('Converting raw list of SOAR datasets to DST.')
+
     metadataList   = JsonDict['metadata']
+    dataTuples     = JsonDict['data']
+    del JsonDict
+
     columnNameList = [
         columnMetadataDict['name'] for columnMetadataDict in metadataList
     ]
-    dataTuples     = JsonDict['data']
 
     dst = erikpgjohansson.solo.soar.dst.DatasetsTable()
     for iCol in range(len(columnNameList)):

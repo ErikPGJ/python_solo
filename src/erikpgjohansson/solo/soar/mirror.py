@@ -23,7 +23,7 @@ import typing
 BOGIQ
 =====
 NOTE: SOAR may remove datasets, i.e. state that a previously latest dataset
-      version is no longer the latest dataset with supplying an even later
+      version is no longer the latest dataset without supplying a later
       version.
 
 PROBLEM: How handle that a download may take more time than the time between
@@ -242,6 +242,7 @@ PROPOSAL: Abbreviations for specific subsets.
     soarDst, _JsonDict = erikpgjohansson.solo.soar.soar.download_SOAR_DST(
         CacheJsonFilePath=SoarTableCacheJsonFilePath,
     )
+
     L.info(
         'All online SOAR datasets'
         ' (synced and non-synced; all dataset versions):',
@@ -278,12 +279,18 @@ PROPOSAL: Abbreviations for specific subsets.
         downloadLogFormat=downloadLogFormat,
     )
 
+    erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
+
+@codetiming.Timer('_calculate_sync_dir_update', logger=None)
 def _calculate_sync_dir_update(
     soarDst, localDst, datasetsSubsetFunc,
     deleteOutsideSubset, nMaxNetDatasetsToRemove,
 ):
     L = logging.getLogger(__name__)
+
+    # L.info('Calculating how the sync dir should be updated.')
+    L.info('Identifying missing datasets and datasets to remove.')
 
     # =====================================================================
     # Select subset of SOAR datasets (item IDs) to be synced (all versions)
@@ -339,7 +346,6 @@ def _calculate_sync_dir_update(
     # NOTE: localDst has no begin_time. Can therefore not log.
     L.info('Pre-existent set of local datasets that should be synced/updated:')
     erikpgjohansson.solo.soar.utils.log_DST(localDst)
-    erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # ==============================================================#
     # Find (1) datasets to download, and (2) local datasets to delete
@@ -515,6 +521,7 @@ Intended for dataset filenames, to determine which datasets need to be synched
 (removed, downloaded).
 
 NOTE: Does not check file size or content.
+NOTE: Does not directly use dataset versions.
 
 
 Parameters

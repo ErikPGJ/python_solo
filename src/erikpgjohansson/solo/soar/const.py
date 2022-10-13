@@ -24,12 +24,13 @@ DEBUG_DOWNLOAD_DATASETS_DISABLED = False
 DEBUG_DELETE_LOCAL_DATASETS_DISABLED = False
 DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
 
-# Command and arguments to use for removing old local datasets. Paths to
-# actual files to remove are added at the end.
+# Command and arguments to use for removing old local datasets.
+# Paths to actual files or directory (!) to remove are added as additional
+# arguments at the end.
 #
-# "remove_to_trash" is one of Erik P G Johansson's private bash scripts
-# that moves files/directories to an automatically selected "trash"
-# directory ("recycle bin").
+# NOTE: "remove_to_trash" is one of Erik P G Johansson's private bash scripts
+# that moves files/directories to an automatically selected "trash" directory
+# ("recycle bin").
 FILE_REMOVAL_COMMAND_LIST = ['remove_to_trash', 'SOAR_sync']
 # FILE_REMOVAL_COMMAND_LIST = ['rm', '-v']
 CREATE_DIR_PERMISSIONS = 0o755

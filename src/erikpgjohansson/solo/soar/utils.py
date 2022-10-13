@@ -112,7 +112,8 @@ Will log progress, speed, predicted remainder & completion to stdout.
 Parameters
 ----------
 fileSizeArray : 1D numpy.ndarray of integers.
-    NOTE: The code needs it at the very least for logging predicted remainder.
+    NOTE: Needed for logging the predicted remaining wall time needed for the
+    download.
 downloadByIncrFileSize : bool
     True: Sort datasets by increasing file size.
     Useful for testing/debugging. Bad for predicted log values.

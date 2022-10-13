@@ -365,7 +365,7 @@ None.
             shutil.copy(oldPath, newDirPath)
             # shutil.copy(oldPath, newPath)
         else:
-            # EXPERIMENTAL: Attemp at bugfix for failing randomly when copying
+            # EXPERIMENTAL: Attempt at bugfix for failing randomly when copying
             # many datasets (brain:nas24).
             # 2020-11-06: Does not seem to help.
             # IMPLEMENTATION NOTE: "cp" can not handle source and destination
