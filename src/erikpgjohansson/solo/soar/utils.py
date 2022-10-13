@@ -414,8 +414,13 @@ dst
 #     return dst.index(b)
 
 
-def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable):
+def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):
     assert type(dst) == erikpgjohansson.solo.soar.dst.DatasetsTable
+
+    SEPARATOR_LENGTH = 80
+
+    def sep():
+        L.info('=' * SEPARATOR_LENGTH)
 
     L = logging.getLogger(__name__)
 
@@ -424,7 +429,9 @@ def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable):
     assert bta.dtype == np.dtype('datetime64[ms]')
     nonNullBta = bta[~np.isnat(bta)]
 
-    L.info('=' * 80)
+    sep()
+    L.info(title)
+    L.info('-'*len(title))
     L.info('Totals: Unique instruments:       ' + str(set(dst['instrument'])))
     L.info(
         '        Unique processing levels: ' + str(
@@ -444,7 +451,7 @@ def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable):
     if nonNullBta.size > 0:
         L.info('   begin_time_FN (non-null): Min: ' + str(nonNullBta.min()))
         L.info('                             Max: ' + str(nonNullBta.max()))
-    L.info('=' * 80)
+    sep()
 
 
 def log_codetiming():

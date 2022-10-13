@@ -230,10 +230,9 @@ PROPOSAL: Abbreviations for specific subsets.
     # down-versioning datasets).
     L.info('Producing table of pre-existing local datasets.')
     localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
-    # NOTE: Not logging this to reduce amount of logging.
-    # NOTE: Identical to later logging when deleteOutsideSubset=False.
-    # L.info('Pre-existing local datasets that should be synced:')
-    # erikpgjohansson.solo.soar.utils.log_DST(localDst)
+    erikpgjohansson.solo.soar.utils.log_DST(
+        localDst, 'Pre-existing local datasets that should be synced',
+    )
 
     # ======================================
     # Download table of online SOAR datasets
@@ -243,11 +242,11 @@ PROPOSAL: Abbreviations for specific subsets.
         CacheJsonFilePath=SoarTableCacheJsonFilePath,
     )
 
-    L.info(
+    erikpgjohansson.solo.soar.utils.log_DST(
+        soarDst,
         'All online SOAR datasets'
-        ' (synced and non-synced; all dataset versions):',
+        ' (synced and non-synced; all dataset versions)',
     )
-    erikpgjohansson.solo.soar.utils.log_DST(soarDst)
     # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # ASSERTION: SOAR DST is not empty
@@ -297,11 +296,12 @@ def _calculate_sync_dir_update(
     # =====================================================================
     bSoarSubset = _find_DST_subset(datasetsSubsetFunc, soarDst)
     soarSubsetDst = soarDst.index(bSoarSubset)
-    L.info(
+
+    erikpgjohansson.solo.soar.utils.log_DST(
+        soarSubsetDst,
         'Subset of online SOAR datasets that should be synced with local'
-        ' datasets:',
+        ' datasets',
     )
-    erikpgjohansson.solo.soar.utils.log_DST(soarSubsetDst)
     # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # =========================================================================
@@ -316,8 +316,10 @@ def _calculate_sync_dir_update(
     )
     soarSubsetLvDst = soarSubsetDst.index(bLv)
 
-    L.info('Latest versions of all synced online SOAR datasets:')
-    erikpgjohansson.solo.soar.utils.log_DST(soarSubsetLvDst)
+    erikpgjohansson.solo.soar.utils.log_DST(
+        soarSubsetLvDst,
+        'Latest versions of all synced online SOAR datasets',
+    )
     # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # ASSERT: The subset of SOAR is non-empty.
@@ -344,8 +346,10 @@ def _calculate_sync_dir_update(
         )
 
     # NOTE: localDst has no begin_time. Can therefore not log.
-    L.info('Pre-existent set of local datasets that should be synced/updated:')
-    erikpgjohansson.solo.soar.utils.log_DST(localDst)
+    erikpgjohansson.solo.soar.utils.log_DST(
+        localDst,
+        'Pre-existent set of local datasets that should be synced/updated',
+    )
 
     # ==============================================================#
     # Find (1) datasets to download, and (2) local datasets to delete
@@ -360,10 +364,12 @@ def _calculate_sync_dir_update(
     soarMissingDst = soarSubsetLvDst.index(bSoarMissing)
     localExcessDst = localDst.index(bLocalExcess)
 
-    L.info('Online SOAR datasets that need to be downloaded:')
-    erikpgjohansson.solo.soar.utils.log_DST(soarMissingDst)
-    L.info('Local datasets that need to be removed:')
-    erikpgjohansson.solo.soar.utils.log_DST(localExcessDst)
+    erikpgjohansson.solo.soar.utils.log_DST(
+        soarMissingDst, 'Online SOAR datasets that need to be downloaded',
+    )
+    erikpgjohansson.solo.soar.utils.log_DST(
+        localExcessDst, 'Local datasets that need to be removed',
+    )
 
     # ASSERTION
     # NOTE: Deliberately doing this first after logging which datasets to
