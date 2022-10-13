@@ -8,6 +8,7 @@ Initially created 2021-04-23 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 
 
+import datetime
 import erikpgjohansson.solo.soar.mirror
 import logging
 import numpy
@@ -58,7 +59,11 @@ def sync():
         'This code is not meant to run on this machine.'
 
     ROOT_DIR = '/home/erjo/temp/soar'
-    SOAR_TABLE_CACHE_JSON_FILE = os.path.join(ROOT_DIR, "soar.json")
+
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
+    removal_dir = os.path.join(ROOT_DIR, f'removal_{timestamp}')
+    soar_table_cache_file_path = os.path.join(ROOT_DIR, "soar.json")
+    # soar_table_cache_file_path = None
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
@@ -71,7 +76,9 @@ def sync():
         downloadLogFormat         = 'long',
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,
-        SoarTableCacheJsonFilePath= SOAR_TABLE_CACHE_JSON_FILE,
+        SoarTableCacheJsonFilePath= soar_table_cache_file_path,
+        tempRemovalDir            = removal_dir,
+        removeRemovalDir          = False,
     )
 
 
