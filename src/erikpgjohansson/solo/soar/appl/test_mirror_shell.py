@@ -10,7 +10,7 @@ __author__ = "Erik P G Johansson, IRF"
 
 
 import sys
-import erikpgjohansson.solo.soar.mirrors.test_mirror
+import erikpgjohansson.solo.soar.appl.test_mirror
 
 
 '''
@@ -22,7 +22,7 @@ def main(ls_args):
     assert len(ls_args) == 0, 'Illegal number of arguments.'
     # NOTE: Python function check whether it is running on a legal machine.
     # Does not need to do that check here (or in bash).
-    erikpgjohansson.solo.soar.mirrors.test_mirror.sync()
+    erikpgjohansson.solo.soar.appl.test_mirror.sync()
 
 
 main(sys.argv[1:])  # NOTE: sys.argv[0] is not a CLI argument. ==> Ignore

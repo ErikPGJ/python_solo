@@ -10,7 +10,7 @@ __author__ = "Erik P G Johansson, IRF"
 
 
 import sys
-import erikpgjohansson.solo.soar.mirrors.irfu_mirror
+import erikpgjohansson.solo.soar.appl.irfu_mirror
 
 
 '''
@@ -50,7 +50,7 @@ def main(ls_args):
 
     # NOTE: Python function check whether it is running on a legal machine.
     # Does not need to do that check here (or in bash).
-    erikpgjohansson.solo.soar.mirrors.irfu_mirror.sync()
+    erikpgjohansson.solo.soar.appl.irfu_mirror.sync()
 
 
 main(sys.argv[1:])  # NOTE: sys.argv[0] is not a CLI argument. ==> Ignore
