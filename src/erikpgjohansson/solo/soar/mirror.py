@@ -8,8 +8,9 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 import codetiming
 import erikpgjohansson.solo.iddt
-import erikpgjohansson.solo.soar.dwld
 import erikpgjohansson.solo.soar.const as const
+import erikpgjohansson.solo.soar.dwld
+import erikpgjohansson.solo.soar.utils
 import erikpgjohansson.solo.utils
 import logging
 import numpy as np
@@ -92,6 +93,8 @@ def sync(
     SoarTableCacheJsonFilePath=None,
     tempRemovalDir=None,
     removeRemovalDir=False,
+    downloader: erikpgjohansson.solo.soar.dwld.Downloader
+    = erikpgjohansson.solo.soar.dwld.SoarDownloader(),
 ):
     '''
 Sync local directory with subset of online SOAR datasets.
@@ -217,6 +220,7 @@ PROPOSAL: Abbreviations for specific subsets.
     L = logging.getLogger(__name__)
 
     # ASSERTIONS
+    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
     erikpgjohansson.solo.asserts.is_dir(syncDir)
     erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
     assert callable(datasetsSubsetFunc)
@@ -245,7 +249,7 @@ PROPOSAL: Abbreviations for specific subsets.
     # ======================================
     L.info('Downloading SOAR table of datasets.')
     soarDst, _JsonDict = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(
-        CacheJsonFilePath=SoarTableCacheJsonFilePath,
+        downloader, CacheJsonFilePath=SoarTableCacheJsonFilePath,
     )
 
     erikpgjohansson.solo.soar.utils.log_DST(
@@ -275,6 +279,7 @@ PROPOSAL: Abbreviations for specific subsets.
     )
 
     _execute_sync_dir_update(
+        downloader=downloader,
         soarMissingDst=soarMissingDst,
         localExcessDst=localExcessDst,
         syncDir=syncDir,
@@ -401,6 +406,7 @@ def _calculate_sync_dir_update(
 
 
 def _execute_sync_dir_update(
+    downloader: erikpgjohansson.solo.soar.dwld.Downloader,
     soarMissingDst, localExcessDst, syncDir, tempDownloadDir,
     tempRemovalDir, removeRemovalDir, downloadLogFormat,
 ):
@@ -424,6 +430,8 @@ def _execute_sync_dir_update(
         update_sync_dir
         execute_sync
     '''
+    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
+
     L = logging.getLogger(__name__)
 
     # =================
@@ -433,6 +441,7 @@ def _execute_sync_dir_update(
     L.info(f'Downloading {n_datasets} datasets')
     if not const.DEBUG_DOWNLOAD_DATASETS_DISABLED:
         erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
+            downloader,
             soarMissingDst['item_id'],
             soarMissingDst['file_size'],
             tempDownloadDir,

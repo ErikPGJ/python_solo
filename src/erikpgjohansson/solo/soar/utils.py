@@ -95,6 +95,7 @@ def assert_col_array(v, dtype=None):
 
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
+    downloader: erikpgjohansson.solo.soar.dwld.Downloader,
     itemIdArray,
     fileSizeArray,
     outputDirPath,
@@ -142,6 +143,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
     '''
 
     # ASSERTIONS
+    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
     erikpgjohansson.solo.soar.utils.assert_col_array(
         itemIdArray, np.dtype('O'),
     )
@@ -172,7 +174,7 @@ PROPOSAL: Keyword argument for file-size sorted download.
             ),
         )
         if debugDownloadingEnabled:
-            erikpgjohansson.solo.soar.dwld.download_latest_dataset(
+            downloader.download_latest_dataset(
                 itemId,
                 outputDirPath,
                 debugCreateEmptyFile=debugCreateEmptyFiles,
@@ -370,7 +372,7 @@ dst
     dst['instrument']       = np.array(instrumentList,  dtype=object)
     dst['processing_level'] = np.array(levelList,       dtype=object)
     # NOTE: Key name "processing_level" chosen to be in agreement with
-    # erikpgjohansson.solo.soar.dwld.download_SOAR_DST().
+    # erikpgjohansson.solo.soar.dwld.Downloader.download_SOAR_DST().
     return dst
 
 
