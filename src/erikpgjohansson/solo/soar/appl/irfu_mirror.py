@@ -14,7 +14,7 @@ import os
 import sys
 
 
-def _IRFU_datasets_include_func(instrument, level, beginTime, datasetId):
+def datasets_include_func(instrument, level, beginTime, datasetId):
     '''
 Function that determines whether a specific dataset is included/excluded in
 the sync.
@@ -64,7 +64,7 @@ def sync():
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                   = '/data/solo/soar',
         tempDownloadDir           = '/data/solo/soar/downloads',
-        datasetsSubsetFunc        = _IRFU_datasets_include_func,
+        datasetsSubsetFunc        = datasets_include_func,
         downloadLogFormat         = 'long',
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,

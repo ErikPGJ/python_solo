@@ -49,6 +49,11 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
           conventions, and FILE_SUFFIX_IGNORE_LIST.
     PRO: Makes module handle ONLY communication with SOAR. More pure.
     PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
+        PRO: Fits description of module.
+        TODO-DEC: Whereto?
+            PROPOSAL: utils
+            PROPOSAL: New module ~retrieve, ~access
+                CON: Just one function.
 PROPOSAL: Rename
     ~download, dwld -- IMPLEMENTED
     ~communication, ~comm
@@ -148,13 +153,13 @@ Returns
 JsonDict : Representation of SOAR data list.
 '''
     L = logging.getLogger(__name__)
-    URL = (
+    url = (
         f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
         '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
     )
 
-    L.info(f'Calling URL = {URL}')
-    HttpResponse = urllib.request.urlopen(URL)
+    L.info(f'Calling URL: {url}')
+    HttpResponse = urllib.request.urlopen(url)
 
     s = HttpResponse.read().decode()
     L.info(f'List of datasets downloaded from SOAR: Size: {len(s)} bytes')
@@ -424,6 +429,8 @@ PROPOSAL: Somehow predict time left.
 PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
 '''
 
+    L = logging.getLogger(__name__)
+
     # NOTE: Not a real constant since a string is inserted into it.
     def get_URL(dataItemId, level):
         if level in ('LL02', 'LL01'):
@@ -452,6 +459,8 @@ PROPOSAL: No exception for downloading unexpected file. Return boolean(s).
     # print(f'dataItemId       = {dataItemId}')
     # print(f'expectedFileName = {expectedFileName}')
     # print(f'level            = {level}')
+
+    L.info(f'Calling URL: {url}')
 
     HttpResponse = urllib.request.urlopen(url)
     fileName = _extract_HTTP_response_filename(HttpResponse)

@@ -15,8 +15,8 @@ import logging
 import numpy as np
 import os
 import subprocess
-import sys
 import typing
+import sys
 
 
 '''
@@ -71,6 +71,12 @@ PROPOSAL: Basic syncing algorithm:
     Remove datasets.
         Check: Number of net removals is "not too large".
     ...
+
+PROPOSAL: Use timestamped directory under download directory.
+    PRO: Easier to just disable moving datasets from it.
+        CON: On brain/spis, downloads/ is under the directory being synced.
+             If there are remaining datasets there, then they will be
+             identified as being local datasets that are part of the mirror.
 
 PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
           indented by caller.
@@ -288,7 +294,6 @@ def _calculate_sync_dir_update(
 ):
     L = logging.getLogger(__name__)
 
-    # L.info('Calculating how the sync dir should be updated.')
     L.info('Identifying missing datasets and datasets to remove.')
 
     # =====================================================================
@@ -302,7 +307,6 @@ def _calculate_sync_dir_update(
         'Subset of online SOAR datasets that should be synced with local'
         ' datasets',
     )
-    # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # =========================================================================
     # Only keep latest version of each online SOAR dataset in table
@@ -320,7 +324,6 @@ def _calculate_sync_dir_update(
         soarSubsetLvDst,
         'Latest versions of all synced online SOAR datasets',
     )
-    # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # ASSERT: The subset of SOAR is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
@@ -342,7 +345,7 @@ def _calculate_sync_dir_update(
         localDst = localDst.index(bLocalSubset)
         L.info(
             'NOTE: Only syncing against subset of local datasets.'
-            ' Will NOT delete outside datasets outside the specified subset.',
+            ' Will NOT delete datasets outside the specified subset.',
         )
 
     # NOTE: localDst has no begin_time. Can therefore not log.
