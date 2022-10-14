@@ -69,7 +69,6 @@ class Downloader:
     def download_latest_dataset(
         self, dataItemId, fileParentPath,
         expectedFileName=None, expectedFileSize=None,
-        debugCreateEmptyFile=False,
     ):
         raise NotImplementedError()
 
@@ -130,7 +129,6 @@ class SoarDownloader(Downloader):
     def download_latest_dataset(
         self, dataItemId, fileParentPath,
         expectedFileName=None, expectedFileSize=None,
-        debugCreateEmptyFile=False,
     ):
         '''
         Download the latest version of a particular dataset.
@@ -150,9 +148,6 @@ class SoarDownloader(Downloader):
         fileParentPath :
         expectedFileName : String, None
         expectedFileSize : Number, None
-        debugCreateEmptyFile : Boolean
-            True : Creates empty files with filename from SOAR.
-                   NOTE: Disables any file size checking.
 
         Returns
         -------
@@ -225,27 +220,24 @@ class SoarDownloader(Downloader):
 
         erikpgjohansson.solo.asserts.path_is_available(filePath)
 
-        if debugCreateEmptyFile:
-            pathlib.Path(filePath).touch()
-        else:
-            # Download file from `HttpResponse` and save it as `filePath`
-            # -----------------------------------------------------------
-            # open() options:
-            # 'w' open for writing, truncating the file first
-            # 'b' binary mode
-            FileObj = open(filePath, 'wb')
-            shutil.copyfileobj(HttpResponse, FileObj)
-            FileObj.close()
+        # Download file from `HttpResponse` and save it as `filePath`
+        # -----------------------------------------------------------
+        # open() options:
+        # 'w' open for writing, truncating the file first
+        # 'b' binary mode
+        FileObj = open(filePath, 'wb')
+        shutil.copyfileobj(HttpResponse, FileObj)
+        FileObj.close()
 
-            # ~ASSERTION
-            if expectedFileSize:
-                fileSize = os.stat(filePath).st_size
-                if fileSize != expectedFileSize:
-                    raise Exception(
-                        f'Size of downloaded file '
-                        f'("{fileName}"; {fileSize} bytes) is not equal to'
-                        f' expected file size ({expectedFileSize} bytes.',
-                    )
+        # ~ASSERTION
+        if expectedFileSize:
+            fileSize = os.stat(filePath).st_size
+            if fileSize != expectedFileSize:
+                raise Exception(
+                    f'Size of downloaded file '
+                    f'("{fileName}"; {fileSize} bytes) is not equal to'
+                    f' expected file size ({expectedFileSize} bytes.',
+                )
 
         return filePath
 

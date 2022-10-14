@@ -102,7 +102,6 @@ def download_latest_datasets_batch(
     logFormat='long',
     downloadByIncrFileSize=False,
     debugDownloadingEnabled=True,
-    debugCreateEmptyFiles=False,
 ):
     '''
 Download latest versions of datasets (multiple ones), for selected item ID's.
@@ -120,12 +119,6 @@ downloadByIncrFileSize : bool
     Useful for testing/debugging. Bad for predicted log values.
 debugDownloadingEnabled : bool
     False: Do everything except actual download.
-    Useful for testing/debugging.
-debugCreateEmptyFiles : bool
-    True: Create empty files instead of downloading them.
-        NOTE: The filename is still fetched from a HTTP request which still
-        takes some time, but which is still much faster than actually
-        downloading the file.
     Useful for testing/debugging.
 
 
@@ -177,7 +170,6 @@ PROPOSAL: Keyword argument for file-size sorted download.
             downloader.download_latest_dataset(
                 itemId,
                 outputDirPath,
-                debugCreateEmptyFile=debugCreateEmptyFiles,
             )
 
         # NOTE: Doing statistics AFTER downloading file. Could also be done

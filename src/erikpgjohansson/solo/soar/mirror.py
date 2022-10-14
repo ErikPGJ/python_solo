@@ -447,7 +447,6 @@ def _execute_sync_dir_update(
             tempDownloadDir,
             logFormat=downloadLogFormat,
             debugDownloadingEnabled=True,
-            debugCreateEmptyFiles=const.DEBUG_DOWNLOAD_EMPTY_DATASETS,
         )
     else:
         L.warning('DEBUG: Disabled downloading datasets.')

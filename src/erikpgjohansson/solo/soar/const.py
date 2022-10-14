@@ -19,7 +19,6 @@ PROPOSAL: Move constants to erikpgjohansson.solo.soar.mirror.sync() keyword
 # ----------------------
 # NOTE: Does not by itself change SOAR datasets to be listed as 0 bytes.
 # Default = False
-DEBUG_DOWNLOAD_EMPTY_DATASETS = False
 DEBUG_DOWNLOAD_DATASETS_DISABLED = False
 DEBUG_DELETE_LOCAL_DATASETS_DISABLED = False
 DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
