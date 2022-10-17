@@ -427,7 +427,7 @@ dst : Dictionary of numpy arrays.
         # Convert data to numpy array, depending on column.
 
         if colName in INT_COLUMN_NAMES:
-            columnArray = np.array(columnList, dtype=np.int)
+            columnArray = np.array(columnList, dtype='int64')
 
         elif colName in STRING2INT_COLUMN_NAMES:
             columnArray = np.array(columnList, dtype=object)

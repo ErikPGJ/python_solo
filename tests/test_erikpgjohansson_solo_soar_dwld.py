@@ -15,6 +15,8 @@ def test_download_latest_dataset(tmp_path):
     # Normalize. Can be string if called from non-pytest.
     tmp_path = pathlib.Path(tmp_path)
 
+    downloader = erikpgjohansson.solo.soar.dwld.SoarDownloader()
+
     def test(dataItemId):
         '''
         IMPLEMENTATION NOTE: The test deliberately does NOT accept arguments
@@ -27,10 +29,9 @@ def test_download_latest_dataset(tmp_path):
         os.mkdir(fileParentPath)
 
         print(f'Downloading online data from SOAR: dataItemId={dataItemId}')
-        actFilePath = erikpgjohansson.solo.soar.dwld.download_latest_dataset(
+        actFilePath = downloader.download_latest_dataset(
             dataItemId, fileParentPath,
             expectedFileName=None, expectedFileSize=None,
-            debugCreateEmptyFile=False,
         )
         assert os.path.isfile(actFilePath)
 
