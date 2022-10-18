@@ -465,21 +465,14 @@ def _execute_sync_dir_update(
     # are hard/slow to replace.
     n_datasets = localExcessDst.n()
     L.info(f'Removing {n_datasets} local datasets')
-    if not const.DEBUG_DELETE_LOCAL_DATASETS_DISABLED:
-        if n_datasets > 0:
-            # NOTE: Not calling if zero files to remove. ==> No removal
-            #       directory created, no logging (if added).
-            pathsToRemoveList = localExcessDst['file_path'].tolist()
-            stdoutStr = _remove_files(
-                pathsToRemoveList, tempRemovalDir, removeRemovalDir,
-            )
-            L.info(stdoutStr)
-    else:
-        L.info('DEBUG: Disabled removing local datasets.')
-        for i_dataset in range(n_datasets):
-            file_path = localExcessDst['file_path'][i_dataset]
-            file_size = localExcessDst['file_size'][i_dataset]
-            L.info(f'Virtually removing "{file_path}" ({file_size} bytes)')
+    if n_datasets > 0:
+        # NOTE: Not calling if zero files to remove. ==> No removal
+        #       directory created, no logging (if added).
+        pathsToRemoveList = localExcessDst['file_path'].tolist()
+        stdoutStr = _remove_files(
+            pathsToRemoveList, tempRemovalDir, removeRemovalDir,
+        )
+        L.info(stdoutStr)
 
     # =================================================
     # Move downloaded datasets into sync directory tree
