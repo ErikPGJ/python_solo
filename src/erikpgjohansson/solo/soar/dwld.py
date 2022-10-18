@@ -417,8 +417,7 @@ dst : Dictionary of numpy arrays.
     columnNameList = [
         columnMetadataDict['name'] for columnMetadataDict in metadataList
     ]
-
-    dst = erikpgjohansson.solo.soar.dst.DatasetsTable()
+    dc_na = {}
     for iCol in range(len(columnNameList)):
         colName    = columnNameList[iCol]
         columnList = [value[iCol] for value in dataTuples]
@@ -477,12 +476,12 @@ dst : Dictionary of numpy arrays.
         else:
             columnArray = np.array(columnList, dtype=object)
 
-        dst[columnNameList[iCol]] = columnArray
+        dc_na[columnNameList[iCol]] = columnArray
 
     # =================================
     # Add extra column "begin_time_FN"
     # =================================
-    filenameArray = dst['file_name']
+    filenameArray = dc_na['file_name']
     beginTimeFnArray = np.full(
         nRows,
         np.datetime64('nat'),
@@ -525,6 +524,6 @@ dst : Dictionary of numpy arrays.
                 ' that should be ignored.'
             )
 
-    dst['begin_time_FN'] = beginTimeFnArray
+    dc_na['begin_time_FN'] = beginTimeFnArray
 
-    return dst
+    return erikpgjohansson.solo.soar.dst.DatasetsTable(dc_na)

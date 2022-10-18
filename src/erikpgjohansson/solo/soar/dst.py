@@ -3,16 +3,14 @@ import numpy as np
 
 
 class DatasetsTable:
-    '''Datasets table. Stores table of datasets.
+    '''Immutable "datasets table". Stores table of datasets.
 
     Encapsulates a dictionary in which each key is a string and each value
-    is a same-sized 1D numpy array. Entries can not be overwritten (i.e. class
-    is semi-immutable).
+    is a same-sized 1D numpy array.
     '''
     '''
-    PROPOSAL: Initialize by submitting dictionary.
-    PROPOSAL: Make immutable.
-        PRO: Easy. Only needs to abolish __setitem__().
+    PROPOSAL: Change name of class.
+        PRO: Is more generic than for datasets.
     PROPOSAL: Change name "index()".
         get_subset()
     PROPOSAL: Change name "n()".
@@ -34,12 +32,12 @@ class DatasetsTable:
         self._n = None   # Undefined length.
 
         for key, na in dc.items():
-            self[key] = na
+            self._set_item(key, na)
 
     def __getitem__(self, key):
         return self._dc_na[key]
 
-    def __setitem__(self, key, na):
+    def _set_item(self, key, na):
         '''
         Set entry.
         NOTE: Can not overwrite previous entry.

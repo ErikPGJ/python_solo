@@ -354,15 +354,16 @@ dst
                 tv1[5] = int(tv1[5])
                 beginTimeFnList += [datetime.datetime(*tv1)]
 
-    dst = erikpgjohansson.solo.soar.dst.DatasetsTable()
-    dst['file_name']        = np.array(fileNameList,    dtype=object)
-    dst['file_path']        = np.array(filePathList,    dtype=object)
-    dst['item_version']     = np.array(fileVerList,     dtype='int32')
-    dst['item_id']          = np.array(itemIdList,      dtype=object)
-    dst['file_size']        = np.array(fileSizeList,    dtype='int64')
-    dst['begin_time_FN']    = np.array(beginTimeFnList, dtype='datetime64[ms]')
-    dst['instrument']       = np.array(instrumentList,  dtype=object)
-    dst['processing_level'] = np.array(levelList,       dtype=object)
+    dst = erikpgjohansson.solo.soar.dst.DatasetsTable({
+        'file_name':        np.array(fileNameList,    dtype=object),
+        'file_path':        np.array(filePathList,    dtype=object),
+        'item_version':     np.array(fileVerList,     dtype='int32'),
+        'item_id':          np.array(itemIdList,      dtype=object),
+        'file_size':        np.array(fileSizeList,    dtype='int64'),
+        'begin_time_FN':    np.array(beginTimeFnList, dtype='datetime64[ms]'),
+        'instrument':       np.array(instrumentList,  dtype=object),
+        'processing_level': np.array(levelList,       dtype=object),
+    })
     # NOTE: Key name "processing_level" chosen to be in agreement with
     # erikpgjohansson.solo.soar.dwld.Downloader.download_SOAR_DST().
     return dst
