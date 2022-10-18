@@ -103,10 +103,25 @@ class SoarDownloader(Downloader):
         JsonDict : Representation of SOAR data list.
         '''
         L = logging.getLogger(__name__)
+        # 2022-10-18: "Works" except that SOAR has a bug that makes it
+        # return a valid JSON table that is ~truncated if the HTTP request
+        # exceeds a timeout of ~62 s.
+        # url = (
+        #     f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
+        #     '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
+        # )
+        # Temporary URL to a smaller table, covering only specified
+        # instruments, in order to avoid SOAR bug that truncates the
+        # datasets list. These instruments must thus be consistent with (a
+        # superset of) the instruments for which "datasetsSubsetFunc" can
+        # ever return true.
         url = (
             f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
-            '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
-        )
+            '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files+WHERE+'
+            '((instrument=\'EPD\') OR'
+            ' (instrument=\'MAG\') OR'
+            ' (instrument=\'SWA\'))'
+        ).replace(' ', '%20').replace('\'', '%27')
 
         L.info(f'Calling URL: {url}')
         HttpResponse = urllib.request.urlopen(url)
