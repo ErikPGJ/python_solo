@@ -483,20 +483,14 @@ def _execute_sync_dir_update(
     # =================================================
     # Move downloaded datasets into sync directory tree
     # =================================================
-    if not const.DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED:
-        L.info(
-            'Moving downloaded datasets to'
-            ' selected directory structure (if there are any).',
-        )
-        erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
-            'move', tempDownloadDir, syncDir,
-            dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
-        )
-    else:
-        L.info(
-            'DEBUG: Disabled moving downloaded datasets'
-            ' to local sync directory (IDDT).',
-        )
+    L.info(
+        'Moving downloaded datasets to'
+        ' selected directory structure (if there are any).',
+    )
+    erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
+        'move', tempDownloadDir, syncDir,
+        dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
+    )
 
 
 def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):

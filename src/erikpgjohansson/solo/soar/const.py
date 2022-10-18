@@ -9,17 +9,10 @@ In practice also a module for configuration w.r.t. some debugging.
 BOGIQ
 -----
 PROPOSAL: Move constants to "settings" dictionary.
-    Ex: DEBUG_*
     PROPOSAL: Custom dictionary with hardcoded set of permitted keys.
 PROPOSAL: Move constants to erikpgjohansson.solo.soar.mirror.sync() keyword
           arguments with default values.
 '''
-
-# Settings for debugging
-# ----------------------
-# NOTE: Does not by itself change SOAR datasets to be listed as 0 bytes.
-# Default = False
-DEBUG_MOVE_DOWNLOADED_DATASETS_DISABLED = False
 
 # Command and arguments to use for removing old local datasets.
 # Paths to actual files or directory (!) to remove are added as additional
