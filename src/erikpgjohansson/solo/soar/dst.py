@@ -1,4 +1,3 @@
-# import erikpgjohansson.solo.soar.utils
 import numpy as np
 
 

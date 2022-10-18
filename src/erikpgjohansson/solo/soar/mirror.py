@@ -81,6 +81,21 @@ PROPOSAL: Use timestamped directory under download directory.
 
 PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
           indented by caller.
+
+PROPOSAL: Abbreviations for specific subsets.
+    PROPOSAL: Something for online SOAR datasets
+        PROPOSAL: Include "online" since "SOAR dataset" could imply a
+                  local dataset from SOAR.
+            OLS = OnLine SOAR
+    PROPOSAL: "Local" is opposite of "online SOAR datasets". Needs no
+              abbreviation.
+    PROPOSAL: Something for the subset of datasets that should be
+        SSS = Synced SOAR Subset
+        SSS = ~Synced SubSet
+        TODO-DEC: Only latest version datasets? Only subset of item IDs?
+    AV = All Versions
+    LV = Latest Version(s) only
+    LVD = Latest Version Datasets
 '''
 
 
@@ -202,20 +217,6 @@ solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
                               with just downloaded dataset.
             CON-PROBLEM: When should one remove datasets? Before? After? During
                          somehow?
-
-PROPOSAL: Abbreviations for specific subsets.
-    PROPOSAL: Something for online SOAR datasets
-        PROPOSAL: Include "online" since "SOAR dataset" could imply a
-                  local dataset from SOAR.
-            OLS = OnLine SOAR
-    PROPOSAL: "Local" is opposite of "online SOAR datasets". Needs no
-              abbreviation.
-    PROPOSAL: Something for the subset of datasets that should be
-        SSS = Synced SOAR Subset
-        SSS = ~Synced SubSet
-        TODO-DEC: Only latest version datasets? Only subset of item IDs?
-    LV = Latest Version
-    LVD = Latest Version Datasets
     '''
     L = logging.getLogger(__name__)
 
@@ -251,13 +252,11 @@ PROPOSAL: Abbreviations for specific subsets.
     soarDst, _JsonDict = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(
         downloader, CacheJsonFilePath=SoarTableCacheJsonFilePath,
     )
-
     erikpgjohansson.solo.soar.utils.log_DST(
         soarDst,
         'All online SOAR datasets'
         ' (synced and non-synced; all dataset versions)',
     )
-    # erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
     # ASSERTION: SOAR DST is not empty
     # --------------------------------
@@ -266,8 +265,8 @@ PROPOSAL: Abbreviations for specific subsets.
     # datasets.
     assert soarDst.n() > 0, (
         'SOAR returned an empty datasets table.'
-        ' This means that there seems to be something wrong with either (1) '
-        'SOAR, or (2) this code.'
+        ' This should imply that there is something wrong with either (1) '
+        'SOAR, or (2) this software.'
     )
 
     soarMissingDst, localExcessDst = _calculate_sync_dir_update(
@@ -297,6 +296,20 @@ def _calculate_sync_dir_update(
     soarDst, localDst, datasetsSubsetFunc,
     deleteOutsideSubset, nMaxNetDatasetsToRemove,
 ):
+    '''Given DSTs for SOAR and local files, calculate which files should be
+    removed or downloaded locally.
+
+    (1) Converts complete SOAR datasets list
+        -->SOAR subset dataset list (all versions)
+        -->SOAR subset dataset list (latest versions)
+    (2) Assert SOAR subset dataset list (latest versions) not empty.
+    (3) Optionally trims local datasets list to subset.
+    (4) Assert that not too many local datasets should be deletec.
+    '''
+    '''
+    NOTE: Not a very "pure" function since it logs.
+    PROPOSAL: Make purer logic function, without logging.
+    '''
     L = logging.getLogger(__name__)
 
     L.info('Identifying missing datasets and datasets to remove.')
@@ -306,11 +319,10 @@ def _calculate_sync_dir_update(
     # =====================================================================
     bSoarSubset = _find_DST_subset(datasetsSubsetFunc, soarDst)
     soarSubsetDst = soarDst.index(bSoarSubset)
-
     erikpgjohansson.solo.soar.utils.log_DST(
         soarSubsetDst,
-        'Subset of online SOAR datasets that should be synced with local'
-        ' datasets',
+        'Subset of online SOAR datasets (all versions) that should be '
+        'synced with local datasets',
     )
 
     # =========================================================================
@@ -326,8 +338,9 @@ def _calculate_sync_dir_update(
     soarSubsetLvDst = soarSubsetDst.index(bLv)
 
     erikpgjohansson.solo.soar.utils.log_DST(
-        soarSubsetLvDst,
-        'Latest versions of all synced online SOAR datasets',
+        soarSubsetDst,
+        'Subset of online SOAR datasets (latest versions) that should be '
+        'synced with local datasets',
     )
 
     # ASSERT: The subset of SOAR is non-empty.
@@ -335,10 +348,12 @@ def _calculate_sync_dir_update(
     # files due to faulty datasetsSubsetFunc.
     assert soarSubsetLvDst.n() > 0, (
         'Trying to sync with empty subset of SOAR datasets.'
-        ' Argument datasetsSubsetFunc could be faulty.'
+        ' Argument "datasetsSubsetFunc" could be faulty.'
     )
 
-    # Local datasets
+    # Whether to hide local datasets outside of subset
+    # = whether to prevent local datasets outside of subset from being
+    #   potentially deleted later.
     if deleteOutsideSubset:
         L.info(
             'NOTE: Syncing against all local datasets'
@@ -362,11 +377,9 @@ def _calculate_sync_dir_update(
     # ==============================================================#
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
-    (bSoarMissing, bLocalExcess) = _find_DST_difference(
-        soarSubsetLvDst['file_name'],
-        localDst['file_name'],
-        soarSubsetLvDst['file_size'],
-        localDst['file_size'],
+    bSoarMissing, bLocalExcess = _find_DST_difference(
+        soarSubsetLvDst['file_name'], localDst['file_name'],
+        soarSubsetLvDst['file_size'], localDst['file_size'],
     )
 
     soarMissingDst = soarSubsetLvDst.index(bSoarMissing)
@@ -386,9 +399,10 @@ def _calculate_sync_dir_update(
     if nNetDatasetsToRemove > nMaxNetDatasetsToRemove:
         msg = (
             f'Net number of datasets to remove ({nNetDatasetsToRemove})'
-            f' is larger than permitted ({nMaxNetDatasetsToRemove}).'
+            f' is larger than the permitted ({nMaxNetDatasetsToRemove}).'
             ' This might indicate a bug or configuration error.'
-            ' This assertion is a failsafe.'
+            ' This assertion is a failsafe to prevent deleting too many'
+            ' datasets by mistake.'
         )
         L.error(msg)
         L.error(

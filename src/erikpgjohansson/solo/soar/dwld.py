@@ -29,6 +29,7 @@ Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 
 import codetiming
 import datetime
+import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.soar.const as const
 import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.utils
@@ -53,9 +54,8 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
             PROPOSAL: utils
             PROPOSAL: New module ~retrieve, ~access
                 CON: Just one function.
-PROPOSAL: Rename
-    ~download, dwld -- IMPLEMENTED
-    ~communication, ~comm
+
+PROPOSAL: download_raw_SOAR_datasets_table() should return JSON string.
 '''
 
 
@@ -196,13 +196,6 @@ class SoarDownloader(Downloader):
         )
 
         url = get_URL(dataItemId, level)
-
-        # DEBUG
-        # print(f'url              = {url}')
-        # print(f'dataItemId       = {dataItemId}')
-        # print(f'expectedFileName = {expectedFileName}')
-        # print(f'level            = {level}')
-
         L.info(f'Calling URL: {url}')
 
         HttpResponse = urllib.request.urlopen(url)
@@ -395,7 +388,7 @@ dst : Dictionary of numpy arrays.
         PROPOSAL: Assert that there is a non-null begin_time.
     '''
     # Columns that should be converted string-->int
-    INT_COLUMN_NAMES    = {'file_size'}
+    INT_COLUMN_NAMES = {'file_size'}
     # Columns that should be converted string-->string
     # (numpy array of objects).
     STRING2INT_COLUMN_NAMES = {'item_id'}

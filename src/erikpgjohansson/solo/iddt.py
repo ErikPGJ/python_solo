@@ -222,94 +222,93 @@ def copy_move_datasets_to_irfu_dir_tree(
     instrDirCase='lower',
 ):
     '''
-~Utility
+    ~Utility
 
-Copy/move files to IRFU-standardized destination subdirectories under
-specified destination root directory. Destination directories will be created
-if not pre-existing.
+    Copy/move files to IRFU-standardized destination subdirectories under
+    specified destination root directory. Destination directories will be
+    created if not pre-existing.
 
-NOTE: Created destination directories might not have the desired file
-permissions.
-NOTE: Can handle that source and destination directories are identical when
-moving. The function can thus be used for reorganizing a pre-existing directory
-structure.
-    NOTE: Old directories will be kept, even if empty.
-NOTE: Prints log messages.
-NOTE: Can be useful when called separately from bash wrapper to automatically
-organize/re-organize existing local datasets.
-
-
-POSSIBLE ~BUG
-=============
-2020-10-30, nas24, brain, so_bicas_batch_cron manual
---
-Can not copy files in large numbers on (at least) brain. Moving seems to always
-work.
---
-Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/
-solo_L3_rpw-bia-efield-10-seconds_20200802_V01.cdf
---> /data/solo/data_irfu/latest/RPW/L3/bia-efield-10-seconds/2020/08
-Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/
-solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf
---> /data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08
-Traceback (most recent call last):
-  File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py",
-  line 49, in <module>
-    main(sys.argv[1:])   # sys.argv[1:]
-    # NOTE: sys.argv[0] är inget CLI-argument. ==> Ignorera
-  File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py",
-  line 45, in main
-    erikpgjohansson.so.iddt.copy_move_datasets_to_irfu_dir_tree(*argument_list)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 344,
-  in copy_move_datasets_to_irfu_dir_tree
-    copy_move_file_fh(old_path, new_dir_path)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 307,
-  in <lambda>
-    copy_file, 'Copying', old_path, new_dir_path)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 301,
-  in copy_move_file
-    cm_func(old_path, new_dir_path)
-  File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 288,
-  in copy_file
-    shutil.copy(old_path, new_dir_path)
-  File "/usr/lib/python3.5/shutil.py", line 235, in copy
-    copyfile(src, dst, follow_symlinks=follow_symlinks)
-  File "/usr/lib/python3.5/shutil.py", line 115, in copyfile
-    with open(dst, 'wb') as fdst:
-PermissionError: [Errno 13] Permission denied:
-'/data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08/
-solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf'
---
-THEORY: NAS24 does not permit writing at random times.
-NOTE: "Starting from Python 3.8 all functions involving a file copy
-(copyfile(), copy(), copy2(), copytree(), and move()) may use
-platform-specific “fast-copy” syscalls in order to copy the file more
-efficiently (see bpo-33671). “fast-copy” means that the copying operation
-occurs within the kernel, avoiding the use of userspace buffers in Python
-as in “outfd.write(infd.read())”."
-    https://docs.python.org/3/library/shutil.html#shutil-platform-dependent-efficient-copy-operations
-NOTE: brain has python 3.5.2:
+    NOTE: Created destination directories might not have the desired file
+          permissions.
+    NOTE: Can handle that source and destination directories are identical when
+          moving. The function can thus be used for reorganizing a pre-existing
+          directory structure.
+        NOTE: Old directories will be kept, even if empty.
+    NOTE: Prints log messages.
+    NOTE: Can be useful when called separately from bash wrapper to
+          automatically organize/re-organize existing local datasets.
 
 
-Parameters
-----------
-mode : String constant.
-    'copy' or 'move'.
-sourceDir : String
-    Directory which will be searched RECURSIVELY for datasets.
-    Non-parsable filenames will be ~ignored (no error; logged on stdout).
-destDir   : String
-    Can be identical to sourceDir.
-dirCreationPermissions : Integer.
-    File permissions for created directories (octal).
-    Unclear what is appropriate.
+    POSSIBLE ~BUG
+    =============
+    2020-10-30, nas24, brain, so_bicas_batch_cron manual
+    --
+    Can not copy files in large numbers on (at least) brain. Moving seems to
+    always work.
+    --
+    Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/
+    solo_L3_rpw-bia-efield-10-seconds_20200802_V01.cdf
+    --> /data/solo/data_irfu/latest/RPW/L3/bia-efield-10-seconds/2020/08
+    Copying file: /data/solo/data_irfu//generated_2020-10-30_20.08.43_manual/
+    solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf
+    --> /data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08
+    Traceback (most recent call last):
+      File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py",
+      line 49, in <module>
+        main(sys.argv[1:])   # sys.argv[1:]
+        # NOTE: sys.argv[0] är inget CLI-argument. ==> Ignorera
+      File "/home/erjo/bin/global/so_copy_move_datasets_to_IRFU_dir_tree.py",
+      line 45, in main
+        erikpgjohansson.so.iddt.copy_move_datasets_to_irfu_dir_tree(*argument_list)
+      File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 344,
+      in copy_move_datasets_to_irfu_dir_tree
+        copy_move_file_fh(old_path, new_dir_path)
+      File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 307,
+      in <lambda>
+        copy_file, 'Copying', old_path, new_dir_path)
+      File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 301,
+      in copy_move_file
+        cm_func(old_path, new_dir_path)
+      File "/home/erjo/python_copy/erikpgjohansson/so/iddt.py", line 288,
+      in copy_file
+        shutil.copy(old_path, new_dir_path)
+      File "/usr/lib/python3.5/shutil.py", line 235, in copy
+        copyfile(src, dst, follow_symlinks=follow_symlinks)
+      File "/usr/lib/python3.5/shutil.py", line 115, in copyfile
+        with open(dst, 'wb') as fdst:
+    PermissionError: [Errno 13] Permission denied:
+    '/data/solo/data_irfu/latest/RPW/L3/bia-scpot-10-seconds/2020/08/
+    solo_L3_rpw-bia-scpot-10-seconds_20200807_V01.cdf'
+    --
+    THEORY: NAS24 does not permit writing at random times.
+    NOTE: "Starting from Python 3.8 all functions involving a file copy
+    (copyfile(), copy(), copy2(), copytree(), and move()) may use
+    platform-specific “fast-copy” syscalls in order to copy the file more
+    efficiently (see bpo-33671). “fast-copy” means that the copying operation
+    occurs within the kernel, avoiding the use of userspace buffers in Python
+    as in “outfd.write(infd.read())”."
+        https://docs.python.org/3/library/shutil.html#shutil-platform-dependent-efficient-copy-operations
+    NOTE: brain has python 3.5.2:
 
 
-Returns
--------
-None.
+    Parameters
+    ----------
+    mode : String constant.
+        'copy' or 'move'.
+    sourceDir : String
+        Directory which will be searched RECURSIVELY for datasets.
+        Non-parsable filenames will be ~ignored (no error; logged on stdout).
+    destDir   : String
+        Can be identical to sourceDir.
+    dirCreationPermissions : Integer.
+        File permissions for created directories (octal).
+        Unclear what is appropriate.
 
-'''
+
+    Returns
+    -------
+    None.
+    '''
     '''
     ~PROBLEM: Not obvious how to log. Log paths? Just filenames? One/both?
     PROPOSAL: Log arguments.

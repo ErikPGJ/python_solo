@@ -388,7 +388,7 @@ def test_sync(tmp_path):
                             'lfr_efield': {
                                 '2020': {
                                     '06': {
-                                        # V01 removed?, V02 kept.
+                                        # V01 will be removed, V02 kept.
                                         'solo_L3_rpw-bia-efield-10-seconds'
                                         '_20200621_V01.cdf': 10,
                                         'solo_L3_rpw-bia-efield-10-seconds'

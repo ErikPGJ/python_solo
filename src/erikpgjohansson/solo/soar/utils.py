@@ -114,6 +114,8 @@ Parameters
 fileSizeArray : 1D numpy.ndarray of integers.
     NOTE: Needed for logging the predicted remaining wall time needed for the
     download.
+logFormat : str
+    String constant. 'long' or 'short'.
 downloadByIncrFileSize : bool
     True: Sort datasets by increasing file size.
     Useful for testing/debugging. Bad for predicted log values.
@@ -262,7 +264,7 @@ bLvArray : 1D numpy bool array.
     assert itemIdArray.shape == itemVerNbrArray.shape
 
     # NOTE: itemIdArray[iUniques] == uniqItemIdArray
-    (uniqItemIdArray, iUniques, jInverse, uniqueCounts) = np.unique(
+    uniqItemIdArray, iUniques, jInverse, uniqueCounts = np.unique(
         itemIdArray, return_index=1, return_inverse=1, return_counts=1,
     )
 
@@ -332,11 +334,10 @@ dst
             # IMPLEMENTATION NOTE: parse_dataset_filename() returns None for
             # non-parsable filenames.
             if di:
-                (
-                    _dataSrc, level, instrument, _descriptor,
-                ) = erikpgjohansson.solo.utils.parse_DATASET_ID(
-                    di['DATASET_ID'],
-                )
+                _dataSrc, level, instrument, _descriptor = \
+                    erikpgjohansson.solo.utils.parse_DATASET_ID(
+                        di['DATASET_ID'],
+                    )
 
                 filePath = os.path.join(dirPath, fileName)
                 filePathList    += [filePath]
