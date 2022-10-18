@@ -112,90 +112,92 @@ def sync(
     = erikpgjohansson.solo.soar.dwld.SoarDownloader(),
 ):
     '''
-Sync local directory with subset of online SOAR datasets.
+    Sync local directory with subset of online SOAR datasets.
 
-NOTE/BUG: Does not correct the locations of misplaced datasets.
-
-
-Parameters
-----------
-syncDir : String. Path.
-tempDownloadDir : String. Path.
-    Must be empty on datasets. Otherwise those will be moved too.
-datasetsSubsetFunc : Function (instrument=str, level=str) --> bool
-    Function which determines whether a specific dataset should be included
-    in the sync.
-deleteOutsideSubset : Boolean
-    Whether local datasets for which datasetsSubsetFunc returns false should be
-    deleted or not, even if there is no newer version.
-    NOTE: This distinction is important when one wants to
-    update only some of the local datasets but not other (e.g. for speed) by
-    temporarily using another function datasetsSubsetFunc.
-nMaxNetDatasetsToRemove : int
-    Maximum permitted net number of deleted datasets ("nDeletedDatasets minus
-    nNewDatasets"). This is a failsafe (assertion), to protect against deleting
-    too many slow-to-redownload datasets due to bugs or misconfiguration (e.g.
-    datasetsSubsetFunc).
-SoarTableCacheJsonFilePath
-    Path to JSON file which is used for caching the SOAR table. May or may not
-    pre-exist.
-    None: Do not cache.
-    This is useful for debugging (speeds up execution; can manually inspect
-    SOAR table).
-tempRemovalDir
-    None or path to "removal directory" to which datasets are moved before
-    the directory itself is itself optionally removed (depends on argument
-    "removeRemovalDir").
-    Removal directory may preexist. Is created if not.
-removeRemovalDir
-    Bool. If using a removal directory, then whether to actually remove the
-    removal directory or keep it.
+    NOTE/BUG: Does not correct the locations of misplaced datasets.
 
 
-Return values
--------------
-None.
-'''
+    Parameters
+    ----------
+    syncDir : String. Path.
+    tempDownloadDir : String. Path.
+        Must be empty on datasets. Otherwise those will be moved too.
+    datasetsSubsetFunc : Function (instrument=str, level=str) --> bool
+        Function which determines whether a specific dataset should be included
+        in the sync.
+    deleteOutsideSubset : Boolean
+        Whether local datasets for which datasetsSubsetFunc returns false
+        should be deleted or not, even if there is no newer version.
+        NOTE: This distinction is important when one wants to
+        update only some of the local datasets but not other (e.g. for speed)
+        by temporarily using another function datasetsSubsetFunc.
+    nMaxNetDatasetsToRemove : int
+        Maximum permitted net number of deleted datasets ("nDeletedDatasets
+        minus nNewDatasets"). This is a failsafe (assertion), to protect
+        against deleting too many slow-to-redownload datasets due to bugs or
+        misconfiguration (e.g. "datasetsSubsetFunc").
+    SoarTableCacheJsonFilePath
+        Path to JSON file which is used for caching the SOAR table. May or may
+        not pre-exist.
+        None: Do not cache.
+        This is useful for debugging (speeds up execution; can manually inspect
+        SOAR table).
+    tempRemovalDir
+        None or path to "removal directory" to which datasets are moved before
+        the directory itself is itself optionally removed (depends on argument
+        "removeRemovalDir").
+        Removal directory may preexist. Is created if not.
+    removeRemovalDir
+        Bool. If using a removal directory, then whether to actually remove the
+        removal directory or keep it.
+
+
+    Return values
+    -------------
+    None.
     '''
-BUG: Does not correct the locations of misplaced datasets.
-    PROBLEM: How handle symlinks?
-        Ex: Might be used for duplicating locations for backward compatibility.
-    PROPOSAL: Make relative dataset path part of the information that should be
-              synced.
-        CON: Will re-download files that have moved.
+    '''
+    BUG: Does not correct the locations of misplaced datasets.
+        PROBLEM: How handle symlinks?
+            Ex: Might be used for duplicating locations for backward
+                compatibility.
+        PROPOSAL: Make relative dataset path part of the information that
+                  should be synced.
+            CON: Will re-download files that have moved.
 
-~BUG: If download directory is not empty on datasets, then those datasets will
-      be moved too.
-BUG: Can not handle multiple identical datasets.
+    ~BUG: If download directory is not empty on datasets, then those datasets
+          will be moved too.
+    BUG: Can not handle multiple identical datasets.
 
-~BUG: Not sure about behaviour for datasets (mistakenly) not recognized by
-    erikpgjohansson.solo.utils.parse_dataset_filename among the SOAR datasets.
-        NOTE: Should only happen if datasetsSubsetFunc() uses time.
+    ~BUG: Not sure about behaviour for datasets (mistakenly) not recognized by
+        erikpgjohansson.solo.utils.parse_dataset_filename among the SOAR
+        datasets.
+            NOTE: Should only happen if datasetsSubsetFunc() uses time.
 
-BUG: Gets frequent error messages when calling from bash/python wrapper script
-so_irfu_soar_sync.py on brain. Works better on spis(?). /2021-01-19
-"""""""
-Traceback (most recent call last):
-  File "/amd/hem/export/home/erjo/bin/global/so_irfu_soar_sync.py",
-  line 60, in <module>
-    main(sys.argv[1:])   # # NOTE: sys.argv[0] är inget CLI-argument.
-    ==> Ignorera
-  File "/amd/hem/export/home/erjo/bin/global/so_irfu_soar_sync.py",
-  line 56, in main
-    erikpgjohansson.so.irfu_soar_mirror.sync()
-  File "/home/erjo/python_copy/erikpgjohansson/so/irfu_soar_mirror.py",
-  line 33, in sync
-    nMaxNetDatasetsToRemove = 20)
-  File "/home/erjo/python_copy/erikpgjohansson/so/soar_mirror.py",
-  line 172, in sync
-    localDst = erikpgjohansson.so.soar_utils.derive_DST_from_dir(syncDir)
-  File "/home/erjo/python_copy/erikpgjohansson/so/soar_utils.py",
-  line 383, in derive_DST_from_dir
-    fileSizeList    += [os.stat(filePath).st_size]
-PermissionError: [Errno 13] Permission denied:
-'/data/solo/soar/swa/L2/swa-eas1-nm3d-psd/2020/10/
-solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
-"""""""
+    BUG: Gets frequent error messages when calling from bash/python wrapper
+    script so_irfu_soar_sync.py on brain. Works better on spis(?). /2021-01-19
+    """""""
+    Traceback (most recent call last):
+      File "/amd/hem/export/home/erjo/bin/global/so_irfu_soar_sync.py",
+      line 60, in <module>
+        main(sys.argv[1:])   # # NOTE: sys.argv[0] är inget CLI-argument.
+        ==> Ignorera
+      File "/amd/hem/export/home/erjo/bin/global/so_irfu_soar_sync.py",
+      line 56, in main
+        erikpgjohansson.so.irfu_soar_mirror.sync()
+      File "/home/erjo/python_copy/erikpgjohansson/so/irfu_soar_mirror.py",
+      line 33, in sync
+        nMaxNetDatasetsToRemove = 20)
+      File "/home/erjo/python_copy/erikpgjohansson/so/soar_mirror.py",
+      line 172, in sync
+        localDst = erikpgjohansson.so.soar_utils.derive_DST_from_dir(syncDir)
+      File "/home/erjo/python_copy/erikpgjohansson/so/soar_utils.py",
+      line 383, in derive_DST_from_dir
+        fileSizeList    += [os.stat(filePath).st_size]
+    PermissionError: [Errno 13] Permission denied:
+    '/data/solo/soar/swa/L2/swa-eas1-nm3d-psd/2020/10/
+    solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
+    """""""
     PROPOSAL: Inspect local datasets before download SOAR datasets list.
         PRO: Faster to fail when fails due to not being able to access files
              (see bug).
@@ -510,6 +512,7 @@ def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
             final_path = os.path.join(temp_removal_dir, file_name)
             os.replace(path_remove, final_path)
 
+        # NOTE: Replaces value of "ls_paths_remove".
         ls_paths_remove = [temp_removal_dir]
 
         if not remove_removal_dir:
@@ -526,30 +529,30 @@ def _find_DST_difference(
     fileSizeArray1, fileSizeArray2,
 ):
     '''
-Find both set differences between lists of strings as boolean index arrays.
-Intended for dataset filenames, to determine which datasets need to be synched
-(removed, downloaded).
+    Find both set differences between lists of strings as boolean index
+    arrays. Intended for dataset filenames, to determine which datasets need
+    to be synched (removed, downloaded).
 
-NOTE: Does not check file size or content.
-NOTE: Does not directly use dataset versions.
-
-
-Parameters
-----------
-fileNameArray1 : 1D numpy.ndarray of strings.
-fileNameArray2 : 1D numpy.ndarray of strings.
-NOTE: Arrays (separately) do not need to contain unique strings, though
-that is the intended use.
+    NOTE: Does not check file size or content.
+    NOTE: Does not directly use dataset versions.
 
 
-Returns
--------
-(bDiff1, bDiff2)
+    Parameters
+    ----------
+    fileNameArray1 : 1D numpy.ndarray of strings.
+    fileNameArray2 : 1D numpy.ndarray of strings.
+    NOTE: Arrays (separately) do not need to contain unique strings, though
+    that is the intended use.
+
+
+    Returns
+    -------
+    (bDiff1, bDiff2)
     '''
     '''
-PROPOSAL: Use filenames, not itemId+version.
-PROPOSAL: Include file sizes.
-PROPOSAL: Use DSTs.
+    PROPOSAL: Use filenames, not itemId+version.
+    PROPOSAL: Include file sizes.
+    PROPOSAL: Use DSTs.
     '''
     erikpgjohansson.solo.soar.utils.assert_col_array(
         fileNameArray1, np.dtype('O'),
@@ -600,20 +603,20 @@ def _find_DST_subset(
     dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
 ):
     '''
-Returns indices to datasets that are permitted by datasetIncludeFunc.
-Basically just iterates over datasetIncludeFunc.
+    Returns indices to datasets that are permitted by datasetIncludeFunc.
+    Basically just iterates over datasetIncludeFunc.
 
 
-Parameters
-----------
-datasetIncludeFunc : Function handle.
-    Checks whether a given dataset should be included.
+    Parameters
+    ----------
+    datasetIncludeFunc : Function handle.
+        Checks whether a given dataset should be included.
 
 
-Returns
--------
-bSubset : numpy array
-'''
+    Returns
+    -------
+    bSubset : numpy array
+    '''
     instrumentArray = dst['instrument']
     levelArray      = dst['processing_level']
     beginTimeArray  = dst['begin_time_FN']

@@ -359,20 +359,20 @@ def download_SOAR_DST(downloader: Downloader, CacheJsonFilePath=None):
 @codetiming.Timer('_convert_raw_SOAR_datasets_table', logger=None)
 def _convert_raw_SOAR_datasets_table(JsonDict):
     '''
-Convert downloaded SOAR datasets table to better format.
-Useful to have this as a separate function for testing purposes.
+    Convert downloaded SOAR datasets table to better format.
+    Useful to have this as a separate function for testing purposes.
 
-NOTE: Works, but seems too slow. 2022-01-04: 75 s for entire SOAR table.
+    NOTE: Works, but seems too slow. 2022-01-04: 75 s for entire SOAR table.
 
-Parameters
-----------
-JsonDict
-    JSON-like representation of SOAR datasets table.
+    Parameters
+    ----------
+    JsonDict
+        JSON-like representation of SOAR datasets table.
 
-Returns
--------
-dst : Dictionary of numpy arrays.
-'''
+    Returns
+    -------
+    dst : Dictionary of numpy arrays.
+    '''
     '''
     PROPOSAL: Do not modify/convert columns, but add new columns instead.
         PRO: Useful if format is ambiguous.

@@ -104,37 +104,38 @@ def download_latest_datasets_batch(
     debugDownloadingEnabled=True,
 ):
     '''
-Download latest versions of datasets (multiple ones), for selected item ID's.
-Will likely overwrite pre-existing files (not checked).
-Will log progress, speed, predicted remainder & completion to stdout.
+    Download latest versions of datasets (multiple ones), for selected item
+    ID's. Will likely overwrite pre-existing files (not checked). Will log
+    progress, speed, predicted remainder & completion to stdout.
 
 
-Parameters
-----------
-fileSizeArray : 1D numpy.ndarray of integers.
-    NOTE: Needed for logging the predicted remaining wall time needed for the
-    download.
-logFormat : str
-    String constant. 'long' or 'short'.
-downloadByIncrFileSize : bool
-    True: Sort datasets by increasing file size.
-    Useful for testing/debugging. Bad for predicted log values.
-debugDownloadingEnabled : bool
-    False: Do everything except actual download.
-    Useful for testing/debugging.
+    Parameters
+    ----------
+    fileSizeArray : 1D numpy.ndarray of integers.
+        NOTE: Needed for logging the predicted remaining wall time needed for
+        the download.
+    logFormat : str
+        String constant. 'long' or 'short'.
+    downloadByIncrFileSize : bool
+        True: Sort datasets by increasing file size.
+        Useful for testing/debugging. Bad for predicted log values.
+    debugDownloadingEnabled : bool
+        False: Do everything except actual download.
+        Useful for testing/debugging.
 
 
-Returns
--------
-None.
+    Returns
+    -------
+    None.
     '''
     '''
-TODO-DEC: How handle pre-existing files? How does download_latest_dataset()?
-    NOTE: This function does not know the filenames.
-    PROPOSAL: policy which is sent to download_latest_dataset().
-PROPOSAL: Argument for filenames.
+    TODO-DEC: How handle pre-existing files? What does
+              download_latest_dataset() do?
+        NOTE: This function does not know the filenames.
+        PROPOSAL: policy which is sent to download_latest_dataset().
+    PROPOSAL: Argument for filenames.
 
-PROPOSAL: Keyword argument for file-size sorted download.
+    PROPOSAL: Keyword argument for file-size sorted download.
     '''
 
     # ASSERTIONS
@@ -226,23 +227,23 @@ PROPOSAL: Keyword argument for file-size sorted download.
 @codetiming.Timer('find_latest_versions', logger=None)
 def find_latest_versions(itemIdArray, itemVerNbrArray):
     '''
-Find boolean indices for datasets which have the latest version (for that
-particular item ID.
+    Find boolean indices for datasets which have the latest version (for that
+    particular item ID.
 
-NOTE: Works, but appears to be slower than necessary.
-2022-01-04: 548 s when applied to entire SOAR table.
-
-
-Parameters
-----------
-itemIdArray     : 1D numpy array of strings.
-itemVerNbrArray : 1D numpy array of integers.
+    NOTE: Works, but appears to be slower than necessary.
+    2022-01-04: 548 s when applied to entire SOAR table.
 
 
-Returns
--------
-bLvArray : 1D numpy bool array.
-'''
+    Parameters
+    ----------
+    itemIdArray     : 1D numpy array of strings.
+    itemVerNbrArray : 1D numpy array of integers.
+
+
+    Returns
+    -------
+    bLvArray : 1D numpy bool array.
+    '''
     '''
     PROPOSAL: Temporary variable for "itemIdArray == uii".
     '''
@@ -304,19 +305,20 @@ bLvArray : 1D numpy bool array.
 @codetiming.Timer('derive_DST_from_dir', logger=None)
 def derive_DST_from_dir(rootDir):
     '''
-Derive a DST from a directory tree datasets. Searches directory recursively.
+    Derive a DST from a directory tree datasets. Searches directory
+    recursively.
 
-NOTE: Ignores filenames that can not be parsed as datasets.
+    NOTE: Ignores filenames that can not be parsed as datasets.
 
 
-Parameters
-----------
-rootDir : String
+    Parameters
+    ----------
+    rootDir : String
 
-Returns
--------
-dst
-'''
+    Returns
+    -------
+    dst
+    '''
     erikpgjohansson.solo.asserts.is_dir(rootDir)
 
     fileNameList    = []
