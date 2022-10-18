@@ -28,7 +28,10 @@ def test_download_latest_dataset(tmp_path):
         i_test = i_test + 1
         os.mkdir(fileParentPath)
 
-        print(f'Downloading online data from SOAR: dataItemId={dataItemId}')
+        print(
+            f'ATEST: Downloading online data from SOAR:'
+            f' dataItemId={dataItemId}',
+        )
         actFilePath = downloader.download_latest_dataset(
             dataItemId, fileParentPath,
             expectedFileName=None, expectedFileSize=None,
@@ -65,6 +68,8 @@ def test_download_latest_dataset(tmp_path):
 
 
 if __name__ == '__main__':
+    import logging
+    import sys
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     t = tempfile.TemporaryDirectory()
     test_download_latest_dataset(t.name)
-    pass

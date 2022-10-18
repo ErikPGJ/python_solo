@@ -289,8 +289,8 @@ def test_sync(tmp_path):
 
         setup_FS(
             root_dir, {
-                'mirror': {},
                 'download': {},
+                'mirror': {},
             },
         )
 
@@ -372,6 +372,7 @@ def test_sync(tmp_path):
         download_dir = os.path.join(root_dir, 'download')
         setup_FS(
             root_dir, {
+                'download': {},
                 'mirror': {
                     'mag': {
                         'L2': {
@@ -406,7 +407,6 @@ def test_sync(tmp_path):
                         },
                     },
                 },
-                'download': {},
             },
         )
         md = MockDownloader(
@@ -615,6 +615,7 @@ def test_offline_cleanup(tmp_path):
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
     test_FS_helpers(tempfile.TemporaryDirectory().name)
     test_sync(tempfile.TemporaryDirectory().name)
     test_offline_cleanup(tempfile.TemporaryDirectory().name)

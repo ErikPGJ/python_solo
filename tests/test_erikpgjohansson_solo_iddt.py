@@ -117,4 +117,3 @@ def test_convert_DATASET_ID_to_DTDN():
 if __name__ == '__main__':
     test_get_IDDT_subdir()
     test_convert_DATASET_ID_to_DTDN()
-    pass

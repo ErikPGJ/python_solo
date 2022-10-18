@@ -105,8 +105,11 @@ L2_L3_DSI_TO_DTDN = (
         }, 'lfr_density',
     ),
 )
-'''
-Data structure that tabulates how to convert DATASET_ID-->DTDN for L2 & L3.
+'''Data structure that tabulates how to convert DATASET_ID-->DTDN for
+special cases. A general rule is used if the conversion is not tabulated here.
+
+NOTE: Can only convert DATASET_ID-->DTDN for L2 & L3.
+
 [i][j][0] = Set of DATASET_IDs
 [i][j][1] = DTDN associated with above set of DATASET_IDs.
 '''
@@ -176,7 +179,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
 
 def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     '''
-    Convert DATASET_ID --> DTDN
+    Convert DATASET_ID --> DTDN (L2 & L3 only)
     '''
     # ASSERTIONS: Arguments
     if not datasetId.upper() == datasetId:
@@ -186,24 +189,24 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     dataSrc, level, instrument, descriptor = \
         erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
-    # ASSERTIONS
+    # ASSERTION: L2 or L3
     if level not in {'L2', 'L3'}:
         raise Exception(
             'Can not generate DTDN for level={level}, datasetId="{datasetId}"',
         )
 
-    # __IF__ a special case applies (RPW L2, L3), then handle that.
+    # __IF__ a tabulated special case applies, then handle that.
     for (dsiSet, dtdn) in L2_L3_DSI_TO_DTDN:
         if datasetId in dsiSet:
             return dtdn    # NOTE: EXIT
+
     # ASSERTION: Previous handling of special cases has already handled
-    # aLL RPW L2+L3 cases.
+    # all RPW L2+L3 cases.
     if instrument == 'RPW' and level in ['L2', 'L3']:
         raise Exception(f'Can not handle datasetId="{datasetId}".')
 
-    # CASE: No special case DATASET_ID --> DTDN
-
-    # Derive DTDN from DATASET_ID descriptor.
+    # CASE: No special case applies when converting DATASET_ID --> DTDN
+    # Derive DTDN from DATASET_ID descriptor using general rule.
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match',
@@ -441,8 +444,8 @@ def copy_move_datasets_to_irfu_dir_tree(
 
             else:
                 print(
-                    'Can not identify file and therefore'
-                    ' not copy/move it: {oldPath}',
+                    f'Can not identify file and therefore'
+                    f' not copy/move it: {oldPath}',
                 )
 
     '''==============================

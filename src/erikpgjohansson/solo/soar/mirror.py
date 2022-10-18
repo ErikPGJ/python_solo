@@ -96,6 +96,8 @@ PROPOSAL: Abbreviations for specific subsets.
     AV = All Versions
     LV = Latest Version(s) only
     LVD = Latest Version Datasets
+
+PROPOSAL: Always use removal directory.
 '''
 
 
@@ -314,7 +316,10 @@ def offline_cleanup(
 
     L = logging.getLogger(__name__)
 
-    L.info('Moving datasets within sync directory.')
+    L.info(
+        'Ensuring that datasets under sync directory are in'
+        ' the correct locations.',
+    )
     erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
         'move', syncDir, syncDir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
@@ -533,14 +538,11 @@ def _execute_sync_dir_update(
     # are hard/slow to replace.
     n_datasets = localExcessDst.n()
     L.info(f'Removing {n_datasets} local datasets')
-    if n_datasets > 0:
-        # NOTE: Not calling if zero files to remove. ==> No removal
-        #       directory created, no logging (if added).
-        pathsToRemoveList = localExcessDst['file_path'].tolist()
-        stdoutStr = _remove_files(
-            pathsToRemoveList, tempRemovalDir, removeRemovalDir,
-        )
-        L.info(stdoutStr)
+    pathsToRemoveList = localExcessDst['file_path'].tolist()
+    stdoutStr = _remove_files(
+        pathsToRemoveList, tempRemovalDir, removeRemovalDir,
+    )
+    L.info(stdoutStr)
 
     # =================================================
     # Move downloaded datasets into sync directory tree
@@ -559,6 +561,11 @@ def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
     assert type(ls_paths_remove) in (list, tuple)
     assert type(remove_removal_dir) == bool
     L = logging.getLogger(__name__)
+
+    for path_remove in ls_paths_remove:
+        # NOTE: Could be excessive logging/printing if
+        # const.FILE_REMOVAL_COMMAND_LIST also logs/prints.
+        L.info(f'Dataset selected for removal: {path_remove}')
 
     if temp_removal_dir is not None:
         L.info(f'Using removal directory "{temp_removal_dir}"')

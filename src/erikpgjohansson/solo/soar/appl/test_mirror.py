@@ -13,7 +13,7 @@ import erikpgjohansson.solo.soar.mirror
 import logging
 import numpy
 import os
-import sys
+# import sys
 
 
 '''
@@ -60,25 +60,29 @@ def sync():
 
     ROOT_DIR = '/home/erjo/temp/soar'
 
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
     removal_dir = os.path.join(ROOT_DIR, f'removal_{timestamp}')
-    soar_table_cache_file_path = os.path.join(ROOT_DIR, "soar.json")
-    # soar_table_cache_file_path = None
+    # soar_table_cache_file_path = os.path.join(ROOT_DIR, "soar.json")
+    soar_table_cache_file_path = None
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    logging.basicConfig(
+        filename=os.path.join(ROOT_DIR, f'sync.{timestamp}.log'),
+        level=logging.INFO,
+    )
 
     erikpgjohansson.solo.soar.mirror.sync(
-        syncDir                   = os.path.join(ROOT_DIR, 'mirror'),
-        tempDownloadDir           = os.path.join(ROOT_DIR, 'download'),
-        datasetsSubsetFunc        = datasets_include_func,
-        downloadLogFormat         = 'long',
-        deleteOutsideSubset       = True,
-        nMaxNetDatasetsToRemove   = 25,
-        SoarTableCacheJsonFilePath= soar_table_cache_file_path,
-        tempRemovalDir            = removal_dir,
-        removeRemovalDir          = False,
+        syncDir                    = os.path.join(ROOT_DIR, 'mirror'),
+        tempDownloadDir            = os.path.join(ROOT_DIR, 'download'),
+        datasetsSubsetFunc         = datasets_include_func,
+        downloadLogFormat          = 'long',
+        deleteOutsideSubset        = True,
+        nMaxNetDatasetsToRemove    = 25,
+        SoarTableCacheJsonFilePath = soar_table_cache_file_path,
+        tempRemovalDir             = removal_dir,
+        removeRemovalDir           = False,
     )
 
 

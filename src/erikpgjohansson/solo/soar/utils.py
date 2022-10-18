@@ -342,13 +342,13 @@ def derive_DST_from_dir(rootDir):
                     )
 
                 filePath = os.path.join(dirPath, fileName)
-                filePathList    += [filePath]
-                fileNameList    += [fileName]
-                fileVerList     += [int(di['version string'])]
-                itemIdList      += [di['item ID']]
-                fileSizeList    += [os.stat(filePath).st_size]
-                instrumentList  += [instrument]
-                levelList       += [level]
+                filePathList   += [filePath]
+                fileNameList   += [fileName]
+                fileVerList    += [int(di['version string'])]
+                itemIdList     += [di['item ID']]
+                fileSizeList   += [os.stat(filePath).st_size]
+                instrumentList += [instrument]
+                levelList      += [level]
 
                 # NOTE: datetime.datetime requires integer seconds+microseconds
                 # in separate arguments (as integers). Filenames should only

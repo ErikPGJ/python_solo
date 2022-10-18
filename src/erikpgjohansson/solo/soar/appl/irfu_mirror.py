@@ -37,9 +37,9 @@ include: bool
 
     if datasetId in ('SOLO_LL02_SWA-PAS-MOM', 'SOLO_LL02_MAG'):
         return True
-    elif instrument == 'MAG' and level in ['L2']:
-        return True
     elif instrument == 'EPD' and level in ['L1', 'L2']:
+        return True
+    elif instrument == 'MAG' and level in ['L2']:
         return True
     elif instrument == 'SWA' and level in ['L1', 'L2']:
         return True
