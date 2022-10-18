@@ -31,6 +31,86 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
             directory trees L2, L3.
 '''
 
+L2_L3_DSI_TO_DTDN = (
+    (
+        {
+            'SOLO_L2_RPW-LFR-SURV-CWF-B',
+            'SOLO_L2_RPW-LFR-SURV-SWF-B',
+        }, 'lfr_wf_b',
+    ),
+    (
+        {
+            'SOLO_L2_RPW-LFR-SBM1-CWF-E',
+            'SOLO_L2_RPW-LFR-SBM2-CWF-E',
+            'SOLO_L2_RPW-LFR-SURV-CWF-E',
+            'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',
+            'SOLO_L2_RPW-LFR-SURV-SWF-E',
+        }, 'lfr_wf_e',
+    ),
+    ({'SOLO_L2_RPW-LFR-SURV-ASM'}, 'lfr_asm'),
+    (
+        {
+            'SOLO_L2_RPW-LFR-SURV-BP1',
+            'SOLO_L2_RPW-LFR-SURV-BP2',
+        }, 'lfr_bp',
+    ),
+    (
+        {
+            'SOLO_L2_RPW-TDS-LFM-CWF-B',
+            'SOLO_L2_RPW-TDS-LFM-CWF-E',
+            'SOLO_L2_RPW-TDS-LFM-RSWF-B',
+            'SOLO_L2_RPW-TDS-LFM-RSWF-E',
+            'SOLO_L2_RPW-TDS-LFM-PSDSM',
+        }, 'tds_lfm',
+    ),  # AMBIGUOUS for some: tds_lfm or tds_wf_b/e
+    ({'SOLO_L2_RPW-TDS-SURV-HIST1D'}, 'tds_hist1d'),
+    ({'SOLO_L2_RPW-TDS-SURV-HIST2D'}, 'tds_hist2d'),
+    ({'SOLO_L2_RPW-TDS-SURV-MAMP'}, 'tds_mamp'),
+    ({'SOLO_L2_RPW-TDS-SURV-STAT'}, 'tds_stat'),
+    (
+        {
+            'SOLO_L2_RPW-TDS-SURV-RSWF-B',
+            'SOLO_L2_RPW-TDS-SURV-TSWF-B',
+        }, 'tds_wf_b',
+    ),
+    (
+        {
+            'SOLO_L2_RPW-TDS-SURV-RSWF-E',
+            'SOLO_L2_RPW-TDS-SURV-TSWF-E',
+        }, 'tds_wf_e',
+    ),
+    (
+        {
+            'SOLO_L2_RPW-HFR-SURV',
+            'SOLO_L2_RPW-TNR-SURV',
+        }, 'thr',
+    ),
+    ({'SOLO_L3_RPW-TNR-FP'}, 'tnr_fp'),
+    (
+        {
+            'SOLO_L3_RPW-BIA-EFIELD',
+            'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',
+        }, 'lfr_efield',
+    ),
+    (
+        {
+            'SOLO_L3_RPW-BIA-SCPOT',
+            'SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',
+        }, 'lfr_scpot',
+    ),
+    (
+        {
+            'SOLO_L3_RPW-BIA-DENSITY',
+            'SOLO_L3_RPW-BIA-DENSITY-10-SECONDS',
+        }, 'lfr_density',
+    ),
+)
+'''
+Data structure that tabulates how to convert DATASET_ID-->DTDN for L2 & L3.
+[i][j][0] = Set of DATASET_IDs
+[i][j][1] = DTDN associated with above set of DATASET_IDs.
+'''
+
 
 def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     '''
@@ -98,91 +178,15 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     '''
     Convert DATASET_ID --> DTDN
     '''
-
-    # DTDN = Data Type Directory Name
-    # [i][j][0] = DATASET_ID
-    # [i][j][1] = DTDN
-    L2_L3_DSI_TO_DTDN = (
-        (
-            {
-                'SOLO_L2_RPW-LFR-SURV-CWF-B',
-                'SOLO_L2_RPW-LFR-SURV-SWF-B',
-            }, 'lfr_wf_b',
-        ),
-        (
-            {
-                'SOLO_L2_RPW-LFR-SBM1-CWF-E',
-                'SOLO_L2_RPW-LFR-SBM2-CWF-E',
-                'SOLO_L2_RPW-LFR-SURV-CWF-E',
-                'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',
-                'SOLO_L2_RPW-LFR-SURV-SWF-E',
-            }, 'lfr_wf_e',
-        ),
-        ({'SOLO_L2_RPW-LFR-SURV-ASM'}, 'lfr_asm'),
-        (
-            {
-                'SOLO_L2_RPW-LFR-SURV-BP1',
-                'SOLO_L2_RPW-LFR-SURV-BP2',
-            }, 'lfr_bp',
-        ),
-        (
-            {
-                'SOLO_L2_RPW-TDS-LFM-CWF-B',
-                'SOLO_L2_RPW-TDS-LFM-CWF-E',
-                'SOLO_L2_RPW-TDS-LFM-RSWF-B',
-                'SOLO_L2_RPW-TDS-LFM-RSWF-E',
-                'SOLO_L2_RPW-TDS-LFM-PSDSM',
-            }, 'tds_lfm',
-        ),   # AMBIGUOUS for some: tds_lfm or tds_wf_b/e
-        ({'SOLO_L2_RPW-TDS-SURV-HIST1D'}, 'tds_hist1d'),
-        ({'SOLO_L2_RPW-TDS-SURV-HIST2D'}, 'tds_hist2d'),
-        ({'SOLO_L2_RPW-TDS-SURV-MAMP'}, 'tds_mamp'),
-        ({'SOLO_L2_RPW-TDS-SURV-STAT'}, 'tds_stat'),
-        (
-            {
-                'SOLO_L2_RPW-TDS-SURV-RSWF-B',
-                'SOLO_L2_RPW-TDS-SURV-TSWF-B',
-            }, 'tds_wf_b',
-        ),
-        (
-            {
-                'SOLO_L2_RPW-TDS-SURV-RSWF-E',
-                'SOLO_L2_RPW-TDS-SURV-TSWF-E',
-            }, 'tds_wf_e',
-        ),
-        (
-            {
-                'SOLO_L2_RPW-HFR-SURV',
-                'SOLO_L2_RPW-TNR-SURV',
-            }, 'thr',
-        ),
-        ({'SOLO_L3_RPW-TNR-FP'}, 'tnr_fp'),
-        (
-            {
-                'SOLO_L3_RPW-BIA-EFIELD',
-                'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',
-            }, 'lfr_efield',
-        ),
-        (
-            {
-                'SOLO_L3_RPW-BIA-SCPOT',
-                'SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',
-            }, 'lfr_scpot',
-        ),
-        (
-            {
-                'SOLO_L3_RPW-BIA-DENSITY',
-                'SOLO_L3_RPW-BIA-DENSITY-10-SECONDS',
-            }, 'lfr_density',
-        ),
-    )
+    # ASSERTIONS: Arguments
+    if not datasetId.upper() == datasetId:
+        raise Exception(f'Not uppercase datasetId="{datasetId}"')
+    assert type(includeInstrument) == bool
 
     dataSrc, level, instrument, descriptor = \
         erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
 
     # ASSERTIONS
-    if not datasetId.upper() == datasetId:
-        raise Exception(f'Not uppercase datasetId="{datasetId}"')
     if level not in {'L2', 'L3'}:
         raise Exception(
             'Can not generate DTDN for level={level}, datasetId="{datasetId}"',
