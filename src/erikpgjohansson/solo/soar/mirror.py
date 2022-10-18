@@ -293,6 +293,66 @@ def sync(
     erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
 
 
+def offline_cleanup(
+    syncDir, tempDownloadDir, datasetsSubsetFunc,
+    deleteOutsideSubset=False,
+    tempRemovalDir=None,
+    removeRemovalDir=False,
+):
+    '''
+    Given a temporary download directory and a local sync directory, both of
+    them containing datasets,
+    (1) move all datasets into the local sync directory,
+    (2) make sure that all datasets are in the correct location under the
+        sync directory,
+    (3) only keep the latest versions.
+
+    Should be useful for
+    (1) cleaning up a non-nominal state, and
+    (2) inserting manually downloaded datasets.
+    '''
+
+    L = logging.getLogger(__name__)
+
+    L.info('Moving datasets within sync directory.')
+    erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
+        'move', syncDir, syncDir,
+        dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
+    )
+
+    L.info('Moving datasets from download directory to sync directory.')
+    erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
+        'move', tempDownloadDir, syncDir,
+        dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
+    )
+
+    L.info('Producing table of pre-existing local datasets.')
+    localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
+
+    soarMissingDst, localExcessDst = _calculate_sync_dir_update(
+        soarDst=localDst,
+        localDst=localDst,
+        datasetsSubsetFunc=datasetsSubsetFunc,
+        deleteOutsideSubset=deleteOutsideSubset,
+        nMaxNetDatasetsToRemove=float("Inf"),
+    )
+
+    # =====================
+    # Remove local datasets
+    # =====================
+    # NOTE: Deliberately removing datasets AFTER having successfully downloaded
+    # new ones (including potential replacements for removed files).
+    # This is to avoid that bugs lead to unnecessarily deleting datasets that
+    # are hard/slow to replace.
+    n_datasets = localExcessDst.n()
+    L.info(f'Removing {n_datasets} local datasets')
+    pathsToRemoveList = localExcessDst['file_path'].tolist()
+    stdoutStr = _remove_files(
+        pathsToRemoveList, tempRemovalDir, removeRemovalDir,
+    )
+    L.info(stdoutStr)
+
+
 @codetiming.Timer('_calculate_sync_dir_update', logger=None)
 def _calculate_sync_dir_update(
     soarDst, localDst, datasetsSubsetFunc,

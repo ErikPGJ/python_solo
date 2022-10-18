@@ -9,7 +9,9 @@ content, but including file sizes).
 
 import erikpgjohansson.solo.soar.mirror
 import erikpgjohansson.solo.soar.dwld
+import logging
 import os
+import sys
 import tempfile
 
 
@@ -464,15 +466,155 @@ def test_sync(tmp_path):
     test1()
 
 
-# def test_cleanup(tmp_path):
-#     def test0():
-#         erikpgjohansson.solo.soar.mirror.cleanup()
-#
-#
-#     test0()
+def test_offline_cleanup(tmp_path):
+    tdp = DirProducer(tmp_path)
+    # TODO: Check misplaced files.
+
+    def DIF(instrument, level, beginTime, datasetId):
+        return True
+
+    def test0():
+
+        root_dir = tdp.get_new_dir()
+        sync_dir = os.path.join(root_dir, 'mirror')
+        download_dir = os.path.join(root_dir, 'download')
+        removal_dir = os.path.join(root_dir, 'removal')
+
+        setup_FS(
+            root_dir, {
+                'download': {
+                    # V01 will be removed, V02 kept.
+                    # Not in mirror/.
+                    'solo_L3_rpw-bia-efield-10-seconds_20200601_V01.cdf': 20,
+                    'solo_L3_rpw-bia-efield-10-seconds_20200601_V02.cdf': 21,
+                    # Duplicate with mirror/.
+                    'solo_L3_rpw-bia-efield-10-seconds_20200714_V05.cdf': 12,
+                    # Later version than in mirror/.
+                    'solo_L3_rpw-bia-efield-10-seconds_20200801_V02.cdf': 30,
+                    # Older version than in mirror/.
+                    'solo_L3_rpw-bia-efield-10-seconds_20200901_V01.cdf': 40,
+                },
+                'mirror': {
+                    'rpw': {
+                        'L3': {
+                            'lfr_efield': {
+                                '2020': {
+                                    '05': {
+                                        # V01 will be removed, V02 kept.
+                                        # Not in download/.
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200501_V01.cdf': 10,
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200501_V02.cdf': 11,
+                                    },
+                                    '07': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200714_V05.cdf': 12,
+                                    },
+                                    '08': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200801_V01.cdf': 30,
+                                    },
+                                    '09': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200901_V02.cdf': 40,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        )
+
+        erikpgjohansson.solo.soar.mirror.offline_cleanup(
+            sync_dir, download_dir, DIF, tempRemovalDir=removal_dir,
+            removeRemovalDir=True,
+        )
+
+        assert_FS(
+            root_dir, {
+                'download': {},
+                'mirror': {
+                    'rpw': {
+                        'L3': {
+                            'lfr_efield': {
+                                '2020': {
+                                    '05': {
+                                        # V01 will be removed, V02 kept.
+                                        # Not in download/.
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200501_V02.cdf': 11,
+                                    },
+                                    '06': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200601_V02.cdf': 21,
+                                    },
+                                    '07': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200714_V05.cdf': 12,
+                                    },
+                                    '08': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200801_V02.cdf': 30,
+                                    },
+                                    '09': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200901_V02.cdf': 40,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        )
+
+    def test1():
+        root_dir = tdp.get_new_dir()
+        sync_dir = os.path.join(root_dir, 'mirror')
+        download_dir = os.path.join(root_dir, 'download')
+        removal_dir = os.path.join(root_dir, 'removal')
+
+        setup_FS(
+            root_dir, {
+                'download': {},
+                'mirror': {
+                    # File in wrong location.
+                    'solo_L3_rpw-bia-efield-10-seconds_20200501_V01.cdf': 10,
+                },
+            },
+        )
+        erikpgjohansson.solo.soar.mirror.offline_cleanup(
+            sync_dir, download_dir, DIF, tempRemovalDir=removal_dir,
+            removeRemovalDir=True,
+        )
+        assert_FS(
+            root_dir, {
+                'download': {},
+                'mirror': {
+                    'rpw': {
+                        'L3': {
+                            'lfr_efield': {
+                                '2020': {
+                                    '05': {
+                                        'solo_L3_rpw-bia-efield-10-seconds'
+                                        '_20200501_V01.cdf': 10,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        )
+
+    test0()
+    test1()
 
 
 if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     test_FS_helpers(tempfile.TemporaryDirectory().name)
     test_sync(tempfile.TemporaryDirectory().name)
-    # test_cleanup(tempfile.TemporaryDirectory().name)
+    test_offline_cleanup(tempfile.TemporaryDirectory().name)

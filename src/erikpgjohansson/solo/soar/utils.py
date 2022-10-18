@@ -360,7 +360,7 @@ def derive_DST_from_dir(rootDir):
     dst = erikpgjohansson.solo.soar.dst.DatasetsTable({
         'file_name':        np.array(fileNameList,    dtype=object),
         'file_path':        np.array(filePathList,    dtype=object),
-        'item_version':     np.array(fileVerList,     dtype='int32'),
+        'item_version':     np.array(fileVerList,     dtype='int64'),
         'item_id':          np.array(itemIdList,      dtype=object),
         'file_size':        np.array(fileSizeList,    dtype='int64'),
         'begin_time_FN':    np.array(beginTimeFnList, dtype='datetime64[ms]'),
