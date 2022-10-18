@@ -439,22 +439,14 @@ def _execute_sync_dir_update(
     # =================
     n_datasets = soarMissingDst['item_id'].size
     L.info(f'Downloading {n_datasets} datasets')
-    if not const.DEBUG_DOWNLOAD_DATASETS_DISABLED:
-        erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
-            downloader,
-            soarMissingDst['item_id'],
-            soarMissingDst['file_size'],
-            tempDownloadDir,
-            logFormat=downloadLogFormat,
-            debugDownloadingEnabled=True,
-        )
-    else:
-        L.warning('DEBUG: Disabled downloading datasets.')
-        for fileName in soarMissingDst['file_name']:
-            L.info(
-                f'Virtually downloading "{fileName}" (doing nothing'
-                ' instead of downloading)',
-            )
+    erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
+        downloader,
+        soarMissingDst['item_id'],
+        soarMissingDst['file_size'],
+        tempDownloadDir,
+        logFormat=downloadLogFormat,
+        debugDownloadingEnabled=True,
+    )
 
     # =====================
     # Remove local datasets
