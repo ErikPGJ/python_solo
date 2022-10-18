@@ -74,3 +74,12 @@ class DatasetsTable:
         PROPOSAL: Raise exception if there are no entries.
         '''
         return self._n
+
+    # def __add__(self, dst2):
+    #     assert isinstance(dst2, DatasetsTable)
+    #     assert self._dc_na.keys() == dst2._dc_na.keys()
+    #     dc = {}
+    #     for key in self._dc_na.keys():
+    #         dc[key] = np.concatenate((self._dc_na[key], dst2[key]))
+    #
+    #     return DatasetsTable(dc)

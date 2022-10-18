@@ -71,9 +71,22 @@ def test_DatasetsTable():
         na_y = dst2['y']
         assert np.array_equal(na_y, NA_STR1b)
 
+    # def test_add():
+    #     dst1 = erikpgjohansson.solo.soar.dst.DatasetsTable(
+    #         {'x': NA_INT1, 'y': NA_STR1},
+    #     )
+    #     dst2 = erikpgjohansson.solo.soar.dst.DatasetsTable(
+    #         {'x': NA_INT2, 'y': NA_STR2},
+    #     )
+    #     dst3 = dst1 + dst2
+    #     assert dst3.n() == dst1.n() + dst2.n()
+    #     assert np.array_equal(dst3['x'], np.concatenate((NA_INT1, NA_INT2)))
+    #     assert np.array_equal(dst3['y'], np.concatenate((NA_STR1, NA_STR2)))
+
     test1()
     test2()
     test_index()
+    # test_add()
 
 
 if __name__ == '__main__':
