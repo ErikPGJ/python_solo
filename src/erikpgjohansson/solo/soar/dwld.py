@@ -56,6 +56,7 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
                 CON: Just one function.
 
 PROPOSAL: download_raw_SOAR_datasets_table() should return JSON string.
+    CON: Harder to hard code return values for mock object in test code.
 '''
 
 
@@ -309,7 +310,7 @@ class SoarDownloader(Downloader):
 @codetiming.Timer('download_SOAR_DST', logger=None)
 def download_SOAR_DST(downloader: Downloader):
     '''
-    Download table of datasets (+metadata) available for download at SOAR.
+    Download table of datasets (+metadata) from SOAR.
 
     Besides downloading the original JSON via Downloader, this function
     (1) splits up the download into separate downloads for separate
@@ -362,13 +363,9 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
 
     Returns
     -------
-    dst : Dictionary of numpy arrays.
+    dst : DST
     '''
     '''
-    PROPOSAL: Do not modify/convert columns, but add new columns instead.
-        PRO: Useful if format is ambiguous.
-            Ex: Time.
-        CON: Kind of unnecessary.
     PROPOSAL: Use entirely independent column names.
         PRO: Can use own naming convention.
             PRO: Can indicate format.
@@ -377,6 +374,10 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
     PROPOSAL: Assert that files not recognized by
         erikpgjohansson.solo.parse_dataset_filename() are really not datasets.
         PROPOSAL: Assert that there is a non-null begin_time.
+
+    PROPOSAL: Abolish creation of "begin_time_FN". Seems unnecessary.
+              "begin_time" probably works.
+        TODO: Check.
     '''
     # Columns that should be converted int-->int
     INT_TO_INT_COLUMN_NAMES = {'file_size'}
@@ -393,10 +394,16 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
     # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
     L.info('Converting raw list of SOAR datasets to DST.')
 
-    metadataList   = JsonDict['metadata']
-    dataTuples     = JsonDict['data']
+    metadataList = JsonDict['metadata']
+    dataTuples   = JsonDict['data']
     del JsonDict
 
+    # =====================================================================
+    # For every column in the SOAR datasets table, create one column in the
+    # DST. For columns recognized by name, convert types as specified.
+    # =====================================================================
+    # NOTE: Implementation should permit SOAR datasets table to add or remove
+    # columns.
     columnNameList = [
         columnMetadataDict['name'] for columnMetadataDict in metadataList
     ]
@@ -441,9 +448,7 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
     # =================================
     filenameArray = dc_na['file_name']
     beginTimeFnArray = np.full(
-        nRows,
-        np.datetime64('nat'),
-        dtype='datetime64[ms]',
+        nRows, np.datetime64('nat'), dtype='datetime64[ms]',
     )
     for iRow in range(nRows):
         fileName = filenameArray[iRow]
@@ -453,7 +458,7 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
         # well-implemented that function is.
 
         if di and len(di['time vector 1']) == 6:
-            # CASE: Can parse filename as dataset filename.
+            # CASE: Can parse dataset filename and time interval string.
 
             # NOTE: datetime.datetime requires integer seconds+microseconds
             # in separate arguments (as integers). Filenames should only

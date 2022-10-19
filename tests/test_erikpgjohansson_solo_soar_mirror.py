@@ -151,19 +151,6 @@ class DirProducer:
 
 
 def test_sync(tmp_path):
-    '''
-    def sync(
-        syncDir, tempDownloadDir, datasetsSubsetFunc: typing.Callable,
-        deleteOutsideSubset=False,
-        downloadLogFormat='short',
-        nMaxNetDatasetsToRemove=10,
-        SoarTableCacheJsonFilePath=None,
-        tempRemovalDir=None,
-        removeRemovalDir=False,
-        downloader: erikpgjohansson.solo.soar.dwld.Downloader
-        = erikpgjohansson.solo.soar.dwld.SoarDownloader(),
-    ):
-    '''
     tdp = DirProducer(tmp_path)
 
     def DIF_everything(instrument, level, beginTime, datasetId):

@@ -34,9 +34,9 @@ that moves files/directories to an automatically selected "trash" directory
 CREATE_DIR_PERMISSIONS = 0o755
 
 
-# Number of local datasets to log, and that would be removed if it were not
-# for the triggering of the nMaxNetDatasetsToRemove failsafe.
 N_EXCESS_DATASETS_PRINT = 25
+'''Number of local datasets to log, and that would be removed if it were not
+for the triggering of the nMaxNetDatasetsToRemove failsafe.'''
 
 
 SOAR_TAP_URL = 'http://soar.esac.esa.int/soar-sl-tap'

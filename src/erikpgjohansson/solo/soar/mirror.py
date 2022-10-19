@@ -96,6 +96,9 @@ PROPOSAL: Abbreviations for specific subsets.
     AV = All Versions
     LV = Latest Version(s) only
     LVD = Latest Version Datasets
+    SDT = SOAR Datasets Table
+        metadata? list?
+        Not to be confused with DST
 
 PROPOSAL: Always use removal directory.
 '''
@@ -301,7 +304,8 @@ def offline_cleanup(
     (3) only keep the latest versions.
 
     Should be useful for
-    (1) cleaning up a non-nominal state, and
+    (1) cleaning up a non-nominal state (e.g. after a crash,
+        after having killed the process, or after a bug), and
     (2) inserting manually downloaded datasets.
     '''
 

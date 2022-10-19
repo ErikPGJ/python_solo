@@ -45,27 +45,6 @@ def test_download_latest_dataset(tmp_path):
         )
         assert os.path.isfile(actFilePath)
 
-    # item_id
-    # solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025
-    # soarSubsetLvDst['item_id']
-    # array(['solo_L1_epd-sis-a-rates-slow_20200813',
-    #        'solo_L1_epd-sis-a-rates-medium_20200813',
-    #        'solo_L1_epd-epthet2-quicklook_20200813',
-    #        'solo_L1_epd-sis-b-hehist_20200813',
-    #        'solo_L1_epd-sis-b-rates-medium_20200813',
-    #        'solo_L1_epd-epthet2-sc_20200813',
-    #        'solo_L1_epd-step-quicklook_20200813',
-    #        'solo_L1_epd-step-nom-close_20200813'], dtype=object)
-    # soarSubsetLvDst['file_name']
-    # array(['solo_L1_epd-sis-a-rates-slow_20200813_V02.cdf',
-    #        'solo_L1_epd-sis-a-rates-medium_20200813_V01.cdf',
-    #        'solo_L1_epd-epthet2-quicklook_20200813_V02.cdf',
-    #        'solo_L1_epd-sis-b-hehist_20200813_V02.cdf',
-    #        'solo_L1_epd-sis-b-rates-medium_20200813_V01.cdf',
-    #        'solo_L1_epd-epthet2-sc_20200813_V01.cdf',
-    #        'solo_L1_epd-step-quicklook_20200813_V02.cdf',
-    #        'solo_L1_epd-step-nom-close_20200813_V01.cdf'], dtype=object)
-
     test('solo_L1_epd-sis-a-rates-slow_20200813')
     test('solo_L1_epd-step-nom-close_20200813')
 
@@ -80,6 +59,12 @@ SOAR_DATASETS_TABLE_ZIP_FILENAME = \
 
 def test_convert_raw_SOAR_datasets_table(tmp_path):
     '''NOTE: Indirectly tests _convert_raw_SOAR_datasets_table().'''
+    '''
+    PROPOSAL: Only include uncompressed JSON files. Let git handle the
+              compression instead.
+        PRO: Simpler code.
+        PRO: git can take advantage of small diffs betweej JSON file versions.
+    '''
 
     tmp_path = pathlib.Path(tmp_path)
 
