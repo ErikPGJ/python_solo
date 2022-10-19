@@ -8,10 +8,14 @@ Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 
 
+import datetime
 import erikpgjohansson.solo.soar.mirror
 import logging
 import os
-import sys
+
+
+'''
+PROPOSAL: sync() arguments for paths.'''
 
 
 def datasets_include_func(instrument, level, beginTime, datasetId):
@@ -55,15 +59,24 @@ def sync():
         ' configured for it.'
     )
 
-    # SOAR_TABLE_CACHE_JSON_FILE = "/home/erjo/temp/soar/soar.json"
+    MIRROR_ADMIN = '/data/solo/soar_mirror_admin/'
+
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
+
+    log_file = os.path.join(
+        f'/home/erjo/logs/so_soar_irfu_mirror_sync.{timestamp}.log',
+    )
+    removal_dir = os.path.join(MIRROR_ADMIN, 'removal', timestamp)
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    logging.basicConfig(filename=log_file, level=logging.INFO)
 
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                   = '/data/solo/soar',
-        tempDownloadDir           = '/data/solo/soar/downloads',
+        tempDownloadDir           = os.path.join(MIRROR_ADMIN, 'download'),
+        tempRemovalDir            = removal_dir,
+        removeRemovalDir          = False,
         datasetsSubsetFunc        = datasets_include_func,
         downloadLogFormat         = 'long',
         deleteOutsideSubset       = True,
