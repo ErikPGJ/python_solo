@@ -9,6 +9,7 @@ content, but including file sizes).
 
 import erikpgjohansson.solo.soar.mirror
 import erikpgjohansson.solo.soar.dwld
+import erikpgjohansson.solo.soar.tests as tests
 import logging
 import os
 import sys
@@ -29,137 +30,6 @@ PROPOSAL: Move helper code to separate module?
 '''
 
 
-SOAR_JSON_METADATA_LS = \
-    [
-        {
-            "name": "archived_on", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "begin_time", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "data_type", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "file_name", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "file_size", "datatype": "long", "xtype": None,
-            "arraysize": None, "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "instrument", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "item_id", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "item_version", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-        {
-            "name": "processing_level", "datatype": "char", "xtype": None,
-            "arraysize": "*", "unit": None, "ucd": None, "utype": None,
-        },
-    ]
-'''Content of the JSON "metadata" branch in the SOAR JSON table.'''
-
-
-def _get_SOAR_JSON_METADATA_LS_index(name):
-    for i, entry_dict in enumerate(SOAR_JSON_METADATA_LS):
-        if entry_dict['name'] == name:
-            return i
-    raise AssertionError()
-
-
-I_ITEM_ID = _get_SOAR_JSON_METADATA_LS_index('item_id')
-I_VERSION = _get_SOAR_JSON_METADATA_LS_index('item_version')
-I_FILE_NAME = _get_SOAR_JSON_METADATA_LS_index('file_name')
-I_FILE_SIZE = _get_SOAR_JSON_METADATA_LS_index('file_size')
-
-
-class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
-    '''Class that represents SOAR with a constant pre-defined set of
-    datasets.
-    '''
-
-    def __init__(self, dc_json_data_ls):
-        '''
-
-        Parameters
-        ----------
-        dc_json_data_ls
-            Dictionary. [instrument][i_entry][i_column]
-            Representation of SOAR dataset metadata.
-            Note: One can use entries from an actual SOAR datasets table to
-            build a hardcoded argument when calling the constructor before
-            tests.
-        '''
-        assert type(dc_json_data_ls) == dict
-        for key, json_data_ls in dc_json_data_ls.items():
-            assert type(key) == str
-            assert type(json_data_ls) == list
-            for entry_ls in json_data_ls:
-                assert type(entry_ls) == list, 'Entry is not a list.'
-                assert len(entry_ls) == 9
-
-        self._dc_json_data_ls = dc_json_data_ls
-
-    def download_raw_SOAR_datasets_table(self, instrument: str):
-        # IMPLEMENTATION NOTE: Must tolerate arbitrary instruments in order
-        # to
-        # (1) keep the code compatible with adding future instruments to
-        #     LS_SOAR_INSTRUMENTS
-        # (2) not require the tests to specify datasets tables for every
-        #     instrument, even if there are no datasets (shorter hardcoded
-        #     arguments).
-        if instrument in self._dc_json_data_ls:
-            json_data = self._dc_json_data_ls[instrument]
-        else:
-            json_data = []
-        return {
-            'metadata': SOAR_JSON_METADATA_LS,
-            'data': json_data,
-        }
-
-    def download_latest_dataset(
-        self, dataItemId, fileParentPath,
-        expectedFileName=None, expectedFileSize=None,
-    ):
-        file_name, file_size = self._get_LV_file_name_size(dataItemId)
-        file_path = os.path.join(fileParentPath, file_name)
-        create_file(file_path, file_size)
-
-    def _get_LV_file_name_size(self, data_item_id):
-
-        highest_version = 0
-        # Iterate over instruments
-        for instr_json_data_ls in self._dc_json_data_ls.values():
-            #
-            for entry_ls in instr_json_data_ls:
-                item_id = entry_ls[I_ITEM_ID]
-                version = int(entry_ls[I_VERSION][1:])
-                if (item_id == data_item_id) and (version > highest_version):
-                    file_name = entry_ls[I_FILE_NAME]
-                    file_size = entry_ls[I_FILE_SIZE]
-
-        assert type(file_size) == int
-        return file_name, file_size
-
-
-def create_file(path, size):
-    '''Create file of given size with nonsense content.'''
-    assert not os.path.lexists(path)
-    with open(path, 'wb') as f:
-        f.write(b'0' * size)
-
-
 def setup_FS(root_dir, dict_objs):
     '''Create specified directory tree of (nonsense) files and directories.
     FS = File System.
@@ -175,7 +45,7 @@ def setup_FS(root_dir, dict_objs):
     for obj_name, obj_content in dict_objs.items():
         assert type(obj_name) == str
         if type(obj_content) == int:
-            create_file(os.path.join(root_dir, obj_name), obj_content)
+            tests.create_file(os.path.join(root_dir, obj_name), obj_content)
         elif type(obj_content) == dict:
             # RECURSIVE CALL
             setup_FS(os.path.join(root_dir, obj_name), obj_content)
@@ -229,8 +99,8 @@ def test_FS_helpers(tmp_path):
 
     test_dir = os.path.join(tmp_path, 'test_B')
     os.makedirs(os.path.join(test_dir, 'dir1/dir2'))
-    create_file(os.path.join(test_dir, 'dir1/file1'), 22)
-    create_file(os.path.join(test_dir, 'dir1/dir2/file2'), 11)
+    tests.create_file(os.path.join(test_dir, 'dir1/file1'), 22)
+    tests.create_file(os.path.join(test_dir, 'dir1/dir2/file2'), 11)
     assert_FS(
         test_dir, {
             'dir1': {
@@ -311,8 +181,8 @@ def test_sync(tmp_path):
             },
         )
 
-        md = MockDownloader(
-            {
+        md = tests.MockDownloader(
+            dc_json_data_ls={
                 'EPD':
                     [[
                         "2020-09-23T13:47:11.73", "2020-08-13T00:00:26.0",
@@ -432,11 +302,13 @@ def test_sync(tmp_path):
         # instruments since download_SOAR_DST() iterates over hardcoded
         # instrument list
         # erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS.
-        md = MockDownloader({
-            'MAG': [L2_MAG_V02, L2_MAG_V03],
-            'EPD': [L1_EUI],
-            'SWA': [L3_BIA],
-        })
+        md = tests.MockDownloader(
+            dc_json_data_ls={
+                'MAG': [L2_MAG_V02, L2_MAG_V03],
+                'EPD': [L1_EUI],
+                'SWA': [L3_BIA],
+            },
+        )
 
         erikpgjohansson.solo.soar.mirror.sync(
             syncDir=sync_dir,

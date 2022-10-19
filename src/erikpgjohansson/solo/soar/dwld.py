@@ -378,15 +378,14 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
         erikpgjohansson.solo.parse_dataset_filename() are really not datasets.
         PROPOSAL: Assert that there is a non-null begin_time.
     '''
-    # Columns that should be converted string-->int
-    INT_COLUMN_NAMES = {'file_size'}
+    # Columns that should be converted int-->int
+    INT_TO_INT_COLUMN_NAMES = {'file_size'}
     # Columns that should be converted string-->string
     # (numpy array of objects).
-    STRING2INT_COLUMN_NAMES = {'item_id'}
-
-    STR2DATETIME_COLUMN_NAMES = {'begin_time', 'archived_on'}
-
-    TIME_STR_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+    STRING_TO_STRING_COLUMN_NAMES = {'item_id'}
+    # Columns that should be converted
+    # string --> datetime64
+    STR_TO_DT64_COLUMN_NAMES = {'begin_time', 'archived_on'}
 
     assert type(JsonDict) == dict
 
@@ -407,50 +406,23 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
         columnList = [value[iCol] for value in dataTuples]
         nRows = len(columnList)
 
-        # Convert data to numpy array, depending on column.
-
-        if colName in INT_COLUMN_NAMES:
+        # ================================================
+        # Convert data to numpy array, depending on column
+        # ================================================
+        if colName in INT_TO_INT_COLUMN_NAMES:
             columnArray = np.array(columnList, dtype='int64')
 
-        elif colName in STRING2INT_COLUMN_NAMES:
+        elif colName in STRING_TO_STRING_COLUMN_NAMES:
             columnArray = np.array(columnList, dtype=object)
 
-        elif colName in STR2DATETIME_COLUMN_NAMES:
-            if 0:
-                # IMPLEMENTATION 0: Convert to datetime.datetime
-                # ----------------------------------------------
-                # CON: Less standard time format.
-                # PRO: Can use vectorized numpy functionality, e.g.
-                #   numpyArray < dt64 .
-                # NOTE: A plain
-                #   columnArray = np.datetime64(columnList)
-                # does not work. Due to "null" strings?
-                columnArray = np.full(len(columnList), object())
-                for iRow in range(nRows):
-                    if columnList[iRow] == 'null':
-                        value = None
-                    else:
-                        value = datetime.datetime.strptime(
-                            columnList[iRow],
-                            TIME_STR_FORMAT,
-                        )
-                    columnArray[iRow] = value
-            else:
-                # IMPLEMENTATION 1: Use numpy's datetime64.
-                columnArray = np.full(
-                    nRows,
-                    np.datetime64('nat'),
-                    dtype='datetime64[ms]',
-                )
-                # NOTE: Must iterate over rows to handle special string "null".
-                #   PROPOSAL: Replace string "null"-->"NaT" first, and then
-                #             use vectorization?
-                for iRow in range(len(columnList)):
-                    if columnList[iRow] != 'null':
-                        columnArray[iRow] = np.datetime64(
-                            columnList[iRow],
-                            'ms',
-                        )
+        elif colName in STR_TO_DT64_COLUMN_NAMES:
+            columnArray = np.full(
+                nRows, np.datetime64('NaT'), dtype='datetime64[ms]',
+            )
+            # NOTE: Must iterate over rows to handle special string "null".
+            for iRow in range(len(columnList)):
+                if columnList[iRow] != 'null':
+                    columnArray[iRow] = np.datetime64(columnList[iRow], 'ms')
 
         elif colName == 'item_version':
             for value in columnList:
