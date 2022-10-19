@@ -455,7 +455,9 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
         elif colName == 'item_version':
             for value in columnList:
                 assert value[0] == 'V'
-            columnArray = np.array([int(s[1:]) for s in columnList])
+            columnArray = np.array(
+                [int(s[1:]) for s in columnList], dtype='int64',
+            )
 
         else:
             columnArray = np.array(columnList, dtype=object)
