@@ -63,7 +63,7 @@ class Downloader:
     '''Abstract class for class that handles all communication with SOAR.
     This is to permit the use of "mock object" for automated testing.
     '''
-    def download_raw_SOAR_datasets_table(self):
+    def download_raw_SOAR_datasets_table(self, instrument: str):
         raise NotImplementedError()
 
     def download_latest_dataset(
@@ -78,31 +78,33 @@ class SoarDownloader(Downloader):
     SOAR.'''
 
     @codetiming.Timer('download_raw_SOAR_datasets_table', logger=None)
-    def download_raw_SOAR_datasets_table(self):
+    def download_raw_SOAR_datasets_table(self, instrument: str):
         '''
-        Download complete list of datasets from SOAR, without modifying the
-        list to a more convenient format.
+        Download complete list of datasets from SOAR, and return the resulting
+        JSON table as a Python data structure.
 
         NOTE: Uses SOAR list "v_public_files" which presumably contains all
-              datasets. It does include LL02 and ANC.
+              datasets, including older dataset versions. It does include LL02
+              and ANC.
 
-        NOTE: begin_time may contain string "null".
-        NOTE: item_version == string, e.g. "V02".
         NOTE: This call is slow.
-
-        SOAR(?) BUG: 2022-10-13: It appears that the JSON file downloaded
-        from SOAR is not a complete list of datasets at SOAR. It appears to
-        be limited by the amount that SOAR can transmit (and amount the user
-        can download) in ~62 s. The returned JSON file is valid despite the
-        list being truncated though. This also means that a better internet
-        connection implies receiving a longer list (tested), or possibly
-        receiving a complete one (not tested).
+        NOTE: Only downloads datasets table for one instrument at a time in
+              order to reduce the size of the returned list.
 
         Returns
         -------
-        JsonDict : Representation of SOAR data list.
+        JsonDict : Representation of SOAR dataset list.
+        --
+        NOTE: begin_time may contain string "null".
+        NOTE: item_version == string, e.g. "V02".
         '''
+        assert type(instrument) == str
+
         L = logging.getLogger(__name__)
+
+        # URL to SOAR datasets table (science + LL + "kernel type files")
+        # ===============================================================
+        # URL that covers all instruments.
         # 2022-10-18: "Works" except that SOAR has a bug that makes it
         # return a valid JSON table that is ~truncated if the HTTP request
         # exceeds a timeout of ~62 s.
@@ -110,18 +112,32 @@ class SoarDownloader(Downloader):
         #     f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
         #     '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files'
         # )
-        # Temporary URL to a smaller table, covering only specified
+        # ---------------------------------------------------------------------
+        # URL to a smaller table, covering only multiple specified
         # instruments, in order to avoid SOAR bug that truncates the
         # datasets list. These instruments must thus be consistent with (a
         # superset of) the instruments for which "datasetsSubsetFunc" can
         # ever return true.
+        # url = (
+        #     f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
+        #     '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files+WHERE+'
+        #     '((instrument=\'EPD\') OR'
+        #     ' (instrument=\'MAG\') OR'
+        #     ' (instrument=\'SWA\'))'
+        # ).replace(' ', '%20').replace('\'', '%27')
+        # ---------------------------------------------------------------------
+        # URL to SOAR datasets table for ONE instrument. This reduces the
+        # size of the table to not trigger above SOAR bug.
+        # --
+        # NOTE: Should be possible to only download the latest version datasets
+        # using v_sc_data_item (for science) and v_ll_data_item (for LL),
+        # but this splits across instruments (IRFU mirror syncs both SWA
+        # science and SWA LL data).
         url = (
             f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
             '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files+WHERE+'
-            '((instrument=\'EPD\') OR'
-            ' (instrument=\'MAG\') OR'
-            ' (instrument=\'SWA\'))'
-        ).replace(' ', '%20').replace('\'', '%27')
+            'instrument=\'{instrument}\''
+        ).replace('\'', '%27')
 
         L.info(f'Calling URL: {url}')
         HttpResponse = urllib.request.urlopen(url)
@@ -291,19 +307,14 @@ class SoarDownloader(Downloader):
 
 
 @codetiming.Timer('download_SOAR_DST', logger=None)
-def download_SOAR_DST(downloader: Downloader, CacheJsonFilePath=None):
+def download_SOAR_DST(downloader: Downloader):
     '''
     Download table of datasets (+metadata) available for download at SOAR.
 
     Besides downloading the original JSON via Downloader, this function
-    (1) provides optional caching of the downloaded JSON file,
+    (1) splits up the download into separate downloads for separate
+        instruments (to avoid SOAR bug), and then combines them into one table,
     (2) converts JSON file to a DST.
-
-    Parameters
-    ----------
-    CacheJsonFilePath
-        Path to file (may or may not pre-exist) to be used for caching.
-        None: Do not cache.
 
     Returns
     -------
@@ -314,7 +325,6 @@ def download_SOAR_DST(downloader: Downloader, CacheJsonFilePath=None):
             'processing_level']  /2020-10-12
             item_version : Ex: 'V01'
             begin_time   : Ex: '2020-09-28 00:00:33.0'. NOTE: String
-    JsonDict :
 
     NOTE: See notes at top of file.
     NOTE: Same dataset may have multiple versions in list.
@@ -325,50 +335,16 @@ def download_SOAR_DST(downloader: Downloader, CacheJsonFilePath=None):
     '''
     assert isinstance(downloader, Downloader)
 
-    L = logging.getLogger(__name__)
-    if CacheJsonFilePath and os.path.isfile(CacheJsonFilePath):
-        # CASE: Caching enabled AND there is a cache file.
+    ls_dst = []
+    for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
+        dc_json = downloader.download_raw_SOAR_datasets_table(instrument)
+        ls_dst.append(_convert_raw_SOAR_datasets_table(dc_json))
 
-        # ===========================================
-        # Retrieve SOAR datasets table from JSON file
-        # ===========================================
-        with open(CacheJsonFilePath) as f:
-            with codetiming.Timer(name='json.load()', logger=None):
-                # NOTE: Reading file is fast (as opposed to
-                # writing file / json.load()).
-                JsonDict = json.load(f)
-                if type(JsonDict) != dict:
-                    msg = (
-                        f'Downloaded list of datasets from SOAR:'
-                        f' Has been successfully\n'
-                        f'    (1) loaded from file (cache) at'
-                        f' "{CacheJsonFilePath}", and\n'
-                        f'    (2) interpreted as JSON,\n'
-                        f'but it is not a dictionary as expected.'
-                    )
-                    L.error(msg)
-                    raise Exception(msg)
-    else:
-        # CASE: There shall be no caching.
-        # ============================
-        # Download SOAR datasets table
-        # ============================
-        JsonDict = downloader.download_raw_SOAR_datasets_table()
+    dst_all = ls_dst[0]
+    for dst in ls_dst[1:]:
+        dst_all = dst_all + dst
 
-    if CacheJsonFilePath and not os.path.isfile(CacheJsonFilePath):
-        # Caching enabled AND there is no cache file
-
-        # =====================================
-        # Save SOAR datasets table to JSON file
-        # =====================================
-        with open(CacheJsonFilePath, mode='w', encoding='utf-8') as f:
-            with codetiming.Timer(name='json.dump()', logger=None):
-                # NOTE: Takes time.
-                json.dump(JsonDict, f, indent=2)
-
-    dst = _convert_raw_SOAR_datasets_table(JsonDict)
-
-    return dst, JsonDict
+    return dst_all
 
 
 @codetiming.Timer('_convert_raw_SOAR_datasets_table', logger=None)

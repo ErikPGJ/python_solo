@@ -14,15 +14,23 @@ PROPOSAL: Move constants to erikpgjohansson.solo.soar.mirror.sync() keyword
           arguments with default values.
 '''
 
-# Command and arguments to use for removing old local datasets.
-# Paths to actual files or directory (!) to remove are added as additional
-# arguments at the end.
-#
-# NOTE: "remove_to_trash" is one of Erik P G Johansson's private bash scripts
-# that moves files/directories to an automatically selected "trash" directory
-# ("recycle bin").
+
+LS_SOAR_INSTRUMENTS = ('EPD', 'MAG', 'SWA')
+'''List of instruments for which lists of datasets should be retrieved from
+SOAR before syncing datasets. Must include every instrument for which
+datasets is retrieved.'''
+
 FILE_REMOVAL_COMMAND_LIST = ['remove_to_trash', 'SOAR_sync']
 # FILE_REMOVAL_COMMAND_LIST = ['rm', '-v']
+'''Command and arguments to use for removing old local datasets.
+Paths to actual files or directory (!) to remove are added as additional
+arguments at the end.
+
+NOTE: "remove_to_trash" is one of Erik P G Johansson's private bash scripts
+that moves files/directories to an automatically selected "trash" directory
+("recycle bin").'''
+
+
 CREATE_DIR_PERMISSIONS = 0o755
 
 

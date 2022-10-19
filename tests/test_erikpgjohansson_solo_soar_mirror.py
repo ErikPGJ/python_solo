@@ -89,29 +89,43 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
     datasets.
     '''
 
-    def __init__(self, json_data_ls):
+    def __init__(self, dc_json_data_ls):
         '''
 
         Parameters
         ----------
-        json_data_ls
+        dc_json_data_ls
+            Dictionary. [instrument][i_entry][i_column]
             Representation of SOAR dataset metadata.
-            Note: One can use entries from an actual SOAR datasets table as
-            argument when calling the constructor before tests.
+            Note: One can use entries from an actual SOAR datasets table to
+            build a hardcoded argument when calling the constructor before
+            tests.
         '''
+        assert type(dc_json_data_ls) == dict
+        for key, json_data_ls in dc_json_data_ls.items():
+            assert type(key) == str
+            assert type(json_data_ls) == list
+            for entry_ls in json_data_ls:
+                assert type(entry_ls) == list, 'Entry is not a list.'
+                assert len(entry_ls) == 9
 
-        assert type(json_data_ls) == list
-        for entry_ls in json_data_ls:
-            assert type(entry_ls) == list, 'Entry is not a list.'
-            assert len(entry_ls) == 9
+        self._dc_json_data_ls = dc_json_data_ls
 
-        self._json_data_ls = json_data_ls
-
-    def download_raw_SOAR_datasets_table(self):
-        ''''''
+    def download_raw_SOAR_datasets_table(self, instrument: str):
+        # IMPLEMENTATION NOTE: Must tolerate arbitrary instruments in order
+        # to
+        # (1) keep the code compatible with adding future instruments to
+        #     LS_SOAR_INSTRUMENTS
+        # (2) not require the tests to specify datasets tables for every
+        #     instrument, even if there are no datasets (shorter hardcoded
+        #     arguments).
+        if instrument in self._dc_json_data_ls:
+            json_data = self._dc_json_data_ls[instrument]
+        else:
+            json_data = []
         return {
-            "metadata": SOAR_JSON_METADATA_LS,
-            "data": self._json_data_ls,
+            'metadata': SOAR_JSON_METADATA_LS,
+            'data': json_data,
         }
 
     def download_latest_dataset(
@@ -125,12 +139,15 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
     def _get_LV_file_name_size(self, data_item_id):
 
         highest_version = 0
-        for entry_ls in self._json_data_ls:
-            item_id = entry_ls[I_ITEM_ID]
-            version = int(entry_ls[I_VERSION][1:])
-            if (item_id == data_item_id) and (version > highest_version):
-                file_name = entry_ls[I_FILE_NAME]
-                file_size = entry_ls[I_FILE_SIZE]
+        # Iterate over instruments
+        for instr_json_data_ls in self._dc_json_data_ls.values():
+            #
+            for entry_ls in instr_json_data_ls:
+                item_id = entry_ls[I_ITEM_ID]
+                version = int(entry_ls[I_VERSION][1:])
+                if (item_id == data_item_id) and (version > highest_version):
+                    file_name = entry_ls[I_FILE_NAME]
+                    file_size = entry_ls[I_FILE_SIZE]
 
         assert type(file_size) == int
         return file_name, file_size
@@ -295,15 +312,18 @@ def test_sync(tmp_path):
         )
 
         md = MockDownloader(
-            [[
-                "2020-09-23T13:47:11.73", "2020-08-13T00:00:26.0", "LL",
-                "solo_LL02_epd-het-south-rates"
-                "_20200813T000026-20200814T000025_V03I.cdf",
-                113, "EPD",
-                "solo_LL02_epd-het-south-rates"
-                "_20200813T000026-20200814T000025",
-                "V03", "LL02",
-            ]],
+            {
+                'EPD':
+                    [[
+                        "2020-09-23T13:47:11.73", "2020-08-13T00:00:26.0",
+                        "LL", "solo_LL02_epd-het-south-rates"
+                        "_20200813T000026-20200814T000025_V03I.cdf",
+                        113, "EPD",
+                        "solo_LL02_epd-het-south-rates"
+                        "_20200813T000026-20200814T000025",
+                        "V03", "LL02",
+                    ]],
+            },
         )
 
         erikpgjohansson.solo.soar.mirror.sync(
@@ -313,7 +333,6 @@ def test_sync(tmp_path):
             deleteOutsideSubset=False,
             downloadLogFormat='short',
             nMaxNetDatasetsToRemove=10,
-            SoarTableCacheJsonFilePath=None,
             tempRemovalDir=None,
             removeRemovalDir=False,
             downloader=md,
@@ -409,9 +428,15 @@ def test_sync(tmp_path):
                 },
             },
         )
-        md = MockDownloader(
-            [L2_MAG_V02, L2_MAG_V03, L1_EUI, L3_BIA],
-        )
+        # IMPLEMENTATION NOTE: Putting some datasets in table for the wrong
+        # instruments since download_SOAR_DST() iterates over hardcoded
+        # instrument list
+        # erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS.
+        md = MockDownloader({
+            'MAG': [L2_MAG_V02, L2_MAG_V03],
+            'EPD': [L1_EUI],
+            'SWA': [L3_BIA],
+        })
 
         erikpgjohansson.solo.soar.mirror.sync(
             syncDir=sync_dir,
@@ -420,7 +445,6 @@ def test_sync(tmp_path):
             deleteOutsideSubset=False,
             downloadLogFormat='short',
             nMaxNetDatasetsToRemove=10,
-            SoarTableCacheJsonFilePath=None,
             tempRemovalDir=None,
             removeRemovalDir=False,
             downloader=md,

@@ -62,8 +62,6 @@ def sync():
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
     removal_dir = os.path.join(ROOT_DIR, f'removal_{timestamp}')
-    # soar_table_cache_file_path = os.path.join(ROOT_DIR, "soar.json")
-    soar_table_cache_file_path = None
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
@@ -80,7 +78,6 @@ def sync():
         downloadLogFormat          = 'long',
         deleteOutsideSubset        = True,
         nMaxNetDatasetsToRemove    = 25,
-        SoarTableCacheJsonFilePath = soar_table_cache_file_path,
         tempRemovalDir             = removal_dir,
         removeRemovalDir           = False,
     )

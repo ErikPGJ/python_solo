@@ -68,7 +68,6 @@ def sync():
         downloadLogFormat         = 'long',
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,
-        # SoarTableCacheJsonFilePath=SOAR_TABLE_CACHE_JSON_FILE,
     )
 
     # 2021-12-17: "AssertionError: Net number of datasets to remove (25) is

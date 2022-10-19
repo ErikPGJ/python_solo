@@ -107,7 +107,6 @@ def sync(
     deleteOutsideSubset=False,
     downloadLogFormat='short',
     nMaxNetDatasetsToRemove=10,
-    SoarTableCacheJsonFilePath=None,
     tempRemovalDir=None,
     removeRemovalDir=False,
     downloader: erikpgjohansson.solo.soar.dwld.Downloader
@@ -138,12 +137,6 @@ def sync(
         minus nNewDatasets"). This is a failsafe (assertion), to protect
         against deleting too many slow-to-redownload datasets due to bugs or
         misconfiguration (e.g. "datasetsSubsetFunc").
-    SoarTableCacheJsonFilePath
-        Path to JSON file which is used for caching the SOAR table. May or may
-        not pre-exist.
-        None: Do not cache.
-        This is useful for debugging (speeds up execution; can manually inspect
-        SOAR table).
     tempRemovalDir
         None or path to "removal directory" to which datasets are moved before
         the directory itself is itself optionally removed (depends on argument
@@ -253,9 +246,7 @@ def sync(
     # Download table of online SOAR datasets
     # ======================================
     L.info('Downloading SOAR table of datasets.')
-    soarDst, _JsonDict = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(
-        downloader, CacheJsonFilePath=SoarTableCacheJsonFilePath,
-    )
+    soarDst = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(downloader)
     erikpgjohansson.solo.soar.utils.log_DST(
         soarDst,
         'All online SOAR datasets'
