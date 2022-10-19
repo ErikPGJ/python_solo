@@ -48,14 +48,14 @@ BOGIQ
 PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
           conventions, and FILE_SUFFIX_IGNORE_LIST.
     PRO: Makes module handle ONLY communication with SOAR. More pure.
-    PROPOSAL: Move out _convert_raw_SOAR_datasets_table()
+    PROPOSAL: Move out _convert_JSON_SDT_to_DST()
         PRO: Fits description of module.
         TODO-DEC: Whereto?
             PROPOSAL: utils
             PROPOSAL: New module ~retrieve, ~access
                 CON: Just one function.
 
-PROPOSAL: download_raw_SOAR_datasets_table() should return JSON string.
+PROPOSAL: download_JSON_SDT() should return JSON string.
     CON: Harder to hard code return values for mock object in test code.
 '''
 
@@ -64,7 +64,7 @@ class Downloader:
     '''Abstract class for class that handles all communication with SOAR.
     This is to permit the use of "mock object" for automated testing.
     '''
-    def download_raw_SOAR_datasets_table(self, instrument: str):
+    def download_JSON_SDT(self, instrument: str):
         raise NotImplementedError()
 
     def download_latest_dataset(
@@ -78,8 +78,8 @@ class SoarDownloader(Downloader):
     '''Class that handles all actual (i.e. not simulated) communication with
     SOAR.'''
 
-    @codetiming.Timer('download_raw_SOAR_datasets_table', logger=None)
-    def download_raw_SOAR_datasets_table(self, instrument: str):
+    @codetiming.Timer('download_JSON_SDT', logger=None)
+    def download_JSON_SDT(self, instrument: str):
         '''
         Download complete list of datasets from SOAR, and return the resulting
         JSON table as a Python data structure.
@@ -89,7 +89,7 @@ class SoarDownloader(Downloader):
               and ANC.
 
         NOTE: This call is slow.
-        NOTE: Only downloads datasets table for one instrument at a time in
+        NOTE: Only downloads SDT for one instrument at a time in
               order to reduce the size of the returned list.
 
         Returns
@@ -103,7 +103,7 @@ class SoarDownloader(Downloader):
 
         L = logging.getLogger(__name__)
 
-        # URL to SOAR datasets table (science + LL + "kernel type files")
+        # URL to JSON SDT (science + LL + "kernel type files")
         # ===============================================================
         # URL that covers all instruments.
         # 2022-10-18: "Works" except that SOAR has a bug that makes it
@@ -127,8 +127,8 @@ class SoarDownloader(Downloader):
         #     ' (instrument=\'SWA\'))'
         # ).replace(' ', '%20').replace('\'', '%27')
         # ---------------------------------------------------------------------
-        # URL to SOAR datasets table for ONE instrument. This reduces the
-        # size of the table to not trigger above SOAR bug.
+        # URL to SDT for ONE instrument. This reduces the size of the table
+        # to not trigger above SOAR bug.
         # --
         # NOTE: Should be possible to only download the latest version datasets
         # using v_sc_data_item (for science) and v_ll_data_item (for LL),
@@ -338,8 +338,8 @@ def download_SOAR_DST(downloader: Downloader):
 
     ls_dst = []
     for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
-        dc_json = downloader.download_raw_SOAR_datasets_table(instrument)
-        ls_dst.append(_convert_raw_SOAR_datasets_table(dc_json))
+        dc_json = downloader.download_JSON_SDT(instrument)
+        ls_dst.append(_convert_JSON_SDT_to_DST(dc_json))
 
     dst_all = ls_dst[0]
     for dst in ls_dst[1:]:
@@ -348,18 +348,17 @@ def download_SOAR_DST(downloader: Downloader):
     return dst_all
 
 
-@codetiming.Timer('_convert_raw_SOAR_datasets_table', logger=None)
-def _convert_raw_SOAR_datasets_table(JsonDict):
+@codetiming.Timer('_convert_JSON_SDT_to_DST', logger=None)
+def _convert_JSON_SDT_to_DST(JsonDict):
     '''
-    Convert downloaded SOAR datasets table to better format.
-    Useful to have this as a separate function for testing purposes.
+    Convert downloaded JSON SDT to better format.
 
     NOTE: Works, but seems too slow. 2022-01-04: 75 s for entire SOAR table.
 
     Parameters
     ----------
     JsonDict
-        JSON-like representation of SOAR datasets table.
+        JSON-like representation of SDT.
 
     Returns
     -------
@@ -399,11 +398,11 @@ def _convert_raw_SOAR_datasets_table(JsonDict):
     del JsonDict
 
     # =====================================================================
-    # For every column in the SOAR datasets table, create one column in the
-    # DST. For columns recognized by name, convert types as specified.
+    # For every column in the JSON SDT, create one column in the DST. For
+    # columns recognized by name, convert types as specified.
     # =====================================================================
-    # NOTE: Implementation should permit SOAR datasets table to add or remove
-    # columns.
+    # NOTE: Implementation should permit the JSON SDT to add or remove columns
+    # for future compatibility.
     columnNameList = [
         columnMetadataDict['name'] for columnMetadataDict in metadataList
     ]

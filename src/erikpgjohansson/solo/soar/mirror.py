@@ -96,9 +96,6 @@ PROPOSAL: Abbreviations for specific subsets.
     AV = All Versions
     LV = Latest Version(s) only
     LVD = Latest Version Datasets
-    SDT = SOAR Datasets Table
-        metadata? list?
-        Not to be confused with DST
 
 PROPOSAL: Always use removal directory.
 '''
@@ -262,7 +259,7 @@ def sync(
     # by mistake or due to bug. This could in turn lead to deleting all local
     # datasets.
     assert soarDst.n() > 0, (
-        'SOAR returned an empty datasets table.'
+        'SOAR returned an empty SDT (SOAR Datasets Table).'
         ' This should imply that there is something wrong with either (1) '
         'SOAR, or (2) this software.'
     )

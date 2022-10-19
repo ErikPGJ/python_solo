@@ -60,7 +60,7 @@ def parse_dataset_filename(filename):
             'time interval string' :
             'time vector 1'        : Tuple. (year,month,day,hour,minute,second)
             'item ID'              : String. Ex: 'solo_HK_rpw-bia_20200301'
-                As defined by SOAR datasets table.
+                                     As defined by SDT.
             'version string'       : String. Ex: '02'.
 
 

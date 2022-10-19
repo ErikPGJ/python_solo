@@ -75,16 +75,15 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
         Parameters
         ----------
         dc_json_dc
-            Dictionary. Data structure that represents the exact JSON file
-            downloaded from SOAR, i.e. e.g.
+            Dictionary. Data structure that represents the exact JSON SDT,
+            i.e. e.g.
             [instrument]['data'][i_entry][i_column] = value.
             [instrument]['metadata'][i_entry][i_column] = ...
         dc_json_data_ls
             Dictionary. [instrument][i_entry][i_column] = value
             Representation of SOAR dataset metadata.
-            Note: One can use entries from an actual SOAR datasets table to
-            build a hardcoded argument when calling the constructor before
-            tests.
+            Note: One can use entries from an actual JSON SDT to build a
+            hardcoded argument when calling the constructor before tests.
         '''
         '''
         TODO-DEC: Too complicated for test code?
@@ -111,7 +110,7 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
         # to
         # (1) keep the code automatically compatible with adding future
         #     instruments to LS_SOAR_INSTRUMENTS, and
-        # (2) not require the tests to specify datasets tables for every
+        # (2) not require the tests to specify/hardcode SDTs for every
         #     instrument, even if there are no datasets (shorter hardcoded
         #     arguments).
         for instrument in const.LS_SOAR_INSTRUMENTS:
@@ -132,7 +131,7 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
 
         self._dc_json_dc = dc_json_dc
 
-    def download_raw_SOAR_datasets_table(self, instrument: str):
+    def download_JSON_SDT(self, instrument: str):
         return self._dc_json_dc[instrument]
 
     def download_latest_dataset(
@@ -168,8 +167,8 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
         return file_name, file_size
 
 
-def SOAR_datasets_table_JSON_filename(instrument):
-    '''Generate file name for a SOAR datasets table JSON file.
+def JSON_SDT_filename(instrument):
+    '''Generate file name for an JSON SDT file.
 
     Not using any timestamp so that file names are deterministic and files
     can be lcoated using the same file name.
@@ -177,8 +176,8 @@ def SOAR_datasets_table_JSON_filename(instrument):
     return f'{instrument}_v_public_files.json'
 
 
-def download_zip_raw_SOAR_datasets_tables(output_dir):
-    '''Download SOAR datasets tables to then manually save in git repo and that
+def download_zip_JSON_SDTs(output_dir):
+    '''Download JSON SDTs to then manually save in git repo and that
     can then be used by automated tests later (without downloading them).'''
 
     '''
@@ -201,20 +200,19 @@ def download_zip_raw_SOAR_datasets_tables(output_dir):
     output_dir = pathlib.Path(output_dir)
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
-    zip_file_path = output_dir / f'SOAR_datasets_tables_{timestamp}.zip'
+    zip_file_path = output_dir / f'SDTs_{timestamp}.zip'
 
     with zipfile.ZipFile(
         zip_file_path, 'w',
         compression=COMPRESSION_METHOD, compresslevel=COMPRESSION_LEVEL,
     ) as z:
         for instrument in const.LS_SOAR_INSTRUMENTS:
-            output_file = output_dir / SOAR_datasets_table_JSON_filename(
+            output_file = output_dir / JSON_SDT_filename(
                 instrument,
             )
 
             print(
-                f'Downloading SOAR datasets table for instrument'
-                f'={instrument}.',
+                f'Downloading SDT for instrument={instrument}.',
                 end='',
             )
             urllib.request.urlretrieve(
@@ -236,4 +234,4 @@ def create_file(path, size):
 
 
 if __name__ == '__main__':
-    download_zip_raw_SOAR_datasets_tables('/home/erjo/temp/temp')
+    download_zip_JSON_SDTs('/home/erjo/temp/temp')

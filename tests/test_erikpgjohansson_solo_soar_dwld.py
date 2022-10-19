@@ -53,12 +53,12 @@ def test_download_latest_dataset(tmp_path):
     test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025')
 
 
-SOAR_DATASETS_TABLE_ZIP_FILENAME = \
-    'SOAR_datasets_tables_2022-10-19T15.30.16.zip'
+JSON_SDTs_ZIP_FILENAME = \
+    'JSON_SDTs_2022-10-19T15.30.16.zip'
 
 
-def test_convert_raw_SOAR_datasets_table(tmp_path):
-    '''NOTE: Indirectly tests _convert_raw_SOAR_datasets_table().'''
+def test_convert_JSON_SDT_to_DST(tmp_path):
+    '''NOTE: Indirectly tests _convert_JSON_SDT_to_DST().'''
     '''
     PROPOSAL: Only include uncompressed JSON files. Let git handle the
               compression instead.
@@ -76,13 +76,13 @@ def test_convert_raw_SOAR_datasets_table(tmp_path):
         # Setup test
         # ----------
         zip_file = pathlib.Path(__file__).parent \
-            / SOAR_DATASETS_TABLE_ZIP_FILENAME
+            / JSON_SDTs_ZIP_FILENAME
         with zipfile.ZipFile(zip_file, 'r') as z:
             z.extractall(tmp_path)
 
         dc_json_dc = {}
         for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
-            path = tmp_path / tests.SOAR_datasets_table_JSON_filename(
+            path = tmp_path / tests.JSON_SDT_filename(
                 instrument,
             )
             with open(path) as f:
@@ -152,4 +152,4 @@ if __name__ == '__main__':
     # test_download_latest_dataset(t.name)
 
     t = tempfile.TemporaryDirectory()
-    test_convert_raw_SOAR_datasets_table(t.name)
+    test_convert_JSON_SDT_to_DST(t.name)
