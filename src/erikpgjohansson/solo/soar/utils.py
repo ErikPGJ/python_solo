@@ -164,40 +164,62 @@ def download_latest_datasets_batch(
 
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fileSizeMb = fileSize / 2**20
-        L.info(f'{nowStr}: Downloading: {fileSizeMb:.2f} [MiB], {itemId}')
+
+        # ================
+        # Download dataset
+        # ================
+        L.info(
+            f'{nowStr}: Starting download:'
+            f' {fileSizeMb:.2f} [MiB], {itemId}',
+        )
         downloader.download_latest_dataset(itemId, outputDirPath)
 
+        # ===
+        # Log
+        # ===
         # NOTE: Doing statistics AFTER downloading file. Could also be done
         # BEFORE downloading. Note that this uses another timestamp
         # representing "now".
         soFarBytes += fileSize
-        SoFarTd     = datetime.datetime.now() - StartDt   # Elapsed wall time.
-        soFarSec    = SoFarTd.total_seconds()
-        remainBytes = totalBytes - soFarBytes
-        # Predictions (using linear extrapolation).
-        remainTimeSec = (totalBytes - soFarBytes) / soFarBytes * soFarSec
-        remainTimeTd  = datetime.timedelta(seconds=remainTimeSec)
-        completionDt  = StartDt + SoFarTd + remainTimeTd
+        SoFarTd = datetime.datetime.now() - StartDt  # Elapsed wall time.
 
         if logFormat == 'long':
-            soFarMb = soFarBytes / 2**20
-            totalMb = totalBytes / 2**20
-            speedMbps = (soFarBytes / soFarSec) / 2**20
-            remainMb = remainBytes / 2**20
-            ls_s = (
-                f'So far:        {soFarMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
-                f'               {soFarSec:.2f} [s] = {SoFarTd}',
-                f'               {speedMbps:.2f} [MiB/s] (average)',
-                f'Remainder:     {remainMb:.2f} [MiB]'
-                f' of {totalMb:.2f} [MiB]',
-                f'               {remainTimeSec:.0f} [s]'
-                f' = {remainTimeTd} (prediction)',
-                f'Expected completion at: {completionDt} (prediction)',
+            _download_latest_datasets_batch_log_progress_long(
+                logFormat, totalBytes, soFarBytes, StartDt, SoFarTd,
             )
-            for s in ls_s:
-                L.info(s)
         else:
             assert logFormat == 'short'
+
+
+def _download_latest_datasets_batch_log_progress_long(
+    logFormat, totalBytes, soFarBytes, StartDt, SoFarTd,
+):
+    L = logging.getLogger(__name__)
+
+    soFarSec = SoFarTd.total_seconds()
+    remainBytes = totalBytes - soFarBytes
+
+    # Do predictions (using linear extrapolation)
+    remainTimeSec = (totalBytes - soFarBytes) / soFarBytes * soFarSec
+    remainTimeTd = datetime.timedelta(seconds=remainTimeSec)
+    completionDt = StartDt + SoFarTd + remainTimeTd
+
+    soFarMb = soFarBytes / 2 ** 20
+    totalMb = totalBytes / 2 ** 20
+    speedMbps = (soFarBytes / soFarSec) / 2 ** 20
+    remainMb = remainBytes / 2 ** 20
+    ls_s = (
+        f'So far:        {soFarMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
+        f'               {soFarSec:.2f} [s] = {SoFarTd}',
+        f'               {speedMbps:.2f} [MiB/s] (average)',
+        f'Remainder:     {remainMb:.2f} [MiB]'
+        f' of {totalMb:.2f} [MiB]',
+        f'               {remainTimeSec:.0f} [s]'
+        f' = {remainTimeTd} (prediction)',
+        f'Expected completion at: {completionDt} (prediction)',
+    )
+    for s in ls_s:
+        L.info(s)
 
 
 @codetiming.Timer('find_latest_versions', logger=None)
