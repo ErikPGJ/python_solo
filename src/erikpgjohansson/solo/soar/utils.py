@@ -368,7 +368,7 @@ def derive_DST_from_dir(rootDir):
         'processing_level': np.array(levelList,       dtype=object),
     })
     # NOTE: Key name "processing_level" chosen to be in agreement with
-    # erikpgjohansson.solo.soar.dwld.Downloader.download_SOAR_DST().
+    # erikpgjohansson.solo.soar.dwld.Downloader.download_SDT_DST().
     return dst
 
 

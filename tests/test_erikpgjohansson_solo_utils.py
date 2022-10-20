@@ -96,7 +96,7 @@ def test_parse_dataset_filename():
     # NOTE: ".fits"
     # solo_L1_eui-fsi174-image_20200806T083130185_V01.fits
     # NOTE: Case needs to be supported for making
-    # erikpgjohansson.solo.download_SOAR_DST() more rigorous.
+    # erikpgjohansson.solo.download_SDT_DST() more rigorous.
     test(
         'solo_L1_eui-fsi174-image_20200806T083130185_V01.fits',
         {

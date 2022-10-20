@@ -307,8 +307,8 @@ class SoarDownloader(Downloader):
         raise Exception('Failed to derive filename from HTTP response.')
 
 
-@codetiming.Timer('download_SOAR_DST', logger=None)
-def download_SOAR_DST(downloader: Downloader):
+@codetiming.Timer('download_SDT_DST', logger=None)
+def download_SDT_DST(downloader: Downloader):
     '''
     Download table of datasets (+metadata) from SOAR.
 
@@ -341,11 +341,11 @@ def download_SOAR_DST(downloader: Downloader):
         dc_json = downloader.download_JSON_SDT(instrument)
         ls_dst.append(_convert_JSON_SDT_to_DST(dc_json))
 
-    dst_all = ls_dst[0]
+    all_dst = ls_dst[0]
     for dst in ls_dst[1:]:
-        dst_all = dst_all + dst
+        all_dst = all_dst + dst
 
-    return dst_all
+    return all_dst
 
 
 @codetiming.Timer('_convert_JSON_SDT_to_DST', logger=None)

@@ -222,7 +222,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     return dtdn
 
 
-def copy_move_datasets_to_irfu_dir_tree(
+def copy_move_datasets_to_IRFU_dir_tree(
     mode, sourceDir, destDir,
     dirCreationPermissions=0o775,
     dtdnInclInstrument=True,

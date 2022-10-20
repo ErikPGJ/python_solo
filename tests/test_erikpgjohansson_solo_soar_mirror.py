@@ -286,7 +286,7 @@ def test_sync(tmp_path):
             },
         )
         # IMPLEMENTATION NOTE: Putting some datasets in table for the wrong
-        # instruments since download_SOAR_DST() iterates over hardcoded
+        # instruments since download_SDT_DST() iterates over hardcoded
         # instrument list
         # erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS.
         md = tests.MockDownloader(

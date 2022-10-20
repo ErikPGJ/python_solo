@@ -93,7 +93,7 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
         # ---------------
         # Test if crashes
         # ---------------
-        _ = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(md)
+        _ = erikpgjohansson.solo.soar.dwld.download_SDT_DST(md)
 
     def test_hardcoded_tables():
         '''Not completely sure how complete test should be. Mostly tests the
@@ -105,7 +105,7 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
             "solo_L0_epd-step-ll_0680054400-0680140799", "V02", "L0",
         ]]
         md = tests.MockDownloader(dc_json_data_ls={'EPD': json_data_ls})
-        dst = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(md)
+        dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(md)
 
         na = dst['begin_time']
         assert na.shape == (1,)
@@ -135,7 +135,7 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
             "LL02",
         ]]
         md = tests.MockDownloader(dc_json_data_ls={'SWA': json_data_ls})
-        dst = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(md)
+        dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(md)
 
         na = dst['begin_time_FN']
         assert np.issubdtype(na.dtype, np.datetime64)

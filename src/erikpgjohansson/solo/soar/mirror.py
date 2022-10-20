@@ -246,7 +246,7 @@ def sync(
     # Download table of online SOAR datasets
     # ======================================
     L.info('Downloading SOAR table of datasets.')
-    soarDst = erikpgjohansson.solo.soar.dwld.download_SOAR_DST(downloader)
+    soarDst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(downloader)
     erikpgjohansson.solo.soar.utils.log_DST(
         soarDst,
         'All online SOAR datasets'
@@ -265,14 +265,14 @@ def sync(
     )
 
     soarMissingDst, localExcessDst = _calculate_sync_dir_update(
-        soarDst=soarDst,
+        refDst=soarDst,
         localDst=localDst,
         datasetsSubsetFunc=datasetsSubsetFunc,
         deleteOutsideSubset=deleteOutsideSubset,
         nMaxNetDatasetsToRemove=nMaxNetDatasetsToRemove,
     )
 
-    _execute_sync_dir_update(
+    _execute_sync_dir_SOAR_update(
         downloader=downloader,
         soarMissingDst=soarMissingDst,
         localExcessDst=localExcessDst,
@@ -312,13 +312,13 @@ def offline_cleanup(
         'Ensuring that datasets under sync directory are in'
         ' the correct locations.',
     )
-    erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
+    erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
         'move', syncDir, syncDir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
 
     L.info('Moving datasets from download directory to sync directory.')
-    erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
+    erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
         'move', tempDownloadDir, syncDir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
@@ -326,13 +326,14 @@ def offline_cleanup(
     L.info('Producing table of pre-existing local datasets.')
     localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
 
-    soarMissingDst, localExcessDst = _calculate_sync_dir_update(
-        soarDst=localDst,
+    refMissingDst, localExcessDst = _calculate_sync_dir_update(
+        refDst=localDst,
         localDst=localDst,
         datasetsSubsetFunc=datasetsSubsetFunc,
         deleteOutsideSubset=deleteOutsideSubset,
         nMaxNetDatasetsToRemove=float("Inf"),
     )
+    assert refMissingDst.n() == 0
 
     # =====================
     # Remove local datasets
@@ -352,18 +353,24 @@ def offline_cleanup(
 
 @codetiming.Timer('_calculate_sync_dir_update', logger=None)
 def _calculate_sync_dir_update(
-    soarDst, localDst, datasetsSubsetFunc,
+    refDst, localDst, datasetsSubsetFunc,
     deleteOutsideSubset, nMaxNetDatasetsToRemove,
 ):
-    '''Given DSTs for SOAR and local files, calculate which files should be
-    removed or downloaded locally.
+    '''Given reference datasets and local datasets, calculate which
+    files should be removed or downloaded.
 
-    (1) Converts complete SOAR datasets list
+    (1) Converts reference datasets list
         -->SOAR subset dataset list (all versions)
         -->SOAR subset dataset list (latest versions)
-    (2) Assert SOAR subset dataset list (latest versions) not empty.
+    (2) Assert reference subset dataset list (latest versions) is not empty.
     (3) Optionally trims local datasets list to subset.
-    (4) Assert that not too many local datasets should be deletec.
+    (4) Assert that not too many local datasets should be deleted.
+
+    Parameters
+    ----------
+    refDst
+        Reference datasets. The set of datasets of which only the latest
+        versions subset shall be kept.
     '''
     '''
     NOTE: Not a very "pure" function since it logs.
@@ -376,11 +383,11 @@ def _calculate_sync_dir_update(
     # =====================================================================
     # Select subset of SOAR datasets (item IDs) to be synced (all versions)
     # =====================================================================
-    bSoarSubset = _find_DST_subset(datasetsSubsetFunc, soarDst)
-    soarSubsetDst = soarDst.index(bSoarSubset)
+    bRefSubset = _find_DST_subset(datasetsSubsetFunc, refDst)
+    refSubsetDst = refDst.index(bRefSubset)
     erikpgjohansson.solo.soar.utils.log_DST(
-        soarSubsetDst,
-        'Subset of online SOAR datasets (all versions) that should be '
+        refSubsetDst,
+        'Subset of reference datasets (all versions) that should be '
         'synced with local datasets',
     )
 
@@ -391,22 +398,22 @@ def _calculate_sync_dir_update(
     # selecting subset of item IDs. Particularly useful for small test subsets.
     # =========================================================================
     bLv = erikpgjohansson.solo.soar.utils.find_latest_versions(
-        soarSubsetDst['item_id'],
-        soarSubsetDst['item_version'],
+        refSubsetDst['item_id'],
+        refSubsetDst['item_version'],
     )
-    soarSubsetLvDst = soarSubsetDst.index(bLv)
+    refSubsetLvDst = refSubsetDst.index(bLv)
 
     erikpgjohansson.solo.soar.utils.log_DST(
-        soarSubsetDst,
-        'Subset of online SOAR datasets (latest versions) that should be '
-        'synced with local datasets',
+        refSubsetDst,
+        'Subset of reference datasets (latest versions) that '
+        'should be synced with local datasets',
     )
 
-    # ASSERT: The subset of SOAR is non-empty.
+    # ASSERT: The subset of latest version reference datasets is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
-    # files due to faulty datasetsSubsetFunc.
-    assert soarSubsetLvDst.n() > 0, (
-        'Trying to sync with empty subset of SOAR datasets.'
+    # files due to e.g. a faulty datasetsSubsetFunc.
+    assert refSubsetLvDst.n() > 0, (
+        'Trying to sync with empty subset of reference datasets.'
         ' Argument "datasetsSubsetFunc" could be faulty.'
     )
 
@@ -437,15 +444,15 @@ def _calculate_sync_dir_update(
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
     bSoarMissing, bLocalExcess = _find_DST_difference(
-        soarSubsetLvDst['file_name'], localDst['file_name'],
-        soarSubsetLvDst['file_size'], localDst['file_size'],
+        refSubsetLvDst['file_name'], localDst['file_name'],
+        refSubsetLvDst['file_size'], localDst['file_size'],
     )
 
-    soarMissingDst = soarSubsetLvDst.index(bSoarMissing)
+    refMissingDst = refSubsetLvDst.index(bSoarMissing)
     localExcessDst = localDst.index(bLocalExcess)
 
     erikpgjohansson.solo.soar.utils.log_DST(
-        soarMissingDst, 'Online SOAR datasets that need to be downloaded',
+        refMissingDst, 'Online SOAR datasets that need to be downloaded',
     )
     erikpgjohansson.solo.soar.utils.log_DST(
         localExcessDst, 'Local datasets that need to be removed',
@@ -454,7 +461,7 @@ def _calculate_sync_dir_update(
     # ASSERTION
     # NOTE: Deliberately doing this first after logging which datasets to
     # download and delete.
-    nNetDatasetsToRemove = localExcessDst.n() - soarMissingDst.n()
+    nNetDatasetsToRemove = localExcessDst.n() - refMissingDst.n()
     if nNetDatasetsToRemove > nMaxNetDatasetsToRemove:
         msg = (
             f'Net number of datasets to remove ({nNetDatasetsToRemove})'
@@ -475,10 +482,10 @@ def _calculate_sync_dir_update(
 
         raise AssertionError(msg)
 
-    return soarMissingDst, localExcessDst
+    return refMissingDst, localExcessDst
 
 
-def _execute_sync_dir_update(
+def _execute_sync_dir_SOAR_update(
     downloader: erikpgjohansson.solo.soar.dwld.Downloader,
     soarMissingDst, localExcessDst, syncDir, tempDownloadDir,
     tempRemovalDir, removeRemovalDir, downloadLogFormat,
@@ -543,7 +550,7 @@ def _execute_sync_dir_update(
         'Moving downloaded datasets to'
         ' selected directory structure (if there are any).',
     )
-    erikpgjohansson.solo.iddt.copy_move_datasets_to_irfu_dir_tree(
+    erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
         'move', tempDownloadDir, syncDir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
