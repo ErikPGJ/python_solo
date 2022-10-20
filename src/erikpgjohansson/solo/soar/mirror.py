@@ -242,15 +242,16 @@ def sync(
         localDst, 'Pre-existing local datasets that should be synced',
     )
 
-    # ======================================
-    # Download table of online SOAR datasets
-    # ======================================
-    L.info('Downloading SOAR table of datasets.')
-    soarDst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(downloader)
+    # ============
+    # Download SDT
+    # ============
+    L.info('Downloading SDT (SOAR Datasets Table).')
+    sdtDst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(downloader)
     erikpgjohansson.solo.soar.utils.log_DST(
-        soarDst,
-        'All online SOAR datasets'
-        ' (synced and non-synced; all dataset versions)',
+        sdtDst,
+        'SDT (SOAR Datasets Table):'
+        ' SOAR Datasets: synced and non-synced, all dataset versions,'
+        ' not necessarily all types of datasets.',
     )
 
     # ASSERTION: SOAR DST is not empty
@@ -258,14 +259,19 @@ def sync(
     # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero datasets
     # by mistake or due to bug. This could in turn lead to deleting all local
     # datasets.
-    assert soarDst.n() > 0, (
+    assert sdtDst.n() > 0, (
         'SOAR returned an empty SDT (SOAR Datasets Table).'
-        ' This should imply that there is something wrong with either (1) '
-        'SOAR, or (2) this software.'
+        ' This should imply that there is something wrong with either'
+        ' (1) SOAR, or (2) this software.'
+    )
+
+    refDst = _calculate_reference_DST(sdtDst, datasetsSubsetFunc)
+    erikpgjohansson.solo.soar.utils.log_DST(
+        refDst, 'Reference datasets that should be synced with local datasets',
     )
 
     soarMissingDst, localExcessDst = _calculate_sync_dir_update(
-        refDst=soarDst,
+        refDst=refDst,
         localDst=localDst,
         datasetsSubsetFunc=datasetsSubsetFunc,
         deleteOutsideSubset=deleteOutsideSubset,
@@ -326,8 +332,9 @@ def offline_cleanup(
     L.info('Producing table of pre-existing local datasets.')
     localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
 
+    refDst = _calculate_reference_DST(localDst, datasetsSubsetFunc)
     refMissingDst, localExcessDst = _calculate_sync_dir_update(
-        refDst=localDst,
+        refDst=refDst,
         localDst=localDst,
         datasetsSubsetFunc=datasetsSubsetFunc,
         deleteOutsideSubset=deleteOutsideSubset,
@@ -351,6 +358,31 @@ def offline_cleanup(
     L.info(stdoutStr)
 
 
+def _calculate_reference_DST(dst, datasetsSubsetFunc):
+    ''''''
+    '''
+    PROPOSAL: Return logical indices, not DST.
+    '''
+    # =====================================================================
+    # Select subset of SOAR datasets (item IDs) to be synced (all versions)
+    # =====================================================================
+    bSubset = _find_DST_subset(datasetsSubsetFunc, dst)
+    subsetDst = dst.index(bSubset)
+
+    # =========================================================================
+    # Only keep latest version of each dataset in table
+    # -------------------------------------------------
+    # IMPLEMENTATION NOTE: This can be slow. Therefore doing this first AFTER
+    # selecting subset of item IDs. Particularly useful for small test subsets.
+    # =========================================================================
+    bLv = erikpgjohansson.solo.soar.utils.find_latest_versions(
+        subsetDst['item_id'],
+        subsetDst['item_version'],
+    )
+    subsetLvDst = subsetDst.index(bLv)
+    return subsetLvDst
+
+
 @codetiming.Timer('_calculate_sync_dir_update', logger=None)
 def _calculate_sync_dir_update(
     refDst, localDst, datasetsSubsetFunc,
@@ -359,18 +391,15 @@ def _calculate_sync_dir_update(
     '''Given reference datasets and local datasets, calculate which
     files should be removed or downloaded.
 
-    (1) Converts reference datasets list
-        -->SOAR subset dataset list (all versions)
-        -->SOAR subset dataset list (latest versions)
-    (2) Assert reference subset dataset list (latest versions) is not empty.
-    (3) Optionally trims local datasets list to subset.
-    (4) Assert that not too many local datasets should be deleted.
+    (1) Assert reference subset dataset list (latest versions) is not empty.
+    (2) Optionally trims local datasets list to subset.
+    (3) Assert that not too many local datasets should be deleted.
 
     Parameters
     ----------
     refDst
-        Reference datasets. The set of datasets of which only the latest
-        versions subset shall be kept.
+        Reference datasets. The set of datasets for which missing and excess
+        datasets should be obtained.
     '''
     '''
     NOTE: Not a very "pure" function since it logs.
@@ -380,39 +409,10 @@ def _calculate_sync_dir_update(
 
     L.info('Identifying missing datasets and datasets to remove.')
 
-    # =====================================================================
-    # Select subset of SOAR datasets (item IDs) to be synced (all versions)
-    # =====================================================================
-    bRefSubset = _find_DST_subset(datasetsSubsetFunc, refDst)
-    refSubsetDst = refDst.index(bRefSubset)
-    erikpgjohansson.solo.soar.utils.log_DST(
-        refSubsetDst,
-        'Subset of reference datasets (all versions) that should be '
-        'synced with local datasets',
-    )
-
-    # =========================================================================
-    # Only keep latest version of each online SOAR dataset in table
-    # -------------------------------------------------------------
-    # IMPLEMENTATION NOTE: This can be slow. Therefore doing this first AFTER
-    # selecting subset of item IDs. Particularly useful for small test subsets.
-    # =========================================================================
-    bLv = erikpgjohansson.solo.soar.utils.find_latest_versions(
-        refSubsetDst['item_id'],
-        refSubsetDst['item_version'],
-    )
-    refSubsetLvDst = refSubsetDst.index(bLv)
-
-    erikpgjohansson.solo.soar.utils.log_DST(
-        refSubsetDst,
-        'Subset of reference datasets (latest versions) that '
-        'should be synced with local datasets',
-    )
-
-    # ASSERT: The subset of latest version reference datasets is non-empty.
+    # ASSERT: The list of reference datasets is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
     # files due to e.g. a faulty datasetsSubsetFunc.
-    assert refSubsetLvDst.n() > 0, (
+    assert refDst.n() > 0, (
         'Trying to sync with empty subset of reference datasets.'
         ' Argument "datasetsSubsetFunc" could be faulty.'
     )
@@ -444,11 +444,11 @@ def _calculate_sync_dir_update(
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
     bSoarMissing, bLocalExcess = _find_DST_difference(
-        refSubsetLvDst['file_name'], localDst['file_name'],
-        refSubsetLvDst['file_size'], localDst['file_size'],
+        refDst['file_name'], localDst['file_name'],
+        refDst['file_size'], localDst['file_size'],
     )
 
-    refMissingDst = refSubsetLvDst.index(bSoarMissing)
+    refMissingDst = refDst.index(bSoarMissing)
     localExcessDst = localDst.index(bLocalExcess)
 
     erikpgjohansson.solo.soar.utils.log_DST(
