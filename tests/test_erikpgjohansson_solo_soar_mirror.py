@@ -16,142 +16,8 @@ import sys
 import tempfile
 
 
-'''
-PROPOSAL: Change way of representing FS objects.
-    PROPOSAL: Paths plus file size/None.
-        PRO: More concise when having few files in deep subdirectories.
-        PRO: Easier to compare paths.
-        CON: May have to linebreak paths.
-
-PROPOSAL: Recursive function for comparing dict representations of FS.
-    assert act_dict_objs == exp_dict_objs
-
-PROPOSAL: Move helper code to separate module?
-'''
-
-
-def setup_FS(root_dir, dict_objs):
-    '''Create specified directory tree of (nonsense) files and directories.
-    FS = File System.
-
-    Note: Function fully validates the input arguments.
-    '''
-
-    assert type(dict_objs) == dict
-
-    # NOTE: Permits pre-existing directory.
-    os.makedirs(root_dir, exist_ok=True)
-
-    for obj_name, obj_content in dict_objs.items():
-        assert type(obj_name) == str
-        if type(obj_content) == int:
-            tests.create_file(os.path.join(root_dir, obj_name), obj_content)
-        elif type(obj_content) == dict:
-            # RECURSIVE CALL
-            setup_FS(os.path.join(root_dir, obj_name), obj_content)
-        else:
-            raise Exception()
-
-
-def assert_FS(root_dir, exp_dict_objs):
-    '''Verify that a directory contains exactly the specified set of
-    directories and files.'''
-
-    def get_FS(root_dir):
-        dict_fs = {}
-        it = os.scandir(root_dir)
-        for de in it:
-            obj_name = de.name
-            assert not de.is_symlink()
-            if de.is_file():
-                dict_fs[obj_name] = de.stat().st_size
-            elif de.is_dir():
-                dict_fs[obj_name] = get_FS(os.path.join(root_dir, obj_name))
-            else:
-                raise Exception('')
-
-        return dict_fs
-
-    act_dict_objs = get_FS(root_dir)
-    assert act_dict_objs == exp_dict_objs, 'Directory tree is not as expected.'
-
-
-def test_FS_helpers(tmp_path):
-    '''Test internal helper functions.'''
-
-    i_test = -1
-
-    def test_eq(dict_objs):
-        ''''''
-        nonlocal i_test
-        i_test += 1
-        test_dir = os.path.join(tmp_path, f'test_{i_test}')
-
-        setup_FS(test_dir, dict_objs)
-        assert_FS(test_dir, dict_objs)
-
-    # ====================================================
-    # "Manual" tests of assert_FS() (not using setup_FS())
-    # ====================================================
-    test_dir = os.path.join(tmp_path, 'test_A')
-    os.makedirs(test_dir)
-    assert_FS(test_dir, {})
-
-    test_dir = os.path.join(tmp_path, 'test_B')
-    os.makedirs(os.path.join(test_dir, 'dir1/dir2'))
-    tests.create_file(os.path.join(test_dir, 'dir1/file1'), 22)
-    tests.create_file(os.path.join(test_dir, 'dir1/dir2/file2'), 11)
-    assert_FS(
-        test_dir, {
-            'dir1': {
-                'file1': 22,
-                'dir2': {
-                    'file2': 11,
-                },
-            },
-        },
-    )
-
-    # ===========================================
-    # Equality between setup_FS() and assert_FS()
-    # ===========================================
-    test_eq({})
-    test_eq({'file': 0})
-    test_eq({'file': 10})
-    test_eq({'dir': {}})
-    test_eq({
-        'dir1': {},
-        'file1': 123,
-        'dir2': {
-            'file2': 321,
-        },
-    })
-    test_eq({
-        'dir1': {},
-        'file1': 123,
-        'dir2': {
-            'file2': 321,
-            'file3': 321,
-            'dir3': {
-                'file4': 1,
-            },
-        },
-    })
-
-
-class DirProducer:
-    def __init__(self, root_dir):
-        self._root_dir = root_dir
-        self._i_dir = 0
-
-    def get_new_dir(self):
-        path = os.path.join(self._root_dir, f'{self._i_dir}')
-        self._i_dir += 1
-        return path
-
-
 def test_sync(tmp_path):
-    tdp = DirProducer(tmp_path)
+    tdp = tests.DirProducer(tmp_path)
 
     def DIF_everything(instrument, level, beginTime, datasetId):
         return True
@@ -161,7 +27,7 @@ def test_sync(tmp_path):
         sync_dir = os.path.join(root_dir, 'mirror')
         download_dir = os.path.join(root_dir, 'download')
 
-        setup_FS(
+        tests.setup_FS(
             root_dir, {
                 'download': {},
                 'mirror': {},
@@ -195,7 +61,7 @@ def test_sync(tmp_path):
             downloader=md,
         )
 
-        assert_FS(
+        tests.assert_FS(
             root_dir,
             {
                 'download': {},
@@ -246,7 +112,7 @@ def test_sync(tmp_path):
         root_dir = tdp.get_new_dir()
         sync_dir = os.path.join(root_dir, 'mirror')
         download_dir = os.path.join(root_dir, 'download')
-        setup_FS(
+        tests.setup_FS(
             root_dir, {
                 'download': {},
                 'mirror': {
@@ -309,7 +175,7 @@ def test_sync(tmp_path):
             downloader=md,
         )
 
-        assert_FS(
+        tests.assert_FS(
             root_dir,
             {
                 'download': {},
@@ -350,7 +216,7 @@ def test_sync(tmp_path):
 
 
 def test_offline_cleanup(tmp_path):
-    tdp = DirProducer(tmp_path)
+    tdp = tests.DirProducer(tmp_path)
     # TODO: Check misplaced files.
 
     def DIF(instrument, level, beginTime, datasetId):
@@ -363,7 +229,7 @@ def test_offline_cleanup(tmp_path):
         download_dir = os.path.join(root_dir, 'download')
         removal_dir = os.path.join(root_dir, 'removal')
 
-        setup_FS(
+        tests.setup_FS(
             root_dir, {
                 'download': {
                     # V01 will be removed, V02 kept.
@@ -415,7 +281,7 @@ def test_offline_cleanup(tmp_path):
             tempRemovalDir=removal_dir, removeRemovalDir=True,
         )
 
-        assert_FS(
+        tests.assert_FS(
             root_dir, {
                 'download': {},
                 'mirror': {
@@ -459,7 +325,7 @@ def test_offline_cleanup(tmp_path):
         download_dir = os.path.join(root_dir, 'download')
         removal_dir = os.path.join(root_dir, 'removal')
 
-        setup_FS(
+        tests.setup_FS(
             root_dir, {
                 'download': {},
                 'mirror': {
@@ -472,7 +338,7 @@ def test_offline_cleanup(tmp_path):
             sync_dir, download_dir, DIF, tempRemovalDir=removal_dir,
             removeRemovalDir=True,
         )
-        assert_FS(
+        tests.assert_FS(
             root_dir, {
                 'download': {},
                 'mirror': {
@@ -499,6 +365,5 @@ def test_offline_cleanup(tmp_path):
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    test_FS_helpers(tempfile.TemporaryDirectory().name)
     test_sync(tempfile.TemporaryDirectory().name)
     test_offline_cleanup(tempfile.TemporaryDirectory().name)

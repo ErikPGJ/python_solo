@@ -12,6 +12,18 @@ import urllib
 import zipfile
 
 
+'''
+PROPOSAL: Change way of representing FS objects.
+    PROPOSAL: Paths plus file size/None.
+        PRO: More concise when having few files in deep subdirectories.
+        PRO: Easier to compare paths.
+        CON: May have to linebreak paths.
+
+PROPOSAL: Recursive function for comparing dict representations of FS.
+    assert act_dict_objs == exp_dict_objs
+'''
+
+
 SOAR_JSON_METADATA_LS = \
     [
         {
@@ -228,11 +240,69 @@ def download_zip_JSON_SDTs(output_dir):
             print(' -- Done')
 
 
+class DirProducer:
+    def __init__(self, root_dir):
+        self._root_dir = root_dir
+        self._i_dir = 0
+
+    def get_new_dir(self):
+        path = os.path.join(self._root_dir, f'{self._i_dir}')
+        os.makedirs(path)
+        self._i_dir += 1
+        return path
+
+
 def create_file(path, size):
     '''Create file of given size with nonsense content.'''
     assert not os.path.lexists(path)
     with open(path, 'wb') as f:
         f.write(b'0' * size)
+
+
+def setup_FS(root_dir, dict_objs):
+    '''Create specified directory tree of (nonsense) files and directories.
+    FS = File System.
+
+    Note: Function fully validates the input arguments.
+    '''
+
+    assert type(dict_objs) == dict
+
+    # NOTE: Permits pre-existing directory.
+    os.makedirs(root_dir, exist_ok=True)
+
+    for obj_name, obj_content in dict_objs.items():
+        assert type(obj_name) == str
+        if type(obj_content) == int:
+            create_file(os.path.join(root_dir, obj_name), obj_content)
+        elif type(obj_content) == dict:
+            # RECURSIVE CALL
+            setup_FS(os.path.join(root_dir, obj_name), obj_content)
+        else:
+            raise Exception()
+
+
+def assert_FS(root_dir, exp_dict_objs):
+    '''Verify that a directory contains exactly the specified set of
+    directories and files.'''
+
+    def get_FS(root_dir):
+        dict_fs = {}
+        it = os.scandir(root_dir)
+        for de in it:
+            obj_name = de.name
+            assert not de.is_symlink()
+            if de.is_file():
+                dict_fs[obj_name] = de.stat().st_size
+            elif de.is_dir():
+                dict_fs[obj_name] = get_FS(os.path.join(root_dir, obj_name))
+            else:
+                raise Exception('')
+
+        return dict_fs
+
+    act_dict_objs = get_FS(root_dir)
+    assert act_dict_objs == exp_dict_objs, 'Directory tree is not as expected.'
 
 
 if __name__ == '__main__':
