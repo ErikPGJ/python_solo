@@ -1,7 +1,6 @@
 '''
 Utilities for synching SOAR datasets with a local directory.
 
-
 Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 
@@ -98,6 +97,19 @@ PROPOSAL: Abbreviations for specific subsets.
     LVD = Latest Version Datasets
 
 PROPOSAL: Always use removal directory.
+PROPOSAL: Download exact version of dataset, not the latest version.
+    PRO: More robust in case SOAR updates the datasets (increments version)
+         between
+         (1) sync code calculates datasets to download, and
+         (2) the actual download of that particular dataset.
+         If not, then mirror code might try to move a file that has another
+         name, or dwld.download_latest_dataset() may fail assertion on
+         filename. (Implementation-dependent.)
+        CON: Current implementation (2022-10-20) uses
+             erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree()
+             and is thus not dependent on exact filenames.
+
+PROPOSAL: Make code robust w.r.t. network error, file not present at SOAR.
 '''
 
 
@@ -388,8 +400,8 @@ def _calculate_sync_dir_update(
     refDst, localDst, datasetsSubsetFunc,
     deleteOutsideSubset, nMaxNetDatasetsToRemove,
 ):
-    '''Given reference datasets and local datasets, calculate which
-    files should be removed or downloaded.
+    '''Given reference datasets and local datasets, calculate which files
+    should be removed or downloaded.
 
     (1) Assert reference subset dataset list (latest versions) is not empty.
     (2) Optionally trims local datasets list to subset.
@@ -424,7 +436,7 @@ def _calculate_sync_dir_update(
         L.info(
             'NOTE: Syncing against all local datasets'
             ' (in specified directory).'
-            ' Will DELETE datasets outside the specified subset.',
+            ' Will potentially DELETE datasets outside the specified subset.',
         )
     else:
         bLocalSubset = _find_DST_subset(datasetsSubsetFunc, localDst)
@@ -607,8 +619,9 @@ def _find_DST_difference(
     ----------
     fileNameArray1 : 1D numpy.ndarray of strings.
     fileNameArray2 : 1D numpy.ndarray of strings.
-    NOTE: Arrays (separately) do not need to contain unique strings, though
-    that is the intended use.
+    --
+    NOTE: Parameter arrays (separately) do not need to contain unique strings,
+    though that is the intended use.
 
 
     Returns
@@ -616,6 +629,7 @@ def _find_DST_difference(
     (bDiff1, bDiff2)
     '''
     '''
+    PROPOSAL: Move to utils.
     PROPOSAL: Use filenames, not itemId+version.
     PROPOSAL: Include file sizes.
     PROPOSAL: Use DSTs.
@@ -682,6 +696,9 @@ def _find_DST_subset(
     Returns
     -------
     bSubset : numpy array
+    '''
+    '''
+    PROPOSAL: Move to utils.
     '''
     instrumentArray = dst['instrument']
     levelArray      = dst['processing_level']

@@ -135,11 +135,11 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
         return self._dc_json_dc[instrument]
 
     def download_latest_dataset(
-        self, dataItemId, fileParentPath,
+        self, data_item_id, dir_path,
         expectedFileName=None, expectedFileSize=None,
     ):
-        file_name, file_size = self._get_LV_file_name_size(dataItemId)
-        file_path = os.path.join(fileParentPath, file_name)
+        file_name, file_size = self._get_LV_file_name_size(data_item_id)
+        file_path = os.path.join(dir_path, file_name)
         create_file(file_path, file_size)
 
     def _get_LV_file_name_size(self, data_item_id):

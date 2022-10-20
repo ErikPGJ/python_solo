@@ -14,15 +14,6 @@ Empirical: numpy.datetime64(..., dtype='datetime64[ms]') works with numpy
 v1.18.5, but not numpy v1.19.5.
 
 
-
-DEFINITIONS
-===========
-item_id
-data_item_id
-    Appears to be same as "item_id". Term used in call to SOAR to download
-    datasets.
-Note: See MISC_CONVENTIONS.md.
-
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 '''
 
@@ -68,7 +59,7 @@ class Downloader:
         raise NotImplementedError()
 
     def download_latest_dataset(
-        self, dataItemId, fileParentPath,
+        self, dataItemId, dirPath,
         expectedFileName=None, expectedFileSize=None,
     ):
         raise NotImplementedError()
@@ -159,14 +150,11 @@ class SoarDownloader(Downloader):
         return JsonDict
 
     def download_latest_dataset(
-        self, dataItemId, fileParentPath,
+        self, dataItemId, dirPath,
         expectedFileName=None, expectedFileSize=None,
     ):
         '''
         Download the latest version of a particular dataset.
-
-        NOTE: I have not been able to figure out how to download a dataset of a
-        specified version. /Erik P G Johansson 2021-01-11
 
         Parameters
         ----------
@@ -177,7 +165,7 @@ class SoarDownloader(Downloader):
             Empirically roughly DATASET_ID + date: Filename minus _Vxx.cdf
             (x=digit).
             Ex: solo_L2_epd-ept-south-rates_20200730
-        fileParentPath :
+        dirPath :
         expectedFileName : String, None
         expectedFileSize : Number, None
 
@@ -188,7 +176,7 @@ class SoarDownloader(Downloader):
         EXCEPTIONS
         ==========
         HTTPError
-            If invalid dataItemId.
+            If invalid dataItemId sent to SOAR.
         Exception
             If expectedFileName or expectedFileSize do not match the
             downloaded file.
@@ -202,6 +190,13 @@ class SoarDownloader(Downloader):
         PROPOSAL: Somehow predict time left.
         PROPOSAL: No exception for downloading unexpected file. Return
                   boolean(s) instead.
+        PROPOSAL: Change to downloading specific version. Can probably be done.
+            TODO-DEC: How?
+                Ex:
+                http://soar.esac.esa.int/soar-sl-tap/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+FROM+soar.v_sc_repository_file+WHERE+filename='solo_L2_epd-sis-a-rates-slow_20200615_V05.cdf'
+            PRO: More reliable for calling code if SOAR updates version
+                 between decision to download specific version, and actual
+                 download.
         '''
 
         L = logging.getLogger(__name__)
@@ -223,6 +218,8 @@ class SoarDownloader(Downloader):
 
         # Extract level from item ID.
         d1 = erikpgjohansson.solo.utils.parse_item_ID(dataItemId)
+        if d1 is None:
+            raise Exception(f'Can not parse dataItemId="{dataItemId}"')
         _, level, _, _ = erikpgjohansson.solo.utils.parse_DATASET_ID(
             d1['DATASET_ID'],
         )
@@ -241,7 +238,7 @@ class SoarDownloader(Downloader):
                     f'not equal to expected filenames "{expectedFileName}".',
                 )
 
-        filePath = os.path.join(fileParentPath, fileName)
+        filePath = os.path.join(dirPath, fileName)
 
         erikpgjohansson.solo.asserts.path_is_available(filePath)
 
@@ -329,10 +326,6 @@ def download_SDT_DST(downloader: Downloader):
 
     NOTE: See notes at top of file.
     NOTE: Same dataset may have multiple versions in list.
-    '''
-    '''
-    PROPOSAL: Do not return JsonDict.
-        PRO: Wrong data structure for debugging.
     '''
     assert isinstance(downloader, Downloader)
 

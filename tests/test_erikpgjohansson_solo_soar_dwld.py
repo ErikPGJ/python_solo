@@ -31,16 +31,16 @@ def test_download_latest_dataset(tmp_path):
         version, i.e. are more likely to vary with time.
         '''
         nonlocal i_test
-        fileParentPath = pathlib.Path(tmp_path) / f'test_{i_test}'
+        dirPath = pathlib.Path(tmp_path) / f'test_{i_test}'
         i_test = i_test + 1
-        os.mkdir(fileParentPath)
+        os.mkdir(dirPath)
 
         print(
             f'ATEST: Downloading online data from SOAR:'
             f' dataItemId={dataItemId}',
         )
         actFilePath = downloader.download_latest_dataset(
-            dataItemId, fileParentPath,
+            dataItemId, dirPath,
             expectedFileName=None, expectedFileSize=None,
         )
         assert os.path.isfile(actFilePath)

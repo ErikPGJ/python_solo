@@ -135,7 +135,10 @@ def download_latest_datasets_batch(
         PROPOSAL: policy which is sent to download_latest_dataset().
     PROPOSAL: Argument for filenames.
 
-    PROPOSAL: Keyword argument for file-size sorted download.
+    PROPOSAL: Multiple simultaneous downloads.
+        PRO: Potentially faster.
+        TODO-NI: Does it actually speed it up, or will the downloads be
+                 throttled?
     '''
 
     # ASSERTIONS

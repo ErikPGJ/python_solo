@@ -1,5 +1,8 @@
 # Shorternings
 
+data_item_id : SOAR uses this term in SOAR's datasets tables. Appears to be
+same as "item_id".
+
 DATASET_ID : Of a set unique string identifier constants that each specify a
 type of SolO dataset.
 Probably defined by LESIA for SolO/RPW datasets. Identical to the
@@ -22,7 +25,8 @@ name since it is implicit from parent package "solo". The way datasets are
 organized for SolO L2 & L3 datasets at IRFU. Directory paths:
 `<instrument>/<DTDN>/<year>/<month>/<dataset file>`.
 
-Item ID : Subset of SolO dataset file name in SolO's filenaming convention.
+Item ID : SOAR uses this term in SOAR's datasets tables. Subset of SolO
+dataset file name in SolO's filenaming convention.
 Type of return value from SOAR when requesting table of datasets.
 Essentially DATASET_ID + time interval in official filename.
 

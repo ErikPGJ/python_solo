@@ -10,6 +10,14 @@ class DatasetsTable:
     '''
     PROPOSAL: Change name of class.
         PRO: Is more generic than for datasets.
+        PRO: Avoid e.g. SDT_DST = SOAR Datasets Table DataSets Table
+        PROPOSAL: Something more generic.
+            ~Table, ~Dictionary, ~Arrays, ~Numpy, ~1D, ~List
+            NAD=Numpy Array (1D) Dictionary
+            DNA=Dictionary of Numpy Arrays
+            NAT=Numpy Array Table
+            TNA=Table of/using Numpy Arrays
+
     PROPOSAL: Change name "index()".
         get_subset()
     PROPOSAL: Change name "n()".

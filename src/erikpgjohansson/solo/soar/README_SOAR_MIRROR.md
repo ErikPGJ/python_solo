@@ -40,9 +40,9 @@ In theory, to set up one's own mirror, one only needs to
 
 # Notes
 
-SOAR downloads can be quite slow, about ~0.7 MiB/s! Initial batch downloads can
-take _several days_. Logging (stdout) for the progress of downloads is
-therefore detailed.
+SOAR downloads can be quite slow, about ~1.9 MiB/s (if not parallelized; at
+IRF Uppsala)! Initial batch downloads can take _several days_. Logging (stdout)
+for the progress of downloads is therefore detailed.
 
 Caveat: As it stands, the SOAR mirror code can only handle CDF datasets, and
 only ones that follow those official filenaming conventions that are already
@@ -70,5 +70,5 @@ of datasets.
 
 Specific applications (not generic) of the more generic SOAR mirroring code,
 used at IRF. Contain simple customized function calls to
-`erikpgjohansson.solo.soar.mirrors.test_mirror.sync`. Can be used as demo
+`erikpgjohansson.solo.soar.mirror.sync()`. Can effectively be used as demo
 code for creating one's own mirror.
