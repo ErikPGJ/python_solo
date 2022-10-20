@@ -101,7 +101,6 @@ def download_latest_datasets_batch(
     outputDirPath,
     logFormat='long',
     downloadByIncrFileSize=False,
-    debugDownloadingEnabled=True,
 ):
     '''
     Download latest versions of datasets (multiple ones), for selected item
@@ -119,9 +118,6 @@ def download_latest_datasets_batch(
     downloadByIncrFileSize : bool
         True: Sort datasets by increasing file size.
         Useful for testing/debugging. Bad for predicted log values.
-    debugDownloadingEnabled : bool
-        False: Do everything except actual download.
-        Useful for testing/debugging.
 
 
     Returns
@@ -169,8 +165,7 @@ def download_latest_datasets_batch(
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fileSizeMb = fileSize / 2**20
         L.info(f'{nowStr}: Downloading: {fileSizeMb:.2f} [MiB], {itemId}')
-        if debugDownloadingEnabled:
-            downloader.download_latest_dataset(itemId, outputDirPath)
+        downloader.download_latest_dataset(itemId, outputDirPath)
 
         # NOTE: Doing statistics AFTER downloading file. Could also be done
         # BEFORE downloading. Note that this uses another timestamp

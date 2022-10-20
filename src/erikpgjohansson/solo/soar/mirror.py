@@ -537,7 +537,6 @@ def _execute_sync_dir_SOAR_update(
         soarMissingDst['file_size'],
         tempDownloadDir,
         logFormat=downloadLogFormat,
-        debugDownloadingEnabled=True,
     )
 
     # =====================
