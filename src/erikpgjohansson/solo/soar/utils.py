@@ -160,23 +160,17 @@ def download_latest_datasets_batch(
 
     soFarBytes = 0
     totalBytes = fileSizeArray.sum()
-    StartDt    = datetime.datetime.now()
+    StartDt    = datetime.datetime.now()    # DT = Datetime
 
     for i in range(itemIdArray.size):
         itemId   = itemIdArray[i]
         fileSize = fileSizeArray[i]
 
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        L.info(
-            '{}: Downloading: {:.2f} [MiB], {}'.format(
-                nowStr, fileSize / 2**20, itemId,
-            ),
-        )
+        fileSizeMb = fileSize / 2**20
+        L.info(f'{nowStr}: Downloading: {fileSizeMb:.2f} [MiB], {itemId}')
         if debugDownloadingEnabled:
-            downloader.download_latest_dataset(
-                itemId,
-                outputDirPath,
-            )
+            downloader.download_latest_dataset(itemId, outputDirPath)
 
         # NOTE: Doing statistics AFTER downloading file. Could also be done
         # BEFORE downloading. Note that this uses another timestamp
@@ -184,45 +178,29 @@ def download_latest_datasets_batch(
         soFarBytes += fileSize
         SoFarTd     = datetime.datetime.now() - StartDt   # Elapsed wall time.
         soFarSec    = SoFarTd.total_seconds()
-
-        remainingBytes   = totalBytes - soFarBytes
-        # Predictions (using plain linear extrapolation).
-        remainingTimeSec = (totalBytes - soFarBytes) / soFarBytes * soFarSec
-        RemainingTimeTd  = datetime.timedelta(seconds=remainingTimeSec)
-        completionDt     = StartDt + SoFarTd + RemainingTimeTd
+        remainBytes = totalBytes - soFarBytes
+        # Predictions (using linear extrapolation).
+        remainTimeSec = (totalBytes - soFarBytes) / soFarBytes * soFarSec
+        remainTimeTd  = datetime.timedelta(seconds=remainTimeSec)
+        completionDt  = StartDt + SoFarTd + remainTimeTd
 
         if logFormat == 'long':
-            L.info(
-                'So far:        {:.2f} [MiB] of {:.2f} [MiB]'.format(
-                    soFarBytes / 2**20,
-                    totalBytes / 2**20,
-                ),
+            soFarMb = soFarBytes / 2**20
+            totalMb = totalBytes / 2**20
+            speedMbps = (soFarBytes / soFarSec) / 2**20
+            remainMb = remainBytes / 2**20
+            ls_s = (
+                f'So far:        {soFarMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
+                f'               {soFarSec:.2f} [s] = {SoFarTd}',
+                f'               {speedMbps:.2f} [MiB/s] (average)',
+                f'Remainder:     {remainMb:.2f} [MiB]'
+                f' of {totalMb:.2f} [MiB]',
+                f'               {remainTimeSec:.0f} [s]'
+                f' = {remainTimeTd} (prediction)',
+                f'Expected completion at: {completionDt} (prediction)',
             )
-            L.info(
-                '               {:.2f} [s] = {}'.format(
-                    soFarSec,
-                    SoFarTd,
-                ),
-            )
-            L.info(
-                '               {:.2f} [MiB/s], on average'.format(
-                    (soFarBytes / soFarSec) / 2**20,
-                ),
-            )
-
-            L.info(
-                'Remainder:     {:.2f} [MiB] of {:.2f} [MiB]'.format(
-                    remainingBytes / 2**20,
-                    totalBytes     / 2**20,
-                ),
-            )
-            L.info(
-                '               {:.0f} [s] = {} (prediction)'.format(
-                    remainingTimeSec,
-                    RemainingTimeTd,
-                ),
-            )
-            L.info(f'Expected completion at: {completionDt} (prediction)')
+            for s in ls_s:
+                L.info(s)
         else:
             assert logFormat == 'short'
 
