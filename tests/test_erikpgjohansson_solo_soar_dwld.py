@@ -68,7 +68,7 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
 
     tmp_path = pathlib.Path(tmp_path)
 
-    def test_SOAR_tables():
+    def test_stored_actual_SDTs():
         '''Complex test. Unzips JSON files from SOAR and loads the data
         into MockDownloader.
         '''
@@ -95,7 +95,7 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
         # ---------------
         _ = erikpgjohansson.solo.soar.dwld.download_SDT_DST(md)
 
-    def test_hardcoded_tables():
+    def test_manual_SDTs():
         '''Not completely sure how complete test should be. Mostly tests the
         conversions of component values.'''
         json_data_ls = [[
@@ -141,8 +141,8 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
         assert np.issubdtype(na.dtype, np.datetime64)
         assert na == np.datetime64('2021-04-21T22:02:08.000')
 
-    test_SOAR_tables()
-    test_hardcoded_tables()
+    test_stored_actual_SDTs()
+    test_manual_SDTs()
 
 
 if __name__ == '__main__':

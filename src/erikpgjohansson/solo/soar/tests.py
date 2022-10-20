@@ -2,6 +2,7 @@
 Help code for automatic tests.
 '''
 
+
 import datetime
 import erikpgjohansson.solo.soar.dwld
 import erikpgjohansson.solo.soar.const as const
@@ -50,10 +51,9 @@ SOAR_JSON_METADATA_LS = \
             "arraysize": "*", "unit": None, "ucd": None, "utype": None,
         },
     ]
-'''Content of the JSON "metadata" branch in the SOAR JSON table. This
-metadata is implicitly used when hardcoded tests do not explicitly specify
-corresponding metadata.
-'''
+'''Content of the JSON "metadata" branch in the JSON SDT. This metadata is
+implicitly used when hardcoded tests do not explicitly specify corresponding
+metadata. '''
 
 
 def _get_SOAR_JSON_metadata_ls_index(json_metadata_ls, name):
@@ -93,7 +93,7 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
 
         # Assign dc_json_dc:
         if use_json and not use_json_data:
-            dc_json_dc = dc_json_dc   # Correct value from the start.
+            pass    # Correct value from the start.
         elif not use_json and use_json_data:
             dc_json_dc = {}
             for key, json_data_ls in dc_json_data_ls.items():
@@ -102,7 +102,9 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
                     'data': dc_json_data_ls[key],
                 }
         else:
-            raise ValueError()
+            raise ValueError(
+                'Must set either argument "dc_json_dc" or "dc_json_data_ls".',
+            )
 
         # Add empty data for unset instruments
         # ------------------------------------

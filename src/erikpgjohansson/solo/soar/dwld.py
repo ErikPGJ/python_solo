@@ -161,7 +161,7 @@ class SoarDownloader(Downloader):
         dataItemId : String
             Specifies the exact dataset except version.
             Unsure if this is an officially defined concept. "data_item_id"
-            appears as column name in SOAR's tables.
+            appears as column name in JSON SDTs.
             Empirically roughly DATASET_ID + date: Filename minus _Vxx.cdf
             (x=digit).
             Ex: solo_L2_epd-ept-south-rates_20200730
@@ -346,7 +346,7 @@ def _convert_JSON_SDT_to_DST(JsonDict):
     '''
     Convert downloaded JSON SDT to better format.
 
-    NOTE: Works, but seems too slow. 2022-01-04: 75 s for entire SOAR table.
+    NOTE: Works, but seems too slow. 2022-01-04: 75 s for entire SDT.
 
     Parameters
     ----------

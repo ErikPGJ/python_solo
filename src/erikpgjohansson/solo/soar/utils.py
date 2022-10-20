@@ -96,10 +96,7 @@ def assert_col_array(v, dtype=None):
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
     downloader: erikpgjohansson.solo.soar.dwld.Downloader,
-    itemIdArray,
-    fileSizeArray,
-    outputDirPath,
-    logFormat='long',
+    itemIdArray, fileSizeArray, outputDirPath, logFormat='long',
     downloadByIncrFileSize=False,
 ):
     '''
@@ -132,9 +129,11 @@ def download_latest_datasets_batch(
     PROPOSAL: Argument for filenames.
 
     PROPOSAL: Multiple simultaneous downloads.
-        PRO: Potentially faster.
-        TODO-NI: Does it actually speed it up, or will the downloads be
-                 throttled?
+        PRO: Faster.
+        CON: More complicated error handling?
+
+    PROPOSAL: Abolish downloadByIncrFileSize.
+    PROPOSAL: Abolish logFormat.
     '''
 
     # ASSERTIONS
@@ -156,7 +155,7 @@ def download_latest_datasets_batch(
 
     soFarBytes = 0
     totalBytes = fileSizeArray.sum()
-    StartDt    = datetime.datetime.now()    # DT = Datetime
+    startDt    = datetime.datetime.now()
 
     for i in range(itemIdArray.size):
         itemId   = itemIdArray[i]
@@ -181,28 +180,28 @@ def download_latest_datasets_batch(
         # BEFORE downloading. Note that this uses another timestamp
         # representing "now".
         soFarBytes += fileSize
-        SoFarTd = datetime.datetime.now() - StartDt  # Elapsed wall time.
+        soFarTd = datetime.datetime.now() - startDt  # Elapsed wall time.
 
         if logFormat == 'long':
             _download_latest_datasets_batch_log_progress_long(
-                logFormat, totalBytes, soFarBytes, StartDt, SoFarTd,
+                logFormat, totalBytes, soFarBytes, startDt, soFarTd,
             )
         else:
             assert logFormat == 'short'
 
 
 def _download_latest_datasets_batch_log_progress_long(
-    logFormat, totalBytes, soFarBytes, StartDt, SoFarTd,
+    logFormat, totalBytes, soFarBytes, startDt, soFarTd,
 ):
     L = logging.getLogger(__name__)
 
-    soFarSec = SoFarTd.total_seconds()
+    soFarSec = soFarTd.total_seconds()
     remainBytes = totalBytes - soFarBytes
 
     # Do predictions (using linear extrapolation)
     remainTimeSec = (totalBytes - soFarBytes) / soFarBytes * soFarSec
     remainTimeTd = datetime.timedelta(seconds=remainTimeSec)
-    completionDt = StartDt + SoFarTd + remainTimeTd
+    completionDt = startDt + soFarTd + remainTimeTd
 
     soFarMb = soFarBytes / 2 ** 20
     totalMb = totalBytes / 2 ** 20
@@ -210,7 +209,7 @@ def _download_latest_datasets_batch_log_progress_long(
     remainMb = remainBytes / 2 ** 20
     ls_s = (
         f'So far:        {soFarMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
-        f'               {soFarSec:.2f} [s] = {SoFarTd}',
+        f'               {soFarSec:.2f} [s] = {soFarTd}',
         f'               {speedMbps:.2f} [MiB/s] (average)',
         f'Remainder:     {remainMb:.2f} [MiB]'
         f' of {totalMb:.2f} [MiB]',
@@ -229,7 +228,7 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
     particular item ID.
 
     NOTE: Works, but appears to be slower than necessary.
-    2022-01-04: 548 s when applied to entire SOAR table.
+    2022-01-04: 548 s when applied to entire SDT.
 
 
     Parameters

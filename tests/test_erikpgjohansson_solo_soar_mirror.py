@@ -411,8 +411,8 @@ def test_offline_cleanup(tmp_path):
         )
 
         erikpgjohansson.solo.soar.mirror.offline_cleanup(
-            sync_dir, download_dir, DIF, tempRemovalDir=removal_dir,
-            removeRemovalDir=True,
+            sync_dir, download_dir, DIF,
+            tempRemovalDir=removal_dir, removeRemovalDir=True,
         )
 
         assert_FS(

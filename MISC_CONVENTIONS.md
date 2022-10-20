@@ -12,9 +12,13 @@ convention. Always(?) uppercase.
 - Ex: `solo_L2_rpw-lfr-surv-cwf-e_20221006_V01.cdf` is a dataset (file) with
   DATASET_ID = `SOLO_L2_RPW-LFR-SURV-CWF-E`.
 
+DC : Dictionary (Python type).
+
 DOM : Day-Of-Month
 
 DST : Instance of class `erikpgjohansson.solo.soar.dst.DatasetsTable`.
+
+DT = Instance of class `datetime.datetime`.
 
 DTDN : Data Type Directory Name. Standardized (sub)directory name used
 for subset of DATASET_IDs in the "IRFU SolO data directory structure". Ex:
@@ -44,3 +48,5 @@ SOAR : Solar Orbiter ARchive. `https://soar.esac.esa.int/soar/`
 SDT : SOAR Datasets Table. Table over datasets (metadata) at SOAR, either all
 or some subset. Not to be confused with DST, which can be a way of storing e.g.
 an SDT.
+
+TD = Instance of class `datetime.timedelta`.
