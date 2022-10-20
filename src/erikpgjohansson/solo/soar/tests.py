@@ -174,6 +174,7 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
                 item_id = entry_ls[i_item_id]
                 version = int(entry_ls[i_version][1:])
                 if (item_id == data_item_id) and (version > highest_version):
+                    highest_version = version
                     file_name = entry_ls[i_file_name]
                     file_size = entry_ls[i_file_size]
 
