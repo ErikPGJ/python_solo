@@ -39,16 +39,22 @@ Returns
 include: bool
     Whether datasets should be included or not.
 '''
+    # NOTE: const.LS_SOAR_INSTRUMENTS determines which instruments can be
+    # downloaded.
+    # solo_L2_mag-rtn-burst_20220311_V01.cdf
+
     # NOTE: Should be configured to match only ONE dataset (file)
     START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
     STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
 
-    # LS_LEVELS = ['LL02', 'L1']
+    # LS_LEVELS = ['LL02', 'L1', 'L2']
     LS_LEVELS = ['L1']
     if START_TIME <= beginTime < STOP_TIME:
         if (instrument == 'EPD') and (level in LS_LEVELS):
             return True
-        elif datasetId == 'SOLO_LL02_EPD-EPT-ASUN-RATES':
+        # if (instrument == 'MAG') and (level in LS_LEVELS):
+        #     return True
+        if datasetId == 'SOLO_LL02_EPD-EPT-ASUN-RATES':
             return True
 
     return False
@@ -72,13 +78,13 @@ def sync():
     )
 
     erikpgjohansson.solo.soar.mirror.sync(
-        syncDir                    = os.path.join(ROOT_DIR, 'mirror'),
-        tempDownloadDir            = os.path.join(ROOT_DIR, 'download'),
-        datasetsSubsetFunc         = datasets_include_func,
-        deleteOutsideSubset        = True,
-        nMaxNetDatasetsToRemove    = 25,
-        tempRemovalDir             = removal_dir,
-        removeRemovalDir           = False,
+        syncDir                  = os.path.join(ROOT_DIR, 'mirror'),
+        tempDownloadDir          = os.path.join(ROOT_DIR, 'download'),
+        datasetsSubsetFunc       = datasets_include_func,
+        deleteOutsideSubset      = True,
+        nMaxNetDatasetsToRemove  = 25,
+        tempRemovalDir           = removal_dir,
+        removeRemovalDir         = False,
     )
 
 

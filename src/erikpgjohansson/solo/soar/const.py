@@ -58,4 +58,8 @@ handle is added to SOAR, then that file type must be added to the list.
 USE_PARALLEL_DOWNLOADS = False
 # USE_PARALLEL_DOWNLOADS = True
 '''Whether to use an experimental parallelized version of batch downloads.
-Speeds up downloads.'''
+Should speed up downloads.
+
+2022-10-21: Seems to work very well from testing, except for some mixing of
+log messages from different threads. Not tested "in production" but is ready
+to be.'''

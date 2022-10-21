@@ -136,16 +136,18 @@ class SoarDownloader(Downloader):
 
         s = HttpResponse.read().decode()
         L.info(
-            f'JSON SDT (SOAR Datasets Table) downloaded from SOAR:'
+            f'JSON SDT (SOAR Datasets Table)'
+            f' downloaded from SOAR for {instrument} :'
             f' Size: {len(s)} bytes',
         )
 
         JsonDict = json.loads(s)
         if type(JsonDict) != dict:
             msg = (
-                'JSON SDT (SOAR Datasets Table) downloaded from SOAR:'
-                ' Has been successfully interpreted as JSON'
-                ' but is not a dictionary as expected.'
+                f'JSON SDT (SOAR Datasets Table)'
+                f' downloaded from SOAR for {instrument} :'
+                f' Has been successfully interpreted as JSON'
+                f' but is not a dictionary at the root level as expected.'
             )
             L.error(msg)
             raise Exception(msg)
@@ -200,6 +202,16 @@ class SoarDownloader(Downloader):
             PRO: More reliable for calling code if SOAR updates version
                  between decision to download specific version, and actual
                  download.
+        PROPOSAL: Use compress=true to download *.gz files instead.
+            https://www.cosmos.esa.int/web/soar/data-requests
+            PRO: Could make the downloads faster.
+            CON: Has to decompress locally.
+                PRO: More complex code.
+                NOTE: Can be done in separate process.
+            NOTE: Quick experiment shows little compression ==>
+                  little potential improvement.
+                525K solo_L1_epd-epthet2-nom-close_20200819_V01.cdf
+                464K solo_L1_epd-epthet2-nom-close_20200819_V01.cdf.gz
         '''
 
         L = logging.getLogger(__name__)

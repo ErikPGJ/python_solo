@@ -203,9 +203,6 @@ def sync(
     '/data/solo/soar/swa/L2/swa-eas1-nm3d-psd/2020/10/
     solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
     """""""
-    PROPOSAL: Inspect local datasets before download SOAR datasets list.
-        PRO: Faster to fail when fails due to not being able to access files
-             (see bug).
     PROPOSAL: Try to trigger automount.
         NOTE: create_pull_push_sync_cmd: ls "$local_path" >> /dev/null
         PROPOSAL: Change current directory.
@@ -224,10 +221,28 @@ def sync(
                               with just downloaded dataset.
             CON-PROBLEM: When should one remove datasets? Before? After? During
                          somehow?
+
+    PROPOSAL: Use offline_cleanup()
+        NOTE: Would need to convert _execute_sync_dir_SOAR_update() into
+              only downloading datasets.
+        PRO: Less overlaping code.
+        PRO: Safer.
+            PRO: Can (more explicitly) handle that the downloaded
+                 dataset version is later than the dataset version in the SDT
+                  (if SOAR updated datasets while syncing).
+            PRO: Can (more explicitly) handle that some downloads may have
+                 failed.
+        PRO: Can potentially loop over (1) downloading a subset of
+             datasets, and (2) offline_cleanup().
+             PRO: Will only remove replaced datasets when replacement has
+                  already been downloaded.
+        CON: Slower since has to scan local files twice.
     '''
     L = logging.getLogger(__name__)
 
+    # ==========
     # ASSERTIONS
+    # ==========
     assert isinstance(downloader, dwld.Downloader)
     erikpgjohansson.solo.asserts.is_dir(syncDir)
     erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
@@ -264,13 +279,14 @@ def sync(
         ' not necessarily all types of datasets.',
     )
 
-    # ASSERTION: SOAR DST is not empty
-    # --------------------------------
+    # ASSERTION: SDT is not empty
+    # ---------------------------
     # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero datasets
     # by mistake or due to bug. This could in turn lead to deleting all local
     # datasets.
     assert sdtDst.n() > 0, (
-        'SOAR returned an empty SDT (SOAR Datasets Table).'
+        'SOAR returned an empty SDT (SOAR Datasets Table),'
+        ' making it seem as if SOAR has no datasets.'
         ' This should imply that there is something wrong with either'
         ' (1) SOAR, or (2) this software.'
     )

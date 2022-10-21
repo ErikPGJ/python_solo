@@ -16,6 +16,13 @@ import sys
 import tempfile
 
 
+'''
+PROPOSAL: Include optional (manually triggered) test which actually mirrors
+          and downloads data from SOAR.
+    CON: Can not assume exactly which datasets are available at SOAR.
+'''
+
+
 def test_sync(tmp_path):
     dp = tests.DirProducer(tmp_path)
 

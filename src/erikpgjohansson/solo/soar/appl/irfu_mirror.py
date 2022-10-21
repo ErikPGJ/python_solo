@@ -59,6 +59,8 @@ def sync():
         ' configured for it.'
     )
 
+    # NOTE: const.LS_SOAR_INSTRUMENTS determines which instruments can at
+    # all be downloaded.
     MIRROR_ADMIN = '/data/solo/soar_mirror_admin/'
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
@@ -76,14 +78,11 @@ def sync():
         syncDir                   = '/data/solo/soar',
         tempDownloadDir           = os.path.join(MIRROR_ADMIN, 'download'),
         tempRemovalDir            = removal_dir,
-        removeRemovalDir          = False,
+        removeRemovalDir          = False,   # TEMP?
         datasetsSubsetFunc        = datasets_include_func,
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,
     )
-
-    # 2021-12-17: "AssertionError: Net number of datasets to remove (25) is
-    #              larger than permitted (20). "
 
 
 # IMPLEMENTATION NOTE: This code makes it possible to execute the sync from

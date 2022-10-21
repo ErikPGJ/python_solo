@@ -148,8 +148,8 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    # t = tempfile.TemporaryDirectory()
-    # test_download_latest_dataset(t.name)
+    t = tempfile.TemporaryDirectory()
+    test_download_latest_dataset(t.name)
 
     t = tempfile.TemporaryDirectory()
     test_convert_JSON_SDT_to_DST(t.name)

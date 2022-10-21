@@ -1,4 +1,7 @@
-# Shorternings
+# Shortenings
+
+Miscellaneous abbreviations, shortenings used for documentation and
+variable naming conventions.
 
 data_item_id : SOAR uses this term in SOAR's datasets tables. Appears to be
 same as "item_id".

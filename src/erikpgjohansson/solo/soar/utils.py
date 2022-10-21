@@ -199,15 +199,13 @@ def download_latest_datasets_batch2(
     Experimental parallized version of download_latest_datasets_batch().
     '''
     '''
-    PROPOSAL: Use threading.Lock.
-        Callback
-        Printing to log?
-    PROPOSAL: Somehow return results (exceptions).
+    PROPOSAL: Somehow return results (nbr of exceptions).
     PROPOSAL: Raise exception if any task raised exception, but after all
               tasks have completed.
     PROPOSAL: Raise exception immediately if any task raises exception.
+    PROPOSAL: Move code from callback to end of task.
+        NOTE: Does not seem to need callbacks unless tasks are inhomogeneous.
     '''
-    # "compl" = Completed so far
     class CollectiveTaskState:
 
         LOCK = threading.Lock()
@@ -352,6 +350,15 @@ def _download_latest_datasets_batch_log_progress(
     dt_begin
         When downloads began.
     '''
+    '''
+    PROPOSAL: Return string instead of logging
+    PROPOSAL: Call logger once with a multi-row string.
+        PRO: Can probably prevent printing log from being interrupted by
+             logging from other threads.
+            NOTE: (Almost) all calls to this function are made with the same
+                  mutex lock: CollectiveTaskState.LOCK
+        CON: Logger prefix not designed for this by default.
+    '''
     # Variable naming conventions
     # ===========================
     # remain = remaining
@@ -374,6 +381,9 @@ def _download_latest_datasets_batch_log_progress(
 
     assert n_datasets_total >= n_datasets_compl
     assert bytes_tot >= bytes_compl
+    # NOTE: Can not assert that sec_compl == 0, since it should not have.
+    assert (bytes_compl == 0) == (n_datasets_compl == 0)
+    assert isinstance(dt_begin, datetime.datetime)
 
     L = logging.getLogger(__name__)
 
@@ -433,12 +443,12 @@ def _download_latest_datasets_batch_log_progress(
         f'{n_datasets_compl:16} {n_datasets_remain:16} {n_datasets_total:16}'
         f' [datasets]',
         f'{mb_compl:16.2f} {mb_remain:16.2f} {mb_tot:16.2f} [MiB]',
-        f'{sec_compl:16.1f} {sec_remain:16.1f} {sec_tot:16.0f} [s]',
+        f'{sec_compl:16.1f} {sec_remain:16.1f} {sec_tot:16.1f} [s]',
         f'{s_td_compl:>16} {s_td_remain:>16} {s_td_tot:>16}'
         f' [(days,) hour:min:sec]',
         STR_DIVIDER,
         f'Effective average download speed so far: {speed_mbps:.2f} [MiB/s]',
-        f'Estimated (predicted) completion time:   {s_dt_end}',
+        f'Estimated time of completion:            {s_dt_end}',
         STR_DIVIDER,
     )
     for s in ls_s:

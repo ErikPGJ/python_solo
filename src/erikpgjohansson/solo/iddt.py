@@ -333,9 +333,8 @@ def copy_move_datasets_to_IRFU_dir_tree(
     PROPOSAL: Sort the copying order. Can be random (at least for real cases).
 
     BUG: 2020-11-06: Has failed twice when trying to copy and overwrite (not
-                     move and overwrite
-    many datasets BIAS L2 & L3 (entire mission) on brain:nas24. Used
-    shutil.copy().
+                     move and overwrite many datasets BIAS L2 & L3 (entire
+                     mission) on brain:nas24. Used shutil.copy().
         PROPOSAL: Detect failure.
             PROPOSAL: Wait and try again.
             PROPOSAL: Try copying that file later. Continue copying other
@@ -448,9 +447,9 @@ def copy_move_datasets_to_IRFU_dir_tree(
                     f' not copy/move it: {oldPath}',
                 )
 
-    '''==============================
-    Create directories and move files
-    =============================='''
+    # =================================
+    # Create directories and move files
+    # =================================
     for (newDirPath, oldPath, newPath) in pathTable:
         # NOTE: Can handle pre-existing destination directory.
         os.makedirs(newDirPath, mode=dirCreationPermissions, exist_ok=True)
