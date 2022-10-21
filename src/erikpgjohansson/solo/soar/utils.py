@@ -7,6 +7,7 @@ Initially created 2020-12-17 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 import codetiming
+import collections
 import concurrent.futures
 import datetime
 import erikpgjohansson.solo.asserts
@@ -629,6 +630,15 @@ def derive_DST_from_dir(rootDir):
 
 
 def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):
+    '''
+    Log the content of a table of datasets. Assumes that it contains certain
+    fields.
+    '''
+    '''
+    PROPOSAL: Log amount of data per combination of level and instrument.
+    PROPOSAL: Log amount of data per dataset ID.
+    PROPOSAL: Log number of datasets per dataset ID.
+    '''
     assert type(dst) == erikpgjohansson.solo.soar.dst.DatasetsTable
 
     SEPARATOR_LENGTH = 80
@@ -636,35 +646,50 @@ def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):
     def sep():
         L.info('=' * SEPARATOR_LENGTH)
 
+    def ssl(set_ls):
+        '''Convert set or list/tuple to string for logging.'''
+        # IMPLEMENTATION NOTE: Should not sort since that might not always
+        # be desirable (e.g. logging combinations of level and instrument).
+        # Caller should sort the argument first if needed.
+        return ', '.join(set_ls)
+
     L = logging.getLogger(__name__)
 
-    totalBytes = dst['file_size'].sum()
-    bta        = dst['begin_time_FN']
-    assert bta.dtype == np.dtype('datetime64[ms]')
-    nonNullBta = bta[~np.isnat(bta)]
+    bytes_tot = dst['file_size'].sum()
+    n_datasets = dst['file_size'].size
+    gb_tot = bytes_tot / 2**30
+
+    set_instr = set(dst['instrument'])
+    set_level = set(dst['processing_level'])
+    cnt_level_instr = collections.Counter(
+        zip(dst['processing_level'], dst['instrument']),
+    )
+
+    # BTF = begin_time_FN
+    na_btf = dst['begin_time_FN']
+    assert na_btf.dtype == np.dtype('datetime64[ms]')
+    na_btf_nonnull = na_btf[~np.isnat(na_btf)]
+    n_btf_null = na_btf[np.isnat(na_btf)].size
 
     sep()
     L.info(title)
     L.info('-'*len(title))
-    L.info('Totals: Unique instruments:       ' + str(set(dst['instrument'])))
-    L.info(
-        '        Unique processing levels: ' + str(
-            set(dst['processing_level']),
-        ),
-    )
-    L.info(
-        '                                  {:d} datasets'.format(
-            dst['file_size'].size,
-        ),
-    )
-    L.info(
-        '                                  {:.2f} [GiB]'.format(
-            totalBytes / 2**30,
-        ),
-    )
-    if nonNullBta.size > 0:
-        L.info('   begin_time_FN (non-null): Min: ' + str(nonNullBta.min()))
-        L.info('                             Max: ' + str(nonNullBta.max()))
+    L.info(f'Number of datasets:       {n_datasets:d} datasets')
+    L.info(f'Total amount of data:     {gb_tot:.2f} [GiB]')
+    L.info(f'Unique instruments:       {ssl(sorted(set_instr))}')
+    L.info(f'Unique processing levels: {ssl(sorted(set_level))}')
+    L.info('begin_time_FN:')
+    L.info(f'    #NaT: {n_btf_null} datasets')
+    if na_btf_nonnull.size > 0:
+        # NOTE: na_btf_nonnull.min() crashes if empty array.
+        L.info(f'    Min: {na_btf_nonnull.min()}')
+        L.info(f'    Max: {na_btf_nonnull.max()}')
+    else:
+        L.info('    (No datasets without NaT)')
+    L.info('Unique combinations of instrument and processing level:')
+    for (level, instr) in sorted(cnt_level_instr):
+        n = cnt_level_instr[(level, instr)]
+        L.info(f'    {level:4} {instr:3}: {n:5} datasets')
     sep()
 
 
