@@ -295,6 +295,11 @@ def download_latest_datasets_batch2(
         total_bytes = fileSizeArray.sum()
         start_dt = datetime.datetime.now()
         n_datasets = itemIdArray.size
+
+        _download_latest_datasets_batch_log_progress(
+            n_datasets, 0, total_bytes, 0, start_dt,
+        )
+
         for i_task in range(n_datasets):
             item_id = itemIdArray[i_task]
             file_size = fileSizeArray[i_task]
@@ -355,6 +360,17 @@ def _download_latest_datasets_batch_log_progress(
     # mb     = MiB
     # mbps   = MiB/s
 
+    def TD_to_str(td):
+        '''Hack to make timedelta better for printing.'''
+        '''Ex: "3 days, 17:53:42.966222" --> "3 days, 17:53:42"
+        '''
+        if isinstance(td, datetime.timedelta):
+            return str(datetime.timedelta(seconds=round(td.total_seconds())))
+        elif td is None:
+            return 'n/a'
+        else:
+            raise AssertionError()
+
     assert n_datasets_total >= n_datasets_compl
     assert bytes_tot >= bytes_compl
 
@@ -369,14 +385,29 @@ def _download_latest_datasets_batch_log_progress(
     # (Use linear extrapolation for estimating time.)
     n_datasets_remain = n_datasets_total - n_datasets_compl
     bytes_remain = bytes_tot - bytes_compl
-    # Download speed: bytes_remain / sec_remain == bytes_compl / sec_compl <==>
-    sec_remain = bytes_remain / (bytes_compl / sec_compl)    # Estimate
-    td_remain = datetime.timedelta(seconds=sec_remain)
-
-    # n_datasets_total
-    # bytes_tot
-    sec_tot = sec_compl + sec_remain
-    td_tot = datetime.timedelta(seconds=sec_tot)
+    if bytes_compl == 0:
+        # CASE: Beginning of downloads
+        # sec_remain = None
+        sec_remain = float('NaN')
+        td_remain = None
+        # n_datasets_total
+        # bytes_tot
+        sec_tot = float('NaN')
+        td_tot = None
+        # Timestamp of completion (end of downloads)
+        dt_end = None   # datetime=dt (not td=deltatime)
+    else:
+        # CASE: Nominal case
+        # Download speed: bytes_remain / sec_remain == bytes_compl / sec_compl
+        # <==>
+        sec_remain = bytes_remain / (bytes_compl / sec_compl)  # Estimate
+        td_remain = datetime.timedelta(seconds=sec_remain)
+        # n_datasets_total
+        # bytes_tot
+        sec_tot = sec_compl + sec_remain
+        td_tot = datetime.timedelta(seconds=sec_tot)
+        # Timestamp of completion (end of downloads)
+        dt_end = dt_begin + td_tot   # dt=datetime (not td=deltatime)
 
     mb_compl = bytes_compl / 2 ** 20
     mb_remain = bytes_remain / 2 ** 20
@@ -384,32 +415,14 @@ def _download_latest_datasets_batch_log_progress(
 
     speed_mbps = (bytes_compl / sec_compl) / 2 ** 20
 
-    # Timestamp of completion (end of downloads)
-    dt_end = dt_begin + td_tot   # datetime=dt (not td=deltatime)
-
-    def TD_to_str(td):
-        '''Hack to make timedelta better for printing.'''
-        '''Ex: "3 days, 17:53:42.966222" --> "3 days, 17:53:42"
-        '''
-        assert type(td) == datetime.timedelta
-        return str(datetime.timedelta(seconds=round(td.total_seconds())))
-
     s_td_compl = TD_to_str(td_compl)
     s_td_remain = TD_to_str(td_remain)
     s_td_tot = TD_to_str(td_tot)
-    s_dt_end = dt_end.strftime("%Y-%m-%dT%H.%M.%S")
+    if dt_end is None:
+        s_dt_end = 'n/a'
+    else:
+        s_dt_end = dt_end.strftime("%Y-%m-%dT%H.%M.%S")
 
-    # ls_s = (
-    #     f'Completed: {n_datasets_compl} of {n_datasets_total} datasets'
-    #     f'           {mb_compl:.2f} [MiB] of {mb_tot:.2f} [MiB]',
-    #     f'           {sec_compl:.2f} [s] = {td_compl}',
-    #     f'           {speed_mbps:.2f} [MiB/s] (average)',
-    #     f'Remainder: {mb_remain:.2f} [MiB] of {mb_tot:.2f} [MiB]',
-    #     f'           {sec_remain:.0f} [s] = {td_remain} (prediction)',
-    #     f'Expected completion at: {s_dt_end} (prediction)',
-    # )
-    # for s in ls_s:
-    #     L.info(s)
     # Ex: "3 days, 17:53:42" ==> 16 characters
     STR_DIVIDER = '-' * 73
     ls_s = (

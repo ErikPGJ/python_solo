@@ -1,5 +1,6 @@
+import datetime
 import erikpgjohansson.solo.soar.tests as tests
-import erikpgjohansson.solo.soar.utils
+import erikpgjohansson.solo.soar.utils as utils
 import logging
 import numpy as np
 import sys
@@ -13,13 +14,9 @@ def test_download_latest_datasets_batch(tmp_path):
         use_parallel_version, *args, **kwargs,
     ):
         if use_parallel_version:
-            erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
-                *args, **kwargs,
-            )
+            utils.download_latest_datasets_batch(*args, **kwargs)
         else:
-            erikpgjohansson.solo.soar.utils.download_latest_datasets_batch2(
-                *args, **kwargs,
-            )
+            utils.download_latest_datasets_batch2(*args, **kwargs)
 
     def test0(use_parallel_version):
         test_dir = dp.get_new_dir()
@@ -96,7 +93,26 @@ def test_download_latest_datasets_batch(tmp_path):
         test0(use_parallel_version)
         test1(use_parallel_version)
 
-    # test1(True)
+
+def test_download_latest_datasets_batch_log_progress():
+    '''Only checking if crashing. Also for manual inspection of log
+    messages.
+    '''
+    # IMPLEMENTATION NOTE: Want to use the current time (minus some), since
+    # _download_latest_datasets_batch_log_progress() uses the current time
+    # to estimate remaining time.
+    dt_begin = datetime.datetime.now() - datetime.timedelta(seconds=10)
+    MB = 2**20
+
+    # Generic call.
+    utils._download_latest_datasets_batch_log_progress(
+        10, 1, MB, 0.1*MB, dt_begin,
+    )
+
+    # Zero progress. Leads to divide-by-zero internally.
+    utils._download_latest_datasets_batch_log_progress(
+        10, 0, MB, 0*MB, dt_begin,
+    )
 
 
 def test_find_latest_versions():
@@ -104,7 +120,7 @@ def test_find_latest_versions():
     def test(itemIdArray, itemVerNbrArray, exp_bLvArray):
         expResult = np.array(exp_bLvArray, dtype=bool)
 
-        actResult = erikpgjohansson.solo.soar.utils.find_latest_versions(
+        actResult = utils.find_latest_versions(
             np.array(itemIdArray,     dtype=object),
             np.array(itemVerNbrArray, dtype=int),
         )
@@ -136,4 +152,5 @@ if __name__ == '__main__':
     t = tempfile.TemporaryDirectory()
     test_download_latest_datasets_batch(t.name)
 
+    test_download_latest_datasets_batch_log_progress()
     test_find_latest_versions()
