@@ -16,6 +16,7 @@ import erikpgjohansson.solo.soar.utils as utils
 import logging
 import numpy as np
 import os
+import threading
 
 
 '''
@@ -207,24 +208,34 @@ def download_latest_datasets_batch2(
     '''
     # "compl" = Completed so far
     class CollectiveTaskState:
+
+        LOCK = threading.Lock()
+
         def __init__(self):
-            self._compl_bytes = 0
             self._compl_download_attempts = 0
+            self._compl_bytes = 0
 
         def task_callback(self, file_size):
-            try:
-                self._compl_bytes += file_size
-                self._compl_download_attempts += 1
-                _download_latest_datasets_batch_log_progress(
-                    n_datasets, self._compl_download_attempts,
-                    total_bytes, self._compl_bytes,
-                    start_dt,
-                )
-            except Exception as e:
-                L.error(e)
-                # Exception caught by concurrent library code. Can be detected
-                # by future (not implemented).
-                raise e
+            with CollectiveTaskState.LOCK:
+                try:
+                    self._compl_download_attempts += 1
+                    self._compl_bytes += file_size
+                    # L.info(
+                    #     'task_callback(): '
+                    #     f'file_size={file_size}, '
+                    #     f'total_bytes={total_bytes}, '
+                    #     f'self._compl_bytes={self._compl_bytes}'
+                    # )   # DEBUG
+                    _download_latest_datasets_batch_log_progress(
+                        n_datasets, self._compl_download_attempts,
+                        total_bytes, self._compl_bytes,
+                        start_dt,
+                    )
+                except Exception as e:
+                    L.error(e)
+                    # NOTE: Exception will be caught by the "concurrent"
+                    # library code. Can be detected by the future.
+                    raise e
 
     class Task:
         def __init__(self, item_id, file_size):
