@@ -244,19 +244,20 @@ def download_latest_datasets_batch2(
 
         def run(self):
             try:
+                def timestamp():
+                    return datetime.datetime.now().strftime(
+                        '%Y-%m-%d %H:%M:%S',
+                    )
                 file_size_mb = self._file_size / 2**20
-                timestamp = datetime.datetime.now().strftime(
-                    '%Y-%m-%d %H:%M:%S',
-                )
                 L.info(
-                    f'{timestamp}: Starting download: '
+                    f'{timestamp()}: Download starting: '
                     f' {file_size_mb:.2f} [MiB], {self._item_id}',
                 )
                 downloader.download_latest_dataset(
                     self._item_id, outputDirPath,
                 )
                 L.info(
-                    f'{timestamp}: Download completed:'
+                    f'{timestamp()}: Download completed:'
                     f' {file_size_mb:.2f} [MiB], {self._item_id}',
                 )
             except Exception as e:
