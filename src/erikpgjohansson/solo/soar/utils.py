@@ -288,10 +288,19 @@ def download_latest_datasets_batch2(
             file_size = fileSizeArray[i_task]
 
             task = Task(item_id, file_size)
-            future = executor.submit(lambda t=task: t.run())
+            # =============================================================
+            # IMPLEMENTATION NOTE: Must use lambda function default values
+            # to "bind" the VALUES cts and file_size (not the variables) to
+            # the function call.
+            # =============================================================
+            # Start running task in parallel with other tasks (unless too many)
+            future = executor.submit(lambda task2=task: task2.run())
+            # Set function to be called after task has finished
             future.add_done_callback(
-                lambda future2, cts2=cts: cts2.task_callback(file_size),
+                lambda future2, cts2=cts, file_size2=file_size:
+                cts2.task_callback(file_size2),
             )
+
             ls_future.append(future)
 
     # ====================
