@@ -8,8 +8,8 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 import codetiming
 import erikpgjohansson.solo.iddt
 import erikpgjohansson.solo.soar.const as const
-import erikpgjohansson.solo.soar.dwld
-import erikpgjohansson.solo.soar.utils
+import erikpgjohansson.solo.soar.dwld as dwld
+import erikpgjohansson.solo.soar.utils as utils
 import erikpgjohansson.solo.utils
 import logging
 import numpy as np
@@ -120,8 +120,7 @@ def sync(
     nMaxNetDatasetsToRemove=10,
     tempRemovalDir=None,
     removeRemovalDir=False,
-    downloader: erikpgjohansson.solo.soar.dwld.Downloader
-    = erikpgjohansson.solo.soar.dwld.SoarDownloader(),
+    downloader: dwld.Downloader = dwld.SoarDownloader(),
 ):
     '''
     Sync local directory with subset of online SOAR datasets.
@@ -229,7 +228,7 @@ def sync(
     L = logging.getLogger(__name__)
 
     # ASSERTIONS
-    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
+    assert isinstance(downloader, dwld.Downloader)
     erikpgjohansson.solo.asserts.is_dir(syncDir)
     erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
     assert callable(datasetsSubsetFunc)
@@ -248,8 +247,8 @@ def sync(
     # removed (or kept in the rare but possible case of SOAR
     # down-versioning datasets).
     L.info('Producing table of pre-existing local datasets.')
-    localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
-    erikpgjohansson.solo.soar.utils.log_DST(
+    localDst = utils.derive_DST_from_dir(syncDir)
+    utils.log_DST(
         localDst, 'Pre-existing local datasets that should be synced',
     )
 
@@ -257,8 +256,8 @@ def sync(
     # Download SDT
     # ============
     L.info('Downloading SDT (SOAR Datasets Table).')
-    sdtDst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(downloader)
-    erikpgjohansson.solo.soar.utils.log_DST(
+    sdtDst = dwld.download_SDT_DST(downloader)
+    utils.log_DST(
         sdtDst,
         'SDT (SOAR Datasets Table):'
         ' Synced and non-synced, all dataset versions,'
@@ -277,7 +276,7 @@ def sync(
     )
 
     refDst = _calculate_reference_DST(sdtDst, datasetsSubsetFunc)
-    erikpgjohansson.solo.soar.utils.log_DST(
+    utils.log_DST(
         refDst, 'Reference datasets that should be synced with local datasets',
     )
 
@@ -299,7 +298,7 @@ def sync(
         removeRemovalDir=removeRemovalDir,
     )
 
-    erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
+    utils.log_codetiming()   # DEBUG
 
 
 def offline_cleanup(
@@ -340,7 +339,7 @@ def offline_cleanup(
     )
 
     L.info('Producing table of pre-existing local datasets.')
-    localDst = erikpgjohansson.solo.soar.utils.derive_DST_from_dir(syncDir)
+    localDst = utils.derive_DST_from_dir(syncDir)
 
     refDst = _calculate_reference_DST(localDst, datasetsSubsetFunc)
     refMissingDst, localExcessDst = _calculate_sync_dir_update(
@@ -386,7 +385,7 @@ def _calculate_reference_DST(dst, datasetsSubsetFunc):
     # IMPLEMENTATION NOTE: This can be slow. Therefore doing this first AFTER
     # selecting subset of item IDs. Particularly useful for small test subsets.
     # =========================================================================
-    bLv = erikpgjohansson.solo.soar.utils.find_latest_versions(
+    bLv = utils.find_latest_versions(
         subsetDst['item_id'],
         subsetDst['item_version'],
     )
@@ -446,7 +445,7 @@ def _calculate_sync_dir_update(
         )
 
     # NOTE: localDst has no begin_time. Can therefore not log.
-    erikpgjohansson.solo.soar.utils.log_DST(
+    utils.log_DST(
         localDst,
         'Pre-existent set of local datasets that should be synced/updated',
     )
@@ -462,10 +461,10 @@ def _calculate_sync_dir_update(
     refMissingDst = refDst.index(bSoarMissing)
     localExcessDst = localDst.index(bLocalExcess)
 
-    erikpgjohansson.solo.soar.utils.log_DST(
+    utils.log_DST(
         refMissingDst, 'Online SOAR datasets that need to be downloaded',
     )
-    erikpgjohansson.solo.soar.utils.log_DST(
+    utils.log_DST(
         localExcessDst, 'Local datasets that need to be removed',
     )
 
@@ -497,7 +496,7 @@ def _calculate_sync_dir_update(
 
 
 def _execute_sync_dir_SOAR_update(
-    downloader: erikpgjohansson.solo.soar.dwld.Downloader,
+    downloader: dwld.Downloader,
     soarMissingDst, localExcessDst, syncDir, tempDownloadDir,
     tempRemovalDir, removeRemovalDir,
 ):
@@ -521,7 +520,7 @@ def _execute_sync_dir_SOAR_update(
         update_sync_dir
         execute_sync
     '''
-    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
+    assert isinstance(downloader, dwld.Downloader)
 
     L = logging.getLogger(__name__)
 
@@ -531,11 +530,9 @@ def _execute_sync_dir_SOAR_update(
     n_datasets = soarMissingDst['item_id'].size
     L.info(f'Downloading {n_datasets} datasets')
     if const.USE_PARALLEL_DOWNLOADS:
-        download_latest_datasets_batch = \
-            erikpgjohansson.solo.soar.utils.download_latest_datasets_batch2
+        download_latest_datasets_batch = utils.download_latest_datasets_batch2
     else:
-        download_latest_datasets_batch = \
-            erikpgjohansson.solo.soar.utils.download_latest_datasets_batch
+        download_latest_datasets_batch = utils.download_latest_datasets_batch
 
     download_latest_datasets_batch(
         downloader,
@@ -642,19 +639,11 @@ def _find_DST_difference(
     # ==========
     # ASSERTIONS
     # ==========
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        fileNameArray1, np.dtype('O'),
-    )
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        fileNameArray2, np.dtype('O'),
-    )
+    utils.assert_col_array(fileNameArray1, np.dtype('O'))
+    utils.assert_col_array(fileNameArray2, np.dtype('O'))
 
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        fileSizeArray1, np.dtype('int64'),
-    )
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        fileSizeArray2, np.dtype('int64'),
-    )
+    utils.assert_col_array(fileSizeArray1, np.dtype('int64'))
+    utils.assert_col_array(fileSizeArray2, np.dtype('int64'))
 
     # =========
     # ALGORITHM

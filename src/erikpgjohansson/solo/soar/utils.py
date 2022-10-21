@@ -11,7 +11,8 @@ import concurrent.futures
 import datetime
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.soar.dst
-import erikpgjohansson.solo.soar.dwld
+import erikpgjohansson.solo.soar.dwld as dwld
+import erikpgjohansson.solo.soar.utils as utils
 import logging
 import numpy as np
 import os
@@ -96,7 +97,7 @@ def assert_col_array(v, dtype=None):
 
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
-    downloader: erikpgjohansson.solo.soar.dwld.Downloader,
+    downloader: dwld.Downloader,
     itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
@@ -135,15 +136,11 @@ def download_latest_datasets_batch(
     '''
 
     # ASSERTIONS
-    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        itemIdArray, np.dtype('O'),
-    )
+    assert isinstance(downloader, dwld.Downloader)
+    utils.assert_col_array(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        fileSizeArray, np.dtype('int64'),
-    )
+    utils.assert_col_array(fileSizeArray, np.dtype('int64'))
     assert itemIdArray.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
@@ -192,7 +189,7 @@ def download_latest_datasets_batch(
 
 @codetiming.Timer('download_latest_datasets_batch2', logger=None)
 def download_latest_datasets_batch2(
-    downloader: erikpgjohansson.solo.soar.dwld.Downloader,
+    downloader: dwld.Downloader,
     itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
@@ -260,15 +257,11 @@ def download_latest_datasets_batch2(
     # ==========
     # ASSERTIONS
     # ==========
-    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        itemIdArray, np.dtype('O'),
-    )
+    assert isinstance(downloader, dwld.Downloader)
+    utils.assert_col_array(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        fileSizeArray, np.dtype('int64'),
-    )
+    utils.assert_col_array(fileSizeArray, np.dtype('int64'))
     assert itemIdArray.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
@@ -449,12 +442,8 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
     # import pdb; pdb.set_trace()
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        itemIdArray,     np.dtype('O'),
-    )
-    erikpgjohansson.solo.soar.utils.assert_col_array(
-        itemVerNbrArray, np.dtype('int64'),
-    )
+    utils.assert_col_array(itemIdArray,     np.dtype('O'))
+    utils.assert_col_array(itemVerNbrArray, np.dtype('int64'))
     assert itemIdArray.shape == itemVerNbrArray.shape
 
     # NOTE: itemIdArray[iUniques] == uniqItemIdArray
