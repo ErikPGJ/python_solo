@@ -17,13 +17,13 @@ import tempfile
 
 
 def test_sync(tmp_path):
-    tdp = tests.DirProducer(tmp_path)
+    dp = tests.DirProducer(tmp_path)
 
     def DIF_everything(instrument, level, beginTime, datasetId):
         return True
 
     def test0():
-        root_dir = tdp.get_new_dir()
+        root_dir = dp.get_new_dir()
         sync_dir = os.path.join(root_dir, 'mirror')
         download_dir = os.path.join(root_dir, 'download')
 
@@ -108,7 +108,7 @@ def test_sync(tmp_path):
             "solo_L3_rpw-bia-efield-10-seconds_20200621", "V02", "L3",
         ]
 
-        root_dir = tdp.get_new_dir()
+        root_dir = dp.get_new_dir()
         sync_dir = os.path.join(root_dir, 'mirror')
         download_dir = os.path.join(root_dir, 'download')
         tests.setup_FS(
@@ -214,7 +214,7 @@ def test_sync(tmp_path):
 
 
 def test_offline_cleanup(tmp_path):
-    tdp = tests.DirProducer(tmp_path)
+    dp = tests.DirProducer(tmp_path)
     # TODO: Check misplaced files.
 
     def DIF(instrument, level, beginTime, datasetId):
@@ -222,7 +222,7 @@ def test_offline_cleanup(tmp_path):
 
     def test0():
 
-        root_dir = tdp.get_new_dir()
+        root_dir = dp.get_new_dir()
         sync_dir = os.path.join(root_dir, 'mirror')
         download_dir = os.path.join(root_dir, 'download')
         removal_dir = os.path.join(root_dir, 'removal')
@@ -318,7 +318,7 @@ def test_offline_cleanup(tmp_path):
         )
 
     def test1():
-        root_dir = tdp.get_new_dir()
+        root_dir = dp.get_new_dir()
         sync_dir = os.path.join(root_dir, 'mirror')
         download_dir = os.path.join(root_dir, 'download')
         removal_dir = os.path.join(root_dir, 'removal')

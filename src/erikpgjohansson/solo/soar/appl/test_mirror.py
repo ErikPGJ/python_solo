@@ -67,7 +67,7 @@ def sync():
     # stream = sys.stdout : Log to stdout (instead of stderr).
     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.basicConfig(
-        filename=os.path.join(ROOT_DIR, f'sync.{timestamp}.log'),
+        filename=os.path.join(ROOT_DIR, f'test_mirror_sync.{timestamp}.log'),
         level=logging.INFO,
     )
 

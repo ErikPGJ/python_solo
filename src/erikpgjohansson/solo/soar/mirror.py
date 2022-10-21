@@ -261,7 +261,7 @@ def sync(
     erikpgjohansson.solo.soar.utils.log_DST(
         sdtDst,
         'SDT (SOAR Datasets Table):'
-        ' SOAR Datasets: synced and non-synced, all dataset versions,'
+        ' Synced and non-synced, all dataset versions,'
         ' not necessarily all types of datasets.',
     )
 
@@ -368,6 +368,7 @@ def offline_cleanup(
     L.info(stdoutStr)
 
 
+@codetiming.Timer('_calculate_reference_DST', logger=None)
 def _calculate_reference_DST(dst, datasetsSubsetFunc):
     ''''''
     '''
@@ -417,7 +418,7 @@ def _calculate_sync_dir_update(
     '''
     L = logging.getLogger(__name__)
 
-    L.info('Identifying missing datasets and datasets to remove.')
+    L.info('Identifying (1) missing datasets, and (2) datasets to remove.')
 
     # ASSERT: The list of reference datasets is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
@@ -633,10 +634,14 @@ def _find_DST_difference(
     '''
     '''
     PROPOSAL: Move to utils.
-    PROPOSAL: Use filenames, not itemId+version.
-    PROPOSAL: Include file sizes.
     PROPOSAL: Use DSTs.
+        CON: Bad for testing.
+            PRO: Supplies too much information.
+        CON: Must rely on standard DST field names (keys).
     '''
+    # ==========
+    # ASSERTIONS
+    # ==========
     erikpgjohansson.solo.soar.utils.assert_col_array(
         fileNameArray1, np.dtype('O'),
     )
@@ -651,6 +656,9 @@ def _find_DST_difference(
         fileSizeArray2, np.dtype('int64'),
     )
 
+    # =========
+    # ALGORITHM
+    # =========
     # NOTE: It is suspect that there is not some way of doing this using numpy
     # functionality I have not yet managed to find it.
     # FNS = File Name & Size

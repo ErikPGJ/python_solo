@@ -139,9 +139,12 @@ def download_latest_datasets_batch(
     erikpgjohansson.solo.soar.utils.assert_col_array(
         itemIdArray, np.dtype('O'),
     )
+    assert np.unique(itemIdArray).size == itemIdArray.size, \
+        'itemIdArray contains duplicates.'
     erikpgjohansson.solo.soar.utils.assert_col_array(
         fileSizeArray, np.dtype('int64'),
     )
+    assert itemIdArray.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
     L = logging.getLogger(__name__)
@@ -220,11 +223,6 @@ def download_latest_datasets_batch2(
                     total_bytes, self._compl_bytes,
                     start_dt,
                 )
-                # L.info(
-                #     f'Completed download attempts:'
-                #     f' {self._compl_download_attempts} [datasets],'
-                #     f' {self._compl_bytes} [bytes]'
-                # )
             except Exception as e:
                 L.error(e)
                 # Exception caught by concurrent library code. Can be detected

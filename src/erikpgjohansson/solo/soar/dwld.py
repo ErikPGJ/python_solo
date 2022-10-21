@@ -128,20 +128,23 @@ class SoarDownloader(Downloader):
         url = (
             f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
             '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files+WHERE+'
-            'instrument=\'{instrument}\''
+            f'instrument=\'{instrument}\''
         ).replace('\'', '%27')
 
         L.info(f'Calling URL: {url}')
         HttpResponse = urllib.request.urlopen(url)
 
         s = HttpResponse.read().decode()
-        L.info(f'List of datasets downloaded from SOAR: Size: {len(s)} bytes')
+        L.info(
+            f'JSON SDT (SOAR Datasets Table) downloaded from SOAR:'
+            f' Size: {len(s)} bytes',
+        )
 
         JsonDict = json.loads(s)
         if type(JsonDict) != dict:
             msg = (
-                'List of datasets downloaded from SOAR:'
-                ' Has been successfully interpreted as JSON,'
+                'JSON SDT (SOAR Datasets Table) downloaded from SOAR:'
+                ' Has been successfully interpreted as JSON'
                 ' but is not a dictionary as expected.'
             )
             L.error(msg)
@@ -384,7 +387,7 @@ def _convert_JSON_SDT_to_DST(JsonDict):
 
     L = logging.getLogger(__name__)
     # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
-    L.info('Converting raw list of SOAR datasets to DST.')
+    L.info('Converting downloaded JSON SDT (SOAR Datasets Table) to DST.')
 
     metadataList = JsonDict['metadata']
     dataTuples   = JsonDict['data']

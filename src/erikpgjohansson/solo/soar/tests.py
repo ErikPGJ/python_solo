@@ -106,6 +106,8 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
         '''
         '''
         TODO-DEC: Too complicated for test code?
+        PROPOSAL: Replace dc_item_id_delay with something that makes delay
+                  proportional to file size.
         '''
         if dc_item_id_delay is None:
             dc_item_id_delay = {}
@@ -160,6 +162,9 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
             assert type(json_dc) == dict
             for entry_ls in json_dc['data']:
                 assert type(entry_ls) == list, 'Entry is not a list.'
+                # For compatibility with SOAR_JSON_METADATA_LS.
+                # NOTE: If not using SOAR_JSON_METADATA_LS and simultaneously
+                # using other number of columns, then this must be change.
                 assert len(entry_ls) == 9
 
         self._dc_json_dc = dc_json_dc
@@ -184,7 +189,6 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
 
         # Iterate over instruments
         for instr_json_dc in self._dc_json_dc.values():
-            # Iterate over entries (datasets).
 
             md = instr_json_dc['metadata']
             i_item_id = _get_SOAR_JSON_metadata_ls_index(md, 'item_id')
@@ -192,6 +196,7 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
             i_file_name = _get_SOAR_JSON_metadata_ls_index(md, 'file_name')
             i_file_size = _get_SOAR_JSON_metadata_ls_index(md, 'file_size')
 
+            # Iterate over entries (datasets).
             for entry_ls in instr_json_dc['data']:
                 item_id = entry_ls[i_item_id]
                 version = int(entry_ls[i_version][1:])
@@ -277,6 +282,8 @@ class DirProducer:
 
 def create_file(path, size):
     '''Create file of given size with nonsense content.'''
+    '''
+    TODO-DEC: Should or should not overwrite pre-existing file?'''
     assert not os.path.lexists(path)
     with open(path, 'wb') as f:
         f.write(b'0' * size)
