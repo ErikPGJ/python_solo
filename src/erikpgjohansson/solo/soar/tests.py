@@ -8,6 +8,7 @@ import erikpgjohansson.solo.soar.dwld
 import erikpgjohansson.solo.soar.const as const
 import os
 import pathlib
+import time
 import urllib
 import zipfile
 
@@ -80,7 +81,9 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
     datasets.
     '''
 
-    def __init__(self, dc_json_dc=None, dc_json_data_ls=None):
+    def __init__(
+        self, dc_json_dc=None, dc_json_data_ls=None, dc_item_id_delay=None,
+    ):
         '''
         Set data to be used as mock SOAR data.
 
@@ -96,10 +99,26 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
             Representation of SOAR dataset metadata.
             Note: One can use entries from an actual JSON SDT to build a
             hardcoded argument when calling the constructor before tests.
+        dc_item_id_delay
+            Dictionary of item IDs and corresponding simulated delays when
+            virtually downloading the datasets. Does not have to cover all
+            item IDs. If an item ID is not specified, then no delay is imposed.
         '''
         '''
         TODO-DEC: Too complicated for test code?
         '''
+        if dc_item_id_delay is None:
+            dc_item_id_delay = {}
+
+        # ASSERTION: dc_item_id_delay format
+        assert type(dc_item_id_delay) == dict
+        assert all(type(key) == str for key in dc_item_id_delay.keys())
+        assert all(
+            type(value) in (int, float) for value in dc_item_id_delay.values()
+        )
+
+        self._dc_item_id_delay = dc_item_id_delay
+
         use_json = dc_json_dc is not None
         use_json_data = dc_json_data_ls is not None
 
@@ -152,6 +171,9 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
         self, data_item_id, dir_path,
         expectedFileName=None, expectedFileSize=None,
     ):
+        if data_item_id in self._dc_item_id_delay:
+            time.sleep(self._dc_item_id_delay[data_item_id])
+
         file_name, file_size = self._get_LV_file_name_size(data_item_id)
         file_path = os.path.join(dir_path, file_name)
         create_file(file_path, file_size)

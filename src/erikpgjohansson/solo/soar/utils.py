@@ -7,6 +7,7 @@ Initially created 2020-12-17 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 import codetiming
+import concurrent.futures
 import datetime
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.soar.dst
@@ -153,13 +154,14 @@ def download_latest_datasets_batch(
         itemIdArray   = itemIdArray[iSort]
         fileSizeArray = fileSizeArray[iSort]
 
-    soFarBytes = 0
+    complBytes = 0
     totalBytes = fileSizeArray.sum()
     startDt    = datetime.datetime.now()
+    n_datasets = itemIdArray.size
 
-    for i in range(itemIdArray.size):
-        itemId   = itemIdArray[i]
-        fileSize = fileSizeArray[i]
+    for i_dataset in range(n_datasets):
+        itemId   = itemIdArray[i_dataset]
+        fileSize = fileSizeArray[i_dataset]
 
         nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fileSizeMb = fileSize / 2**20
@@ -168,10 +170,12 @@ def download_latest_datasets_batch(
         # Download dataset
         # ================
         L.info(
-            f'{nowStr}: Starting download:'
-            f' {fileSizeMb:.2f} [MiB], {itemId}',
+            f'{nowStr}: Download starting:  {fileSizeMb:.2f} [MiB], {itemId}',
         )
         downloader.download_latest_dataset(itemId, outputDirPath)
+        L.info(
+            f'{nowStr}: Download completed: {fileSizeMb:.2f} [MiB], {itemId}',
+        )
 
         # ===
         # Log
@@ -179,43 +183,225 @@ def download_latest_datasets_batch(
         # NOTE: Doing statistics AFTER downloading file. Could also be done
         # BEFORE downloading. Note that this uses another timestamp
         # representing "now".
-        soFarBytes += fileSize
-        soFarTd = datetime.datetime.now() - startDt  # Elapsed wall time.
+        complBytes += fileSize
 
         if logFormat == 'long':
             _download_latest_datasets_batch_log_progress_long(
-                logFormat, totalBytes, soFarBytes, startDt, soFarTd,
+                n_datasets, i_dataset+1, totalBytes, complBytes, startDt,
             )
         else:
             assert logFormat == 'short'
 
 
-def _download_latest_datasets_batch_log_progress_long(
-    logFormat, totalBytes, soFarBytes, startDt, soFarTd,
+@codetiming.Timer('download_latest_datasets_batch2', logger=None)
+def download_latest_datasets_batch2(
+    downloader: erikpgjohansson.solo.soar.dwld.Downloader,
+    itemIdArray, fileSizeArray, outputDirPath, logFormat='long',
+    downloadByIncrFileSize=False,
 ):
+    '''
+    Experimental parallized version of download_latest_datasets_batch().
+    '''
+    '''
+    PROPOSAL: Use threading.Lock.
+        Callback
+        Printing to log?
+    PROPOSAL: Somehow return results (exceptions).
+    PROPOSAL: Raise exception if any task raised exception, but after all
+              tasks have completed.
+    PROPOSAL: Raise exception immediately if any task raises exception.
+    '''
+    # "compl" = Completed so far
+    class CollectiveTaskState:
+        def __init__(self):
+            self._compl_bytes = 0
+            self._compl_download_attempts = 0
+
+        def task_callback(self, file_size):
+            try:
+                self._compl_bytes += file_size
+                self._compl_download_attempts += 1
+                _download_latest_datasets_batch_log_progress_long(
+                    n_datasets, self._compl_download_attempts,
+                    total_bytes, self._compl_bytes,
+                    start_dt,
+                )
+                # L.info(
+                #     f'Completed download attempts:'
+                #     f' {self._compl_download_attempts} [datasets],'
+                #     f' {self._compl_bytes} [bytes]'
+                # )
+            except Exception as e:
+                L.error(e)
+                # Exception caught by concurrent library code. Can be detected
+                # by future (not implemented).
+                raise e
+
+    class Task:
+        def __init__(self, item_id, file_size):
+            self._item_id = item_id
+            self._file_size = file_size
+
+        def run(self):
+            try:
+                file_size_mb = self._file_size / 2**20
+                timestamp = datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S',
+                )
+                L.info(
+                    f'{timestamp}: Starting download: '
+                    f' {file_size_mb:.2f} [MiB], {self._item_id}',
+                )
+                downloader.download_latest_dataset(
+                    self._item_id, outputDirPath,
+                )
+                L.info(
+                    f'{timestamp}: Download completed:'
+                    f' {file_size_mb:.2f} [MiB], {self._item_id}',
+                )
+            except Exception as e:
+                L.error(e)
+                # Exception caught by concurrent library code. Can be detected
+                # by future (not implemented).
+                raise e
+
+    # ==========
+    # ASSERTIONS
+    # ==========
+    assert isinstance(downloader, erikpgjohansson.solo.soar.dwld.Downloader)
+    erikpgjohansson.solo.soar.utils.assert_col_array(
+        itemIdArray, np.dtype('O'),
+    )
+    assert np.unique(itemIdArray).size == itemIdArray.size, \
+        'itemIdArray contains duplicates.'
+    erikpgjohansson.solo.soar.utils.assert_col_array(
+        fileSizeArray, np.dtype('int64'),
+    )
+    assert itemIdArray.size == fileSizeArray.size
+    erikpgjohansson.solo.asserts.is_dir(outputDirPath)
+
+    # =============
+    # Miscellaneous
+    # =============
+    L = logging.getLogger(__name__)
+    if downloadByIncrFileSize:
+        i_sort        = np.argsort(fileSizeArray)
+        itemIdArray   = itemIdArray[i_sort]
+        fileSizeArray = fileSizeArray[i_sort]
+
+    # =====================
+    # Run tasks / downloads
+    # =====================
+    ls_future = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        cts = CollectiveTaskState()
+        total_bytes = fileSizeArray.sum()
+        start_dt = datetime.datetime.now()
+        n_datasets = itemIdArray.size
+        for i_task in range(n_datasets):
+            item_id = itemIdArray[i_task]
+            file_size = fileSizeArray[i_task]
+
+            task = Task(item_id, file_size)
+            future = executor.submit(lambda t=task: t.run())
+            future.add_done_callback(
+                lambda future2, cts2=cts: cts2.task_callback(file_size),
+            )
+            ls_future.append(future)
+
+    # ====================
+    # Log summary of tasks
+    # ====================
+    n_exc = 0
+    n_done = 0
+    for future in ls_future:
+        if isinstance(future.exception(), Exception):
+            n_exc += 1
+        if future.done():
+            # Includes cancelled tasks, but code does not cancel tasks.
+            n_done += 1
+    L.info('All download tasks completed.')
+    L.info(f'#Download tasks that raised exceptions: {n_exc}')
+    L.info(f'#Download tasks that completed:         {n_done}')
+
+
+def _download_latest_datasets_batch_log_progress_long(
+    n_datasets_total, n_datasets_compl, totalBytes, complBytes, startDt,
+):
+    assert n_datasets_total >= n_datasets_compl
+    assert totalBytes >= complBytes
+
     L = logging.getLogger(__name__)
 
-    soFarSec = soFarTd.total_seconds()
-    remainBytes = totalBytes - soFarBytes
+    # remain = remaining
+    # compl  = completed (so far; not timestamp of completion)
+    # total  = total for all downloads combined
 
-    # Do predictions (using linear extrapolation)
-    remainTimeSec = (totalBytes - soFarBytes) / soFarBytes * soFarSec
-    remainTimeTd = datetime.timedelta(seconds=remainTimeSec)
-    completionDt = startDt + soFarTd + remainTimeTd
+    # n_datasets_compl
+    # complBytes
+    complTd = datetime.datetime.now() - startDt   # Elapsed wall time.
+    complSec = complTd.total_seconds()
 
-    soFarMb = soFarBytes / 2 ** 20
-    totalMb = totalBytes / 2 ** 20
-    speedMbps = (soFarBytes / soFarSec) / 2 ** 20
+    # Derive the remainder
+    # (Use linear extrapolation for estimating time.)
+    n_datasets_remain = n_datasets_total - n_datasets_compl
+    remainBytes = totalBytes - complBytes
+    remainSec = (totalBytes - complBytes) / complBytes * complSec  # Estimation
+    remainTd = datetime.timedelta(seconds=remainSec)
+
+    # n_datasets_total
+    # totalBytes
+    totalSec = complSec + remainSec
+    totalTd = datetime.timedelta(seconds=totalSec)
+
+    complMb = complBytes / 2 ** 20
     remainMb = remainBytes / 2 ** 20
+    totalMb = totalBytes / 2 ** 20
+
+    speedMbps = (complBytes / complSec) / 2 ** 20   # Mbps = MiB/s
+
+    # Timestamp of completion (end of downloads)
+    endDt = startDt + totalTd
+
+    def TD_to_str(td):
+        '''Hack to make timedelta better for printing.'''
+        '''Ex: "3 days, 17:53:42.966222" --> "3 days, 17:53:42"
+        '''
+        assert type(td) == datetime.timedelta
+        return str(datetime.timedelta(seconds=round(td.total_seconds())))
+
+    complTdStr = TD_to_str(complTd)
+    remainTdStr = TD_to_str(remainTd)
+    totalTdStr = TD_to_str(totalTd)
+    endDtStr = endDt.strftime("%Y-%m-%dT%H.%M.%S")
+
+    # ls_s = (
+    #     f'Completed: {n_datasets_compl} of {n_datasets_total} datasets'
+    #     f'           {complMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
+    #     f'           {complSec:.2f} [s] = {complTd}',
+    #     f'           {speedMbps:.2f} [MiB/s] (average)',
+    #     f'Remainder: {remainMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
+    #     f'           {remainSec:.0f} [s] = {remainTd} (prediction)',
+    #     f'Expected completion at: {endDtStr} (prediction)',
+    # )
+    # for s in ls_s:
+    #     L.info(s)
+    # Ex: "3 days, 17:53:42" ==> 16 characters
+    STR_DIVIDER = '-' * 73
     ls_s = (
-        f'So far:        {soFarMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
-        f'               {soFarSec:.2f} [s] = {soFarTd}',
-        f'               {speedMbps:.2f} [MiB/s] (average)',
-        f'Remainder:     {remainMb:.2f} [MiB]'
-        f' of {totalMb:.2f} [MiB]',
-        f'               {remainTimeSec:.0f} [s]'
-        f' = {remainTimeTd} (prediction)',
-        f'Expected completion at: {completionDt} (prediction)',
+        STR_DIVIDER,
+        '    Completed        Remaining      Total (est.)     Unit',
+        STR_DIVIDER,
+        f'{n_datasets_compl:16} {n_datasets_remain:16} {n_datasets_total:16}'
+        f' [datasets]',
+        f'{complMb:16.2f} {remainMb:16.2f} {totalMb:16.2f} [MiB]',
+        f'{complSec:16.1f} {remainSec:16.1f} {totalSec:16.0f} [s]',
+        f'{complTdStr:>16} {remainTdStr:>16} {totalTdStr:>16}'
+        f' [(days,) hour:min:sec]',
+        STR_DIVIDER,
+        f'Effective average download speed so far: {speedMbps:.2f} [MiB/s]',
+        f'Estimated (predicted) completion time:   {endDtStr}',
+        STR_DIVIDER,
     )
     for s in ls_s:
         L.info(s)

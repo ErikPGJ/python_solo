@@ -53,3 +53,9 @@ here can be handled. This means effectively that all file types are explicitly
 "listed" one way or another. In case a new file type which this code can not
 handle is added to SOAR, then that file type must be added to the list.
 '''
+
+
+USE_PARALLEL_DOWNLOADS = False
+# USE_PARALLEL_DOWNLOADS = True
+'''Whether to use an experimental parallelized version of batch downloads.
+Speeds up downloads.'''

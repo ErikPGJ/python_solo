@@ -531,7 +531,14 @@ def _execute_sync_dir_SOAR_update(
     # =================
     n_datasets = soarMissingDst['item_id'].size
     L.info(f'Downloading {n_datasets} datasets')
-    erikpgjohansson.solo.soar.utils.download_latest_datasets_batch(
+    if const.USE_PARALLEL_DOWNLOADS:
+        download_latest_datasets_batch = \
+            erikpgjohansson.solo.soar.utils.download_latest_datasets_batch2
+    else:
+        download_latest_datasets_batch = \
+            erikpgjohansson.solo.soar.utils.download_latest_datasets_batch
+
+    download_latest_datasets_batch(
         downloader,
         soarMissingDst['item_id'],
         soarMissingDst['file_size'],
