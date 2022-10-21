@@ -30,7 +30,6 @@ def test_download_latest_datasets_batch(tmp_path):
             itemIdArray=np.array([], object),
             fileSizeArray=np.array([], 'int64'),
             outputDirPath=test_dir,
-            logFormat='long',
         )
         tests.assert_FS(test_dir, {})
 
@@ -83,7 +82,6 @@ def test_download_latest_datasets_batch(tmp_path):
             ),
             fileSizeArray=np.array([100000, 200000], 'int64'),
             outputDirPath=test_dir,
-            logFormat='long',
         )
         tests.assert_FS(
             test_dir, {

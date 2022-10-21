@@ -78,7 +78,6 @@ def sync():
         tempRemovalDir            = removal_dir,
         removeRemovalDir          = False,
         datasetsSubsetFunc        = datasets_include_func,
-        downloadLogFormat         = 'long',
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,
     )

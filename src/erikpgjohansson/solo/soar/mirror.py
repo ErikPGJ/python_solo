@@ -117,7 +117,6 @@ PROPOSAL: Make code robust w.r.t. network error, file not present at SOAR.
 def sync(
     syncDir, tempDownloadDir, datasetsSubsetFunc: typing.Callable,
     deleteOutsideSubset=False,
-    downloadLogFormat='short',
     nMaxNetDatasetsToRemove=10,
     tempRemovalDir=None,
     removeRemovalDir=False,
@@ -298,7 +297,6 @@ def sync(
         tempDownloadDir=tempDownloadDir,
         tempRemovalDir=tempRemovalDir,
         removeRemovalDir=removeRemovalDir,
-        downloadLogFormat=downloadLogFormat,
     )
 
     erikpgjohansson.solo.soar.utils.log_codetiming()   # DEBUG
@@ -500,7 +498,7 @@ def _calculate_sync_dir_update(
 def _execute_sync_dir_SOAR_update(
     downloader: erikpgjohansson.solo.soar.dwld.Downloader,
     soarMissingDst, localExcessDst, syncDir, tempDownloadDir,
-    tempRemovalDir, removeRemovalDir, downloadLogFormat,
+    tempRemovalDir, removeRemovalDir,
 ):
     '''Execute a pre-calculated syncing of local directory by downloading
     specified datasets and removing specified local datasets.
@@ -543,7 +541,6 @@ def _execute_sync_dir_SOAR_update(
         soarMissingDst['item_id'],
         soarMissingDst['file_size'],
         tempDownloadDir,
-        logFormat=downloadLogFormat,
     )
 
     # =====================

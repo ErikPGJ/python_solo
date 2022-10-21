@@ -75,7 +75,6 @@ def sync():
         syncDir                    = os.path.join(ROOT_DIR, 'mirror'),
         tempDownloadDir            = os.path.join(ROOT_DIR, 'download'),
         datasetsSubsetFunc         = datasets_include_func,
-        downloadLogFormat          = 'long',
         deleteOutsideSubset        = True,
         nMaxNetDatasetsToRemove    = 25,
         tempRemovalDir             = removal_dir,

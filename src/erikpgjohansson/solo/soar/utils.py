@@ -97,7 +97,7 @@ def assert_col_array(v, dtype=None):
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
     downloader: erikpgjohansson.solo.soar.dwld.Downloader,
-    itemIdArray, fileSizeArray, outputDirPath, logFormat='long',
+    itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
@@ -111,8 +111,6 @@ def download_latest_datasets_batch(
     fileSizeArray : 1D numpy.ndarray of integers.
         NOTE: Needed for logging the predicted remaining wall time needed for
         the download.
-    logFormat : str
-        String constant. 'long' or 'short'.
     downloadByIncrFileSize : bool
         True: Sort datasets by increasing file size.
         Useful for testing/debugging. Bad for predicted log values.
@@ -134,7 +132,6 @@ def download_latest_datasets_batch(
         CON: More complicated error handling?
 
     PROPOSAL: Abolish downloadByIncrFileSize.
-    PROPOSAL: Abolish logFormat.
     '''
 
     # ASSERTIONS
@@ -185,18 +182,15 @@ def download_latest_datasets_batch(
         # representing "now".
         complBytes += fileSize
 
-        if logFormat == 'long':
-            _download_latest_datasets_batch_log_progress_long(
-                n_datasets, i_dataset+1, totalBytes, complBytes, startDt,
-            )
-        else:
-            assert logFormat == 'short'
+        _download_latest_datasets_batch_log_progress_long(
+            n_datasets, i_dataset+1, totalBytes, complBytes, startDt,
+        )
 
 
 @codetiming.Timer('download_latest_datasets_batch2', logger=None)
 def download_latest_datasets_batch2(
     downloader: erikpgjohansson.solo.soar.dwld.Downloader,
-    itemIdArray, fileSizeArray, outputDirPath, logFormat='long',
+    itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
