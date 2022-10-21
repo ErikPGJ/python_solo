@@ -185,7 +185,7 @@ def download_latest_datasets_batch(
         # representing "now".
         complBytes += fileSize
 
-        _download_latest_datasets_batch_log_progress_long(
+        _download_latest_datasets_batch_log_progress(
             n_datasets, i_dataset+1, totalBytes, complBytes, startDt,
         )
 
@@ -218,7 +218,7 @@ def download_latest_datasets_batch2(
             try:
                 self._compl_bytes += file_size
                 self._compl_download_attempts += 1
-                _download_latest_datasets_batch_log_progress_long(
+                _download_latest_datasets_batch_log_progress(
                     n_datasets, self._compl_download_attempts,
                     total_bytes, self._compl_bytes,
                     start_dt,
@@ -317,43 +317,61 @@ def download_latest_datasets_batch2(
     L.info(f'#Download tasks that completed:         {n_done}')
 
 
-def _download_latest_datasets_batch_log_progress_long(
-    n_datasets_total, n_datasets_compl, totalBytes, complBytes, startDt,
+def _download_latest_datasets_batch_log_progress(
+    n_datasets_total, n_datasets_compl, bytes_tot, bytes_compl, dt_begin,
 ):
+    '''
+    Log batch download progress.
+
+    Parameters
+    ----------
+    n_datasets_total
+    n_datasets_compl
+    bytes_tot
+    bytes_compl
+    dt_begin
+        When downloads began.
+    '''
+    # Variable naming conventions
+    # ===========================
+    # remain = remaining
+    # compl  = completed (so far; not timestamp of completion)
+    # tot    = total for all downloads combined
+    # sec    = seconds
+    # mb     = MiB
+    # mbps   = MiB/s
+
     assert n_datasets_total >= n_datasets_compl
-    assert totalBytes >= complBytes
+    assert bytes_tot >= bytes_compl
 
     L = logging.getLogger(__name__)
 
-    # remain = remaining
-    # compl  = completed (so far; not timestamp of completion)
-    # total  = total for all downloads combined
-
     # n_datasets_compl
-    # complBytes
-    complTd = datetime.datetime.now() - startDt   # Elapsed wall time.
-    complSec = complTd.total_seconds()
+    # bytes_compl
+    td_compl = datetime.datetime.now() - dt_begin   # Elapsed wall time.
+    sec_compl = td_compl.total_seconds()
 
     # Derive the remainder
     # (Use linear extrapolation for estimating time.)
     n_datasets_remain = n_datasets_total - n_datasets_compl
-    remainBytes = totalBytes - complBytes
-    remainSec = (totalBytes - complBytes) / complBytes * complSec  # Estimation
-    remainTd = datetime.timedelta(seconds=remainSec)
+    bytes_remain = bytes_tot - bytes_compl
+    # Download speed: bytes_remain / sec_remain == bytes_compl / sec_compl <==>
+    sec_remain = bytes_remain / (bytes_compl / sec_compl)    # Estimate
+    td_remain = datetime.timedelta(seconds=sec_remain)
 
     # n_datasets_total
-    # totalBytes
-    totalSec = complSec + remainSec
-    totalTd = datetime.timedelta(seconds=totalSec)
+    # bytes_tot
+    sec_tot = sec_compl + sec_remain
+    td_tot = datetime.timedelta(seconds=sec_tot)
 
-    complMb = complBytes / 2 ** 20
-    remainMb = remainBytes / 2 ** 20
-    totalMb = totalBytes / 2 ** 20
+    mb_compl = bytes_compl / 2 ** 20
+    mb_remain = bytes_remain / 2 ** 20
+    mb_tot = bytes_tot / 2 ** 20
 
-    speedMbps = (complBytes / complSec) / 2 ** 20   # Mbps = MiB/s
+    speed_mbps = (bytes_compl / sec_compl) / 2 ** 20
 
     # Timestamp of completion (end of downloads)
-    endDt = startDt + totalTd
+    dt_end = dt_begin + td_tot   # datetime=dt (not td=deltatime)
 
     def TD_to_str(td):
         '''Hack to make timedelta better for printing.'''
@@ -362,19 +380,19 @@ def _download_latest_datasets_batch_log_progress_long(
         assert type(td) == datetime.timedelta
         return str(datetime.timedelta(seconds=round(td.total_seconds())))
 
-    complTdStr = TD_to_str(complTd)
-    remainTdStr = TD_to_str(remainTd)
-    totalTdStr = TD_to_str(totalTd)
-    endDtStr = endDt.strftime("%Y-%m-%dT%H.%M.%S")
+    s_td_compl = TD_to_str(td_compl)
+    s_td_remain = TD_to_str(td_remain)
+    s_td_tot = TD_to_str(td_tot)
+    s_dt_end = dt_end.strftime("%Y-%m-%dT%H.%M.%S")
 
     # ls_s = (
     #     f'Completed: {n_datasets_compl} of {n_datasets_total} datasets'
-    #     f'           {complMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
-    #     f'           {complSec:.2f} [s] = {complTd}',
-    #     f'           {speedMbps:.2f} [MiB/s] (average)',
-    #     f'Remainder: {remainMb:.2f} [MiB] of {totalMb:.2f} [MiB]',
-    #     f'           {remainSec:.0f} [s] = {remainTd} (prediction)',
-    #     f'Expected completion at: {endDtStr} (prediction)',
+    #     f'           {mb_compl:.2f} [MiB] of {mb_tot:.2f} [MiB]',
+    #     f'           {sec_compl:.2f} [s] = {td_compl}',
+    #     f'           {speed_mbps:.2f} [MiB/s] (average)',
+    #     f'Remainder: {mb_remain:.2f} [MiB] of {mb_tot:.2f} [MiB]',
+    #     f'           {sec_remain:.0f} [s] = {td_remain} (prediction)',
+    #     f'Expected completion at: {s_dt_end} (prediction)',
     # )
     # for s in ls_s:
     #     L.info(s)
@@ -386,13 +404,13 @@ def _download_latest_datasets_batch_log_progress_long(
         STR_DIVIDER,
         f'{n_datasets_compl:16} {n_datasets_remain:16} {n_datasets_total:16}'
         f' [datasets]',
-        f'{complMb:16.2f} {remainMb:16.2f} {totalMb:16.2f} [MiB]',
-        f'{complSec:16.1f} {remainSec:16.1f} {totalSec:16.0f} [s]',
-        f'{complTdStr:>16} {remainTdStr:>16} {totalTdStr:>16}'
+        f'{mb_compl:16.2f} {mb_remain:16.2f} {mb_tot:16.2f} [MiB]',
+        f'{sec_compl:16.1f} {sec_remain:16.1f} {sec_tot:16.0f} [s]',
+        f'{s_td_compl:>16} {s_td_remain:>16} {s_td_tot:>16}'
         f' [(days,) hour:min:sec]',
         STR_DIVIDER,
-        f'Effective average download speed so far: {speedMbps:.2f} [MiB/s]',
-        f'Estimated (predicted) completion time:   {endDtStr}',
+        f'Effective average download speed so far: {speed_mbps:.2f} [MiB/s]',
+        f'Estimated (predicted) completion time:   {s_dt_end}',
         STR_DIVIDER,
     )
     for s in ls_s:
