@@ -10,6 +10,7 @@ Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.utils
 import erikpgjohansson.solo.str
+import logging
 import os.path
 import shutil
 
@@ -344,6 +345,8 @@ def copy_move_datasets_to_IRFU_dir_tree(
         PROPOSAL: ~General function that copies with tricks.
         PROPOSAL: Temporary copy which is then moved.
     '''
+    L = logging.getLogger(__name__)
+
     # ASSERTIONS
     if dirCreationPermissions > 0o777:
         # Useful for catch if mistakenly using hex literal instead of octal.
@@ -362,7 +365,7 @@ def copy_move_datasets_to_IRFU_dir_tree(
         oldPath = os.path.realpath(oldPath)
         newPath = os.path.realpath(newPath)
         if oldPath == newPath:
-            print('    Skipping unnecessary copy to itself.')
+            L.info('    Skipping unnecessary copy to itself.')
             return
 
         if 0:
@@ -392,11 +395,8 @@ def copy_move_datasets_to_IRFU_dir_tree(
     #   String to be printed: "Copying", "Moving".
     # maxLenOp : implicit argument.
     def copy_move_file(cmFunc, verbStr, oldPath, newDirPath):
-        print(
-            '{0} file: {1:<{3}} --> {2}'.format(
-                verbStr, oldPath, newDirPath, maxLenOp,
-            ),
-        )
+        L.info(f'{verbStr} file: {oldPath:<{maxLenOp}} --> {newDirPath}')
+
         cmFunc(oldPath, newDirPath)
 
     if mode == 'copy':
@@ -442,7 +442,7 @@ def copy_move_datasets_to_IRFU_dir_tree(
                 pathTable.append((newDirPath, oldPath, newPath))
 
             else:
-                print(
+                L.info(
                     f'Can not identify file and therefore'
                     f' not copy/move it: {oldPath}',
                 )
