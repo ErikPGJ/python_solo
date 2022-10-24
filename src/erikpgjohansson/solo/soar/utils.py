@@ -162,19 +162,14 @@ def download_latest_datasets_batch(
         itemId   = itemIdArray[i_dataset]
         fileSize = fileSizeArray[i_dataset]
 
-        nowStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fileSizeMb = fileSize / 2**20
 
         # ================
         # Download dataset
         # ================
-        L.info(
-            f'{nowStr}: Download starting:  {fileSizeMb:.2f} [MiB], {itemId}',
-        )
+        L.info(f'Download starting:  {fileSizeMb:.2f} [MiB], {itemId}')
         downloader.download_latest_dataset(itemId, outputDirPath)
-        L.info(
-            f'{nowStr}: Download completed: {fileSizeMb:.2f} [MiB], {itemId}',
-        )
+        L.info(f'Download completed: {fileSizeMb:.2f} [MiB], {itemId}')
 
         # ===
         # Log
@@ -243,21 +238,17 @@ def download_latest_datasets_batch2(
 
         def run(self):
             try:
-                def timestamp():
-                    return datetime.datetime.now().strftime(
-                        '%Y-%m-%d %H:%M:%S',
-                    )
                 file_size_mb = self._file_size / 2**20
                 L.info(
-                    f'{timestamp()}: Download starting: '
-                    f' {file_size_mb:.2f} [MiB], {self._item_id}',
+                    f'Download starting:  '
+                    f'{file_size_mb:.2f} [MiB], {self._item_id}',
                 )
                 downloader.download_latest_dataset(
                     self._item_id, outputDirPath,
                 )
                 L.info(
-                    f'{timestamp()}: Download completed:'
-                    f' {file_size_mb:.2f} [MiB], {self._item_id}',
+                    f'Download completed: '
+                    f'{file_size_mb:.2f} [MiB], {self._item_id}',
                 )
             except Exception as e:
                 L.error(e)

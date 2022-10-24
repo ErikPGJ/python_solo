@@ -75,6 +75,8 @@ def sync():
     logging.basicConfig(
         filename=os.path.join(ROOT_DIR, f'test_mirror_sync.{timestamp}.log'),
         level=logging.INFO,
+        format='{asctime} {levelname:<8} {message}',
+        style='{',
     )
 
     erikpgjohansson.solo.soar.mirror.sync(
