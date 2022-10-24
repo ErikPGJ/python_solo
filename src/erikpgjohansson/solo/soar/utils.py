@@ -652,7 +652,10 @@ def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):
         # IMPLEMENTATION NOTE: Should not sort since that might not always
         # be desirable (e.g. logging combinations of level and instrument).
         # Caller should sort the argument first if needed.
-        return ', '.join(set_ls)
+        if set_ls:
+            return ', '.join(set_ls)
+        else:
+            return '(none)'
 
     L = logging.getLogger(__name__)
 

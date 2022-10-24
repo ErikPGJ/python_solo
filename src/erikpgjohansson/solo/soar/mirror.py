@@ -460,12 +460,6 @@ def _calculate_sync_dir_update(
             ' Will NOT delete datasets outside the specified subset.',
         )
 
-    # NOTE: localDst has no begin_time. Can therefore not log.
-    utils.log_DST(
-        localDst,
-        'Pre-existent set of local datasets that should be synced/updated',
-    )
-
     # ==============================================================#
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
