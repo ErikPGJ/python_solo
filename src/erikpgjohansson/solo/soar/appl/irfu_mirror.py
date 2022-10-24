@@ -72,7 +72,12 @@ def sync():
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
-    logging.basicConfig(filename=log_file, level=logging.INFO)
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.INFO,
+        format='{asctime} {levelname:<8} {message}',
+        style='{',
+    )
 
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                   = '/data/solo/soar',
