@@ -80,13 +80,13 @@ def sync():
     )
 
     erikpgjohansson.solo.soar.mirror.sync(
-        syncDir                  = os.path.join(ROOT_DIR, 'mirror'),
-        tempDownloadDir          = os.path.join(ROOT_DIR, 'download'),
-        datasetsSubsetFunc       = datasets_include_func,
-        deleteOutsideSubset      = True,
-        nMaxNetDatasetsToRemove  = 25,
-        tempRemovalDir           = removal_dir,
-        removeRemovalDir         = False,
+        syncDir                 = os.path.join(ROOT_DIR, 'mirror'),
+        tempDownloadDir         = os.path.join(ROOT_DIR, 'download'),
+        datasetsSubsetFunc      = datasets_include_func,
+        deleteOutsideSubset     = True,
+        nMaxNetDatasetsToRemove = 25,
+        tempRemovalDir          = removal_dir,
+        removeRemovalDir        = False,
     )
 
 

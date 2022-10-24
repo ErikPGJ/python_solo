@@ -3,6 +3,10 @@
 This import package (directory) is intended for code related to mirroring SOAR
 (Solar Orbiter ARchive) data.
 
+# Definitions of shortenings and terms
+
+See `MISC_CONVENTIONS.md` for definitions of shortenings and terms.
+
 # "Description" of code and implementation
 
 The code uses SOAR's own interface for access:
@@ -22,7 +26,7 @@ threshold, the code exits.
 
 # Known requirements
 
-- Works for Python 3.9, but probably other versions too.
+- Works for Python 3.9, but probably works for other versions too.
 - Works on Linux, but should in principle work on other platforms too with
   minimal changes.
 
@@ -70,5 +74,5 @@ of datasets.
 
 Specific applications (not generic) of the more generic SOAR mirroring code,
 used at IRF. Contain simple customized function calls to
-`erikpgjohansson.solo.soar.mirror.sync()`. Can effectively be used as demo
-code for creating one's own mirror.
+`erikpgjohansson.solo.soar.appl.irfu_mirror.sync()`. Can effectively be used as
+demo code for creating one's own mirror.

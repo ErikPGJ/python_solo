@@ -46,4 +46,5 @@ def main(ls_cli_args):
     )
 
 
-main(sys.argv[1:])  # NOTE: sys.argv[0] is not a CLI argument. ==> Ignore
+if __name__ == '__main__':
+    main(sys.argv[1:])  # NOTE: sys.argv[0] is not a CLI argument. ==> Ignore

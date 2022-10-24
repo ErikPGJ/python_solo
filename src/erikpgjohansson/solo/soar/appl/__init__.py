@@ -1,5 +1,5 @@
 '''
-Import package containing code for explicit, applications of
+Import package containing code for explicit applications of
 the SOAR mirror code, e.g. domain-specific non-generic mirrors.
 '''
 '''
