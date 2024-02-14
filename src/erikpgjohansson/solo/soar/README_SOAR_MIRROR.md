@@ -70,7 +70,7 @@ datasets. This directory structure imitates ROC's organization of datasets
 and is required by irfu-matlab's (not included MATLAB code) automatic reading
 of datasets.
 
-## irfu_mirror.py, test_mirror.py
+## irfu_mirror.py, mtest_mirror.py
 
 Specific applications (not generic) of the more generic SOAR mirroring code,
 used at IRF. Contain simple customized function calls to

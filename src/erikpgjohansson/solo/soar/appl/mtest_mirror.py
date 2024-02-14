@@ -1,5 +1,5 @@
 '''
-Code for implementing a test SOAR data mirror.
+Code for implementing a "manual test" SOAR data mirror.
 
 This module is intended to only contain code for that particular mirror, i.e.
 only code that "configures" that particular mirror.
@@ -17,8 +17,12 @@ import os
 
 
 '''
-BOGIQ
-=====
+'''
+
+
+ROOT_DIR = '/home/erjo/temp/soar'
+'''
+NOTE: Hard-coded local directory.
 '''
 
 
@@ -64,8 +68,6 @@ def sync():
     assert os.uname().nodename in ['brain', 'spis', 'irony'], \
         'This code is not meant to run on this machine.'
 
-    ROOT_DIR = '/home/erjo/temp/soar'
-
     timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
     removal_dir = os.path.join(ROOT_DIR, f'removal_{timestamp}')
 
@@ -73,7 +75,7 @@ def sync():
     # stream = sys.stdout : Log to stdout (instead of stderr).
     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.basicConfig(
-        filename=os.path.join(ROOT_DIR, f'test_mirror_sync.{timestamp}.log'),
+        filename=os.path.join(ROOT_DIR, f'mtest_mirror_sync.{timestamp}.log'),
         level=logging.INFO,
         format='{asctime} {levelname:<8} {message}',
         style='{',
@@ -92,6 +94,6 @@ def sync():
 
 # IMPLEMENTATION NOTE: This code makes it possible to execute the sync from
 # the bash command line:
-# >> python -m 'erikpgjohansson.solo.soar.test_mirror'
+# >> python -m 'erikpgjohansson.solo.soar.appl.mtest_mirror'
 if __name__ == '__main__':
     sync()
