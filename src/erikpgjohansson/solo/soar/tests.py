@@ -113,8 +113,8 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
             dc_item_id_delay = {}
 
         # ASSERTION: dc_item_id_delay format
-        assert type(dc_item_id_delay) == dict
-        assert all(type(key) == str for key in dc_item_id_delay.keys())
+        assert type(dc_item_id_delay) is dict
+        assert all(type(key) is str for key in dc_item_id_delay.keys())
         assert all(
             type(value) in (int, float) for value in dc_item_id_delay.values()
         )
@@ -156,12 +156,12 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
                 }
 
         # ASSERTION: dc_json_dc has the right format.
-        assert type(dc_json_dc) == dict
+        assert type(dc_json_dc) is dict
         for instrument, json_dc in dc_json_dc.items():
-            assert type(instrument) == str
-            assert type(json_dc) == dict
+            assert type(instrument) is str
+            assert type(json_dc) is dict
             for entry_ls in json_dc['data']:
-                assert type(entry_ls) == list, 'Entry is not a list.'
+                assert type(entry_ls) is list, 'Entry is not a list.'
                 # For compatibility with SOAR_JSON_METADATA_LS.
                 # NOTE: If not using SOAR_JSON_METADATA_LS and simultaneously
                 # using other number of columns, then this must be change.
@@ -205,7 +205,7 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
                     file_name = entry_ls[i_file_name]
                     file_size = entry_ls[i_file_size]
 
-        assert type(file_size) == int
+        assert type(file_size) is int
         return file_name, file_size
 
 
@@ -346,16 +346,16 @@ def setup_FS(root_dir, dict_objs):
     Note: Function fully validates the input arguments.
     '''
 
-    assert type(dict_objs) == dict
+    assert type(dict_objs) is dict
 
     # NOTE: Permits pre-existing directory.
     os.makedirs(root_dir, exist_ok=True)
 
     for obj_name, obj_content in dict_objs.items():
-        assert type(obj_name) == str
-        if type(obj_content) == int:
+        assert type(obj_name) is str
+        if type(obj_content) is int:
             create_file(os.path.join(root_dir, obj_name), obj_content)
-        elif type(obj_content) == dict:
+        elif type(obj_content) is dict:
             # RECURSIVE CALL
             setup_FS(os.path.join(root_dir, obj_name), obj_content)
         else:

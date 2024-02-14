@@ -412,7 +412,7 @@ def read_CSV_file(filePath):
     # ASSERTION: Same number of columns on every row
     for iFileRow in range(1, nFileRows):
         nColsThisRow = len(strListList[iFileRow])
-        assert nColsThisRow == nCols,\
+        assert nColsThisRow == nCols, \
             'Number of columns on row {} (0=first) (nColsThisRow={})'.format(
                 iFileRow, nColsThisRow,
             )\

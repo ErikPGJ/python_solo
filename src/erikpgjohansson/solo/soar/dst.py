@@ -28,7 +28,7 @@ class DatasetsTable:
     def __init__(self, dc={}):
         assert isinstance(dc, dict)
         for key, na in dc.items():
-            assert type(key) == str
+            assert type(key) is str
             # Can not due to circular imports.
             # erikpgjohansson.solo.soar.utils.assert_col_array(na)
 
@@ -51,7 +51,7 @@ class DatasetsTable:
         '''
         if key in self._dc_na:
             raise KeyError(f'There already is an entry for key="{key}".')
-        assert type(na) == np.ndarray
+        assert type(na) is np.ndarray
         assert na.ndim == 1
 
         if self._n is None:
@@ -70,7 +70,7 @@ class DatasetsTable:
         Create new DST using the same keys and subset of arrays, defined by
         one shared set of indices.
         '''
-        assert type(bi) == np.ndarray
+        assert type(bi) is np.ndarray
 
         return DatasetsTable({key: na[bi] for key, na in self._dc_na.items()})
 

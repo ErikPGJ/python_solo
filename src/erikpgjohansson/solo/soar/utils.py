@@ -82,7 +82,7 @@ def assert_col_array(v, dtype=None):
     # IMPLEMENTATION NOTE: Some automatic tests have historically mistakenly
     # used 0-dim arrays which causes hard-to-understand errors.
     # ==> Want assertion against this.
-    assert type(v) == np.ndarray
+    assert type(v) is np.ndarray
     assert v.ndim == 1
 
     if dtype:
@@ -640,7 +640,7 @@ def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):
     PROPOSAL: Log amount of data per dataset ID.
     PROPOSAL: Log number of datasets per dataset ID.
     '''
-    assert type(dst) == erikpgjohansson.solo.soar.dst.DatasetsTable
+    assert isinstance(dst, erikpgjohansson.solo.soar.dst.DatasetsTable)
 
     SEPARATOR_LENGTH = 80
 

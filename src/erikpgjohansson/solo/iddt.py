@@ -143,7 +143,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     PROPOSAL: DATASET_ID+time (year+month) as argument?
         PRO: Entire filename is not used (version, cdag)
     '''
-    assert type(dtdnInclInstrument) == bool
+    assert type(dtdnInclInstrument) is bool
 
     d = erikpgjohansson.solo.utils.parse_dataset_filename(filename)
     if not d:
@@ -185,7 +185,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     # ASSERTIONS: Arguments
     if not datasetId.upper() == datasetId:
         raise Exception(f'Not uppercase datasetId="{datasetId}"')
-    assert type(includeInstrument) == bool
+    assert type(includeInstrument) is bool
 
     dataSrc, level, instrument, descriptor = \
         erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)

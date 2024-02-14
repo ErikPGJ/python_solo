@@ -165,8 +165,8 @@ def test_parse_time_interval_str():
             expTv = expResult
             actTv = erikpgjohansson.solo.utils._parse_time_interval_str(s)
             assert len(actTv) == 6
-            assert all(type(x) == int for x in actTv[0:5])
-            assert type(actTv[5]) == float
+            assert all(type(x) is int for x in actTv[0:5])
+            assert type(actTv[5]) is float
             assert actTv == expTv
 
     test('20200623',                          (2020, 6, 23,  0,  0,  0.0))

@@ -581,7 +581,7 @@ def _execute_sync_dir_SOAR_update(
 
 def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
     assert type(ls_paths_remove) in (list, tuple)
-    assert type(remove_removal_dir) == bool
+    assert type(remove_removal_dir) is bool
     L = logging.getLogger(__name__)
 
     for path_remove in ls_paths_remove:
@@ -681,8 +681,8 @@ def _find_DST_difference(
 
     # ASSERTIONS
     # NOTE: Many re-implementations have failed this assertion.
-    assert type(bDiff12) == np.ndarray
-    assert type(bDiff21) == np.ndarray
+    assert type(bDiff12) is np.ndarray
+    assert type(bDiff21) is np.ndarray
 
     return bDiff12, bDiff21
 

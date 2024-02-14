@@ -26,5 +26,5 @@ def path_is_available(path):
 # NOTE: Includes dictionaries (iterations are over keys).
 # NOTE: Strings are technically python sequences.
 def is_nonstring_sequence(s):
-    assert hasattr(type(s), '__iter__') & (type(s) != str), \
+    assert hasattr(type(s), '__iter__') & (type(s) is not str), \
         'Argument is not a non-string "sequence".'

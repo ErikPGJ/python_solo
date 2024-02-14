@@ -90,7 +90,7 @@ class SoarDownloader(Downloader):
         NOTE: begin_time may contain string "null".
         NOTE: item_version == string, e.g. "V02".
         '''
-        assert type(instrument) == str
+        assert type(instrument) is str
 
         L = logging.getLogger(__name__)
 
@@ -142,7 +142,7 @@ class SoarDownloader(Downloader):
         )
 
         JsonDict = json.loads(s)
-        if type(JsonDict) != dict:
+        if type(JsonDict) is not dict:
             msg = (
                 f'JSON SDT (SOAR Datasets Table)'
                 f' downloaded from SOAR for {instrument} :'
@@ -229,7 +229,7 @@ class SoarDownloader(Downloader):
                 f'&retrieval_type=LAST_PRODUCT&product_type={product_type}'
             )
 
-        assert type(dataItemId) == str
+        assert type(dataItemId) is str
 
         # Extract level from item ID.
         d1 = erikpgjohansson.solo.utils.parse_item_ID(dataItemId)
@@ -395,7 +395,7 @@ def _convert_JSON_SDT_to_DST(JsonDict):
     # string --> datetime64
     STR_TO_DT64_COLUMN_NAMES = {'begin_time', 'archived_on'}
 
-    assert type(JsonDict) == dict
+    assert type(JsonDict) is dict
 
     L = logging.getLogger(__name__)
     # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
