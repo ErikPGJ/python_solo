@@ -25,8 +25,12 @@ class DatasetsTable:
     PROPOSAL: Use "None"/NaN for unknown values.
     '''
 
-    def __init__(self, dc={}):
+    def __init__(self, dc=None):
+        if dc is None:
+            dc = {}
+
         assert isinstance(dc, dict)
+
         for key, na in dc.items():
             assert type(key) is str
             # Can not due to circular imports.
