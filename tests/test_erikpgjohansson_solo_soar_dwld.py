@@ -4,62 +4,10 @@ import erikpgjohansson.solo.soar.tests as tests
 import json
 import logging
 import numpy as np
-import os.path
 import pathlib
 import sys
 import tempfile
 import zipfile
-
-
-'''
-PROPOSAL: Abolish test download from SOAR.
-    PRO: Slows down tests(?)
-    PRO: Risks being blacklisted by SOAR.
-    CON-PROPOSAL: Constant for switching.
-    CON-PROPOSAL: Convert into "manual test".
-'''
-
-
-def test_download_latest_dataset(tmp_path):
-    '''
-    NOTE: Downloads from internet. Assumes that certain files are available
-          online at SOAR. If these files are missing from SOAR, then the test
-          fails even if the code is OK.
-    '''
-    i_test = 0
-
-    # Normalize. Can be string if called from non-pytest.
-    tmp_path = pathlib.Path(tmp_path)
-
-    downloader = erikpgjohansson.solo.soar.dwld.SoarDownloader()
-
-    def test(dataItemId):
-        '''
-        IMPLEMENTATION NOTE: The test deliberately does NOT accept arguments
-        expectedFileName and expectedFileSize since they vary with dataset
-        version, i.e. are more likely to vary with time.
-        '''
-        nonlocal i_test
-        dirPath = pathlib.Path(tmp_path) / f'test_{i_test}'
-        i_test = i_test + 1
-        os.mkdir(dirPath)
-
-        print(
-            f'ATEST: Downloading online data from SOAR:'
-            f' dataItemId={dataItemId}',
-        )
-        actFilePath = downloader.download_latest_dataset(
-            dataItemId, dirPath,
-            expectedFileName=None, expectedFileSize=None,
-        )
-        assert os.path.isfile(actFilePath)
-
-    test('solo_L1_epd-sis-a-rates-slow_20200813')
-    test('solo_L1_epd-step-nom-close_20200813')
-
-    # Test LL
-    test('solo_LL02_mag_20220621T000205-20220622T000204')
-    test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025')
 
 
 JSON_SDTs_ZIP_FILENAME = \
@@ -167,9 +115,6 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    t = tempfile.TemporaryDirectory()
-    test_download_latest_dataset(t.name)
 
     t = tempfile.TemporaryDirectory()
     test_convert_JSON_SDT_to_DST(t.name)
