@@ -7,9 +7,11 @@ Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 
 
+import dataclasses
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.utils
 import erikpgjohansson.solo.str
+import itertools
 import logging
 import os.path
 import shutil
@@ -30,45 +32,57 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
         PROPOSAL: Module should (in principle) cover how all directory trees
             are organized, but have a separate acronym for the ~type-sorted
             directory trees L2, L3.
-
-PROPOSAL: Use class for L2_L3_DSID_TO_DTDN.
-    PRO: Assertions.
-    PRO: Clearer
-    CON: Must repeat class name (constructor).
-        CON-PROPOSAL: Can use local shortening.
-PROPOSAL: Check L2_L3_DSID_TO_DTDN for duplicated DSIDs.
-    PRO: Has happened.
-PROPOSAL: Check L2_L3_DSID_TO_DTDN for illegal (non-parsable) DSIDs.
-    PRO: Has happened.
 '''
 
-L2_L3_DSID_TO_DTDN = (
+
+@dataclasses.dataclass(frozen=True)
+class DtdnEntry:
+    setDsid : set
+    dtdn : str
+
+    def __post_init__(self):
+        # setDsid
+        assert type(self.setDsid) is set
+        assert self.setDsid    # Assert not empty.
+        for dsid in self.setDsid:
+            # NOTE: Using erikpgjohansson.solo.utils.parse_DSID() as an
+            # assertion on DSID.
+            _, level, instrument, descriptor = \
+                _ = erikpgjohansson.solo.utils.parse_DSID(dsid)
+            assert level in ['L2', 'L3']
+            # NOTE: Does not assert instrument, since might want special
+            # treatment of non-RPW datasets too.
+
+        assert type(self.dtdn) is str
+
+
+_LS_DTDN_ENTRIES = (
     #######
     #  L2
     #######
-    (
+    DtdnEntry(
         {
             'SOLO_L2_RPW-LFR-SURV-CWF-B',
             'SOLO_L2_RPW-LFR-SURV-SWF-B',
         }, 'lfr_wf_b',
     ),
-    (
+    DtdnEntry(
         {
             'SOLO_L2_RPW-LFR-SURV-CWF-E',
             'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',
             'SOLO_L2_RPW-LFR-SURV-SWF-E',
         }, 'lfr_wf_e',
     ),
-    ({'SOLO_L2_RPW-LFR-SBM1-CWF-E'}, 'lfr_sbm1_wf_e'),
-    ({'SOLO_L2_RPW-LFR-SBM2-CWF-E'}, 'lfr_sbm2_wf_e'),
-    ({'SOLO_L2_RPW-LFR-SURV-ASM'}, 'lfr_asm'),
-    (
+    DtdnEntry({'SOLO_L2_RPW-LFR-SBM1-CWF-E'}, 'lfr_sbm1_wf_e'),
+    DtdnEntry({'SOLO_L2_RPW-LFR-SBM2-CWF-E'}, 'lfr_sbm2_wf_e'),
+    DtdnEntry({'SOLO_L2_RPW-LFR-SURV-ASM'}, 'lfr_asm'),
+    DtdnEntry(
         {
             'SOLO_L2_RPW-LFR-SURV-BP1',
             'SOLO_L2_RPW-LFR-SURV-BP2',
         }, 'lfr_bp',
     ),
-    (
+    DtdnEntry(
         {
             'SOLO_L2_RPW-TDS-LFM-CWF-B',
             'SOLO_L2_RPW-TDS-LFM-CWF-E',
@@ -77,23 +91,23 @@ L2_L3_DSID_TO_DTDN = (
             'SOLO_L2_RPW-TDS-LFM-PSDSM',
         }, 'tds_lfm',
     ),  # AMBIGUOUS for some: tds_lfm or tds_wf_b/e
-    ({'SOLO_L2_RPW-TDS-SURV-HIST1D'}, 'tds_hist1d'),
-    ({'SOLO_L2_RPW-TDS-SURV-HIST2D'}, 'tds_hist2d'),
-    ({'SOLO_L2_RPW-TDS-SURV-MAMP'}, 'tds_mamp'),
-    ({'SOLO_L2_RPW-TDS-SURV-STAT'}, 'tds_stat'),
-    (
+    DtdnEntry({'SOLO_L2_RPW-TDS-SURV-HIST1D'}, 'tds_hist1d'),
+    DtdnEntry({'SOLO_L2_RPW-TDS-SURV-HIST2D'}, 'tds_hist2d'),
+    DtdnEntry({'SOLO_L2_RPW-TDS-SURV-MAMP'}, 'tds_mamp'),
+    DtdnEntry({'SOLO_L2_RPW-TDS-SURV-STAT'}, 'tds_stat'),
+    DtdnEntry(
         {
             'SOLO_L2_RPW-TDS-SURV-RSWF-B',
             'SOLO_L2_RPW-TDS-SURV-TSWF-B',
         }, 'tds_wf_b',
     ),
-    (
+    DtdnEntry(
         {
             'SOLO_L2_RPW-TDS-SURV-RSWF-E',
             'SOLO_L2_RPW-TDS-SURV-TSWF-E',
         }, 'tds_wf_e',
     ),
-    (
+    DtdnEntry(
         {
             'SOLO_L2_RPW-HFR-SURV',
             'SOLO_L2_RPW-TNR-SURV',
@@ -102,20 +116,20 @@ L2_L3_DSID_TO_DTDN = (
     #######
     #  L3
     #######
-    ({'SOLO_L3_RPW-TNR-FP'}, 'tnr_fp'),
-    (
+    DtdnEntry({'SOLO_L3_RPW-TNR-FP'}, 'tnr_fp'),
+    DtdnEntry(
         {
             'SOLO_L3_RPW-BIA-EFIELD',
             'SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',
         }, 'lfr_efield',
     ),
-    (
+    DtdnEntry(
         {
             'SOLO_L3_RPW-BIA-SCPOT',
             'SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',
         }, 'lfr_scpot',
     ),
-    (
+    DtdnEntry(
         {
             'SOLO_L3_RPW-BIA-DENSITY',
             'SOLO_L3_RPW-BIA-DENSITY-10-SECONDS',
@@ -131,6 +145,12 @@ NOTE: Can only convert DSID-->DTDN for L2 & L3.
 [i][j][0] = Set of DSIDs
 [i][j][1] = DTDN associated with above set of DSIDs.
 '''
+
+# ASSERT: _LS_DTDN_ENTRIES: No duplicated DSIDs.
+lsDsid = tuple(
+    itertools.chain.from_iterable(dtdne.setDsid for dtdne in _LS_DTDN_ENTRIES),
+)
+assert len(lsDsid) == len(set(lsDsid))
 
 
 def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
@@ -224,9 +244,9 @@ def convert_DSID_to_DTDN(dsid, includeInstrument=False):
         )
 
     # __IF__ a tabulated special case applies, then handle that.
-    for (dsidSet, dtdn) in L2_L3_DSID_TO_DTDN:
-        if dsid in dsidSet:
-            return dtdn    # NOTE: EXIT
+    for dtdne in _LS_DTDN_ENTRIES:
+        if dsid in dtdne.setDsid:
+            return dtdne.dtdn    # NOTE: EXIT
 
     # ASSERTION
     if instrument == 'RPW':
@@ -236,7 +256,7 @@ def convert_DSID_to_DTDN(dsid, includeInstrument=False):
     # CASE: Not RPW
     ################
     # Previous handling of special cases has already handled all RPW cases.
-    # ==> L2_L3_DSID_TO_DTDN must describe all relevant RPW DSIDs.
+    # ==> _LS_DTDN_ENTRIES must describe all relevant RPW DSIDs.
 
     # CASE: No special case applies when converting DSID --> DTDN
     # Derive DTDN from DSID descriptor using general rule.
