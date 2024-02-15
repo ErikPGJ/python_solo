@@ -15,7 +15,7 @@ BOGIQ
 PROPOSAL: Function for parsing "item_id".
     PRO: Can use for deducing level, which can be used for handling special
          case of LL when downloading.
-    PRO: Can use to select sync subset based on e.g. dataset_ID (?).
+    PRO: Can use to select sync subset based on e.g. DSID (?).
 
 PROPOSAL: parse_item_ID() to solo.soar.
     PRO: Is associated with SOAR, not SolO in general.
@@ -56,7 +56,7 @@ def parse_dataset_filename(filename):
         None
     If filename can be parsed :
         Dictionary
-            'DATASET_ID'           : Always upper case. (Excludes CDAG.)
+            'DSID'                 : Always upper case. (Excludes CDAG.)
             'time interval string' :
             'time vector 1'        : Tuple. (year,month,day,hour,minute,second)
             'item ID'              : String. Ex: 'solo_HK_rpw-bia_20200301'
@@ -70,7 +70,7 @@ def parse_dataset_filename(filename):
     solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V01.cdf
     solo_L1_rpw-bia-sweep-cdag_20200307T053018-20200307T053330_V01.cdf
     solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf
-    # NOTE: Upper case in DATASET_ID outside level.
+    # NOTE: Upper case in DSID outside level.
     solo_L1_swa-eas2-NM3D_20201027T000007-20201027T030817_V01.cdf
     # NOTE: LL, V03I
     solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025_V03I.cdf
@@ -104,7 +104,7 @@ def parse_dataset_filename(filename):
     # NOTE: No separate flag to capture CDAG/non-CDAG. Only tolerates it.
     # NOTE: Excludes CDAG=substrList[1].
     itemId = ''.join(substrList[0:1] + substrList[2:4])
-    datasetId       = substrList[0].upper()
+    dsid            = substrList[0].upper()
     timeIntervalStr = substrList[3]
     versionStr      = substrList[5]
     try:
@@ -113,7 +113,7 @@ def parse_dataset_filename(filename):
         return None
 
     d = {
-        'DATASET_ID':           datasetId,
+        'DSID':                 dsid,
         'time interval string': timeIntervalStr,
         'version string':       versionStr,
         'time vector 1':        tv1,
@@ -151,14 +151,14 @@ def parse_item_ID(itemId: str):
     if not isPerfectMatch:
         return None
 
-    datasetId       = substrList[0].upper()
+    dsid            = substrList[0].upper()
     timeIntervalStr = substrList[2]
     try:
         tv1 = _parse_time_interval_str(timeIntervalStr)
     except Exception:
         return None
 
-    return {'DATASET_ID': datasetId, 'time vector 1': tv1}
+    return {'DSID': dsid, 'time vector 1': tv1}
 
 
 def _parse_time_interval_str(timeIntervalStr: str):
@@ -265,15 +265,15 @@ def _parse_time_interval_str(timeIntervalStr: str):
     raise Exception(f'Can not parse time interval string "{timeIntervalStr}".')
 
 
-def parse_DATASET_ID(datasetId):
+def parse_DSID(dsid):
     '''
-    Split a DATASET_ID into its constituent parts.
+    Split a DSID into its constituent parts.
 
 
     Parameters
     ----------
-    datasetId : String
-        Officially defined DATASET_ID. Uppercase.
+    dsid : String
+        Officially defined DSID. Uppercase.
         NOTE: Must not include -CDAG. Does however detect it to give special
         error message if found.
 
@@ -281,7 +281,7 @@ def parse_DATASET_ID(datasetId):
     Raises
     ------
     Exception
-        If datasetId is not a DATASET_ID.
+        If dsid is not a DSID.
 
 
     Returns
@@ -303,8 +303,8 @@ def parse_DATASET_ID(datasetId):
     BUG?: Can not handle LL01 (does not exist?), LL03 (can not find any example
           yet).
     '''
-    if not datasetId.upper() == datasetId:
-        raise Exception(f'Not uppercase datasetId="{datasetId}"')
+    if not dsid.upper() == dsid:
+        raise Exception(f'Not uppercase dsid="{dsid}"')
 
     # IMPLEMENTATION NOTE: Must search backwards because of -CDAG.
     # IMPLEMENTATION NOTE: "instrument" and "descriptor" can be identical.
@@ -313,7 +313,7 @@ def parse_DATASET_ID(datasetId):
     # NOTE: Have not seen any LL01 datasets. Not sure if such exist.
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            datasetId,
+            dsid,
             [
                 '(SOLO|RGTS)',    # 0
                 '_',
@@ -328,11 +328,11 @@ def parse_DATASET_ID(datasetId):
 
     # ASSERTIONS
     if not isPerfectMatch:
-        raise Exception(f'Can not parse datasetId="{datasetId}".')
+        raise Exception(f'Can not parse dsid="{dsid}".')
     cdagStr = substrList[-1]
     if cdagStr:
         raise Exception(
-            f'Illegal datasetId="{datasetId}" that contains "-CDAG".',
+            f'Illegal dsid="{dsid}" that contains "-CDAG".',
         )
 
     dataSrc    = substrList[0]

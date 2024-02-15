@@ -20,7 +20,7 @@ def test_parse_dataset_filename():
             actIiResult = erikpgjohansson.solo.utils.parse_item_ID(
                 actFnResult['item ID'],
             )
-            SHARED_KEYS = ('DATASET_ID', 'time vector 1')
+            SHARED_KEYS = ('DSID', 'time vector 1')
             assert all(
                 actIiResult[key] == actFnResult[key] for key in SHARED_KEYS
             )
@@ -28,7 +28,7 @@ def test_parse_dataset_filename():
     test(
         'solo_HK_rpw-bia_20200301_V01.cdf',
         {
-            'DATASET_ID': 'SOLO_HK_RPW-BIA',
+            'DSID': 'SOLO_HK_RPW-BIA',
             'time interval string': '20200301',
             'version string': '01',
             'time vector 1': (2020, 3, 1, 0, 0, 0.0),
@@ -39,7 +39,7 @@ def test_parse_dataset_filename():
     test(
         'solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V02.cdf',
         {
-            'DATASET_ID': 'SOLO_L2_RPW-LFR-SURV-CWF-E',
+            'DSID': 'SOLO_L2_RPW-LFR-SURV-CWF-E',
             'time interval string': '20200213',
             'version string': '02',
             'time vector 1': (2020, 2, 13, 0, 0, 0.0),
@@ -50,7 +50,7 @@ def test_parse_dataset_filename():
     test(
         'solo_L1_rpw-bia-sweep-cdag_20200307T053018-20200307T053330_V01.cdf',
         {
-            'DATASET_ID': 'SOLO_L1_RPW-BIA-SWEEP',
+            'DSID': 'SOLO_L1_RPW-BIA-SWEEP',
             'time interval string': '20200307T053018-20200307T053330',
             'version string': '01',
             'time vector 1': (2020, 3, 7, 5, 30, 18.0),
@@ -61,7 +61,7 @@ def test_parse_dataset_filename():
     test(
         'solo_L1_rpw-bia-current-cdag_20200301-20200331_V01.cdf',
         {
-            'DATASET_ID': 'SOLO_L1_RPW-BIA-CURRENT',
+            'DSID': 'SOLO_L1_RPW-BIA-CURRENT',
             'time interval string': '20200301-20200331',
             'version string': '01',
             'time vector 1': (2020, 3, 1, 0, 0, 0.0),
@@ -71,7 +71,7 @@ def test_parse_dataset_filename():
 
     test(
         'solo_L0_epd-epthet2-ll_0699408000-0699494399_V02.bin', {
-            'DATASET_ID': 'SOLO_L0_EPD-EPTHET2-LL',
+            'DSID': 'SOLO_L0_EPD-EPTHET2-LL',
             'time interval string': '0699408000-0699494399',
             'version string': '02',
             'time vector 1': (699408000,),
@@ -84,7 +84,7 @@ def test_parse_dataset_filename():
         'solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025_V03I'
         '.cdf',
         {
-            'DATASET_ID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
+            'DSID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
             'time interval string': '20200813T000026-20200814T000025',
             'version string': '03',
             'time vector 1': (2020, 8, 13, 0, 0, 26.0),
@@ -100,7 +100,7 @@ def test_parse_dataset_filename():
     test(
         'solo_L1_eui-fsi174-image_20200806T083130185_V01.fits',
         {
-            'DATASET_ID': 'SOLO_L1_EUI-FSI174-IMAGE',
+            'DSID': 'SOLO_L1_EUI-FSI174-IMAGE',
             'time interval string': '20200806T083130185',
             'version string': '01',
             'time vector 1': (2020, 8, 6, 8, 31, 30.185),
@@ -119,31 +119,31 @@ def test_parse_item_ID():
 
     test(
         'solo_HK_rpw-bia_20200301', {
-            'DATASET_ID': 'SOLO_HK_RPW-BIA',
+            'DSID': 'SOLO_HK_RPW-BIA',
             'time vector 1': (2020, 3, 1, 0, 0, 0.0),
         },
     )
     test(
         'solo_L2_rpw-lfr-surv-cwf-e_20200213', {
-            'DATASET_ID': 'SOLO_L2_RPW-LFR-SURV-CWF-E',
+            'DSID': 'SOLO_L2_RPW-LFR-SURV-CWF-E',
             'time vector 1': (2020, 2, 13, 0, 0, 0.0),
         },
     )
     test(
         'solo_L1_rpw-bia-sweep_20200307T053018-20200307T053330', {
-            'DATASET_ID': 'SOLO_L1_RPW-BIA-SWEEP',
+            'DSID': 'SOLO_L1_RPW-BIA-SWEEP',
             'time vector 1': (2020, 3, 7, 5, 30, 18.0),
         },
     )
     test(
         'solo_L0_epd-epthet2-ll_0699408000-0699494399', {
-            'DATASET_ID': 'SOLO_L0_EPD-EPTHET2-LL',
+            'DSID': 'SOLO_L0_EPD-EPTHET2-LL',
             'time vector 1': (699408000,),
         },
     )
     test(
         'solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025', {
-            'DATASET_ID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
+            'DSID': 'SOLO_LL02_EPD-HET-SOUTH-RATES',
             'time vector 1': (2020, 8, 13, 0, 0, 26.0),
         },
     )
@@ -180,10 +180,10 @@ def test_parse_time_interval_str():
     test('20200623T1122331-20200624T1122331', Exception)
 
 
-def test_parse_DATASET_ID():
+def test_parse_DSID():
 
-    def test(datasetId, expResult):
-        actResult = erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
+    def test(dsid, expResult):
+        actResult = erikpgjohansson.solo.utils.parse_DSID(dsid)
         assert actResult == expResult
 
     test(
@@ -200,11 +200,11 @@ def test_parse_DATASET_ID():
     )
 
     with pytest.raises(Exception):
-        erikpgjohansson.solo.utils.parse_DATASET_ID(
+        erikpgjohansson.solo.utils.parse_DSID(
             'SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG',
         )
     with pytest.raises(Exception):
-        erikpgjohansson.solo.utils.parse_DATASET_ID(
+        erikpgjohansson.solo.utils.parse_DSID(
             'solo_l2_rpw-lfr-sbm2-cwf-e',
         )
 
@@ -213,4 +213,4 @@ if __name__ == '__main__':
     test_parse_dataset_filename()
     test_parse_item_ID()
     test_parse_time_interval_str()
-    test_parse_DATASET_ID()
+    test_parse_DSID()

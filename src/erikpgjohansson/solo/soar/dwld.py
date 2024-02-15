@@ -167,7 +167,7 @@ class SoarDownloader(Downloader):
             Specifies the exact dataset except version.
             Unsure if this is an officially defined concept. "data_item_id"
             appears as column name in JSON SDTs.
-            Empirically roughly DATASET_ID + date: Filename minus _Vxx.cdf
+            Empirically roughly DSID + date: Filename minus _Vxx.cdf
             (x=digit).
             Ex: solo_L2_epd-ept-south-rates_20200730
         dirPath :
@@ -235,8 +235,8 @@ class SoarDownloader(Downloader):
         d1 = erikpgjohansson.solo.utils.parse_item_ID(dataItemId)
         if d1 is None:
             raise Exception(f'Can not parse dataItemId="{dataItemId}"')
-        _, level, _, _ = erikpgjohansson.solo.utils.parse_DATASET_ID(
-            d1['DATASET_ID'],
+        _, level, _, _ = erikpgjohansson.solo.utils.parse_DSID(
+            d1['DSID'],
         )
 
         url = get_URL(dataItemId, level)

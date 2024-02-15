@@ -18,7 +18,7 @@ import os
 PROPOSAL: sync() arguments for paths.'''
 
 
-def datasets_include_func(instrument, level, beginTime, datasetId):
+def datasets_include_func(instrument, level, beginTime, dsid):
     '''
 Function that determines whether a specific dataset is included/excluded in
 the sync.
@@ -39,7 +39,7 @@ include: bool
 '''
     # NOTE: Include all time periods. ==> Do not check beginTime (for now).
 
-    if datasetId in ('SOLO_LL02_SWA-PAS-MOM', 'SOLO_LL02_MAG'):
+    if dsid in ('SOLO_LL02_SWA-PAS-MOM', 'SOLO_LL02_MAG'):
         return True
     elif instrument == 'EPD' and level in ['L1', 'L2']:
         return True

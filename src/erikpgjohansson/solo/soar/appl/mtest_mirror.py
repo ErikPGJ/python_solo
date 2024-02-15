@@ -26,7 +26,7 @@ NOTE: Hard-coded local directory.
 '''
 
 
-def datasets_include_func(instrument, level, beginTime, datasetId):
+def datasets_include_func(instrument, level, beginTime, dsid):
     '''
 Function that determines whether a specific dataset is included/excluded in
 the sync.
@@ -58,7 +58,7 @@ include: bool
             return True
         # if (instrument == 'MAG') and (level in LS_LEVELS):
         #     return True
-        if datasetId == 'SOLO_LL02_EPD-EPT-ASUN-RATES':
+        if dsid == 'SOLO_LL02_EPD-EPT-ASUN-RATES':
             return True
 
     return False

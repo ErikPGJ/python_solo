@@ -65,18 +65,18 @@ def test_get_IDDT_subdir():
         )
 
 
-def test_convert_DATASET_ID_to_DTDN():
+def test_convert_DSID_to_DTDN():
 
-    def test(datasetId, kwargs, expResult):
-        actResult = erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
-            datasetId, **kwargs,
+    def test(dsid, kwargs, expResult):
+        actResult = erikpgjohansson.solo.iddt.convert_DSID_to_DTDN(
+            dsid, **kwargs,
         )
         assert actResult == expResult
 
-    def test_exc(datasetId, kwargs):
+    def test_exc(dsid, kwargs):
         with pytest.raises(Exception):
-            erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
-                datasetId, **kwargs,
+            erikpgjohansson.solo.iddt.convert_DSID_to_DTDN(
+                dsid, **kwargs,
             )
 
     test('SOLO_L2_RPW-LFR-SBM2-CWF-E',          {}, 'lfr_sbm2_wf_e')
@@ -120,4 +120,4 @@ def test_convert_DATASET_ID_to_DTDN():
 
 if __name__ == '__main__':
     test_get_IDDT_subdir()
-    test_convert_DATASET_ID_to_DTDN()
+    test_convert_DSID_to_DTDN()

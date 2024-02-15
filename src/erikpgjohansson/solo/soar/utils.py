@@ -555,8 +555,8 @@ def derive_DST_from_dir(rootDir):
             # non-parsable filenames.
             if di:
                 _dataSrc, level, instrument, _descriptor = \
-                    erikpgjohansson.solo.utils.parse_DATASET_ID(
-                        di['DATASET_ID'],
+                    erikpgjohansson.solo.utils.parse_DSID(
+                        di['DSID'],
                     )
 
                 filePath = os.path.join(dirPath, fileName)
@@ -637,8 +637,8 @@ def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):
     '''
     '''
     PROPOSAL: Log amount of data per combination of level and instrument.
-    PROPOSAL: Log amount of data per dataset ID.
-    PROPOSAL: Log number of datasets per dataset ID.
+    PROPOSAL: Log amount of data per DSID.
+    PROPOSAL: Log number of datasets per DSID.
     '''
     assert isinstance(dst, erikpgjohansson.solo.soar.dst.DatasetsTable)
 

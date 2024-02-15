@@ -714,9 +714,9 @@ def _find_DST_subset(
     levelArray      = dst['processing_level']
     beginTimeArray  = dst['begin_time_FN']
 
-    datasetIdArray = np.array(
+    dsidArray = np.array(
         tuple(
-            erikpgjohansson.solo.utils.parse_item_ID(itemId)['DATASET_ID']
+            erikpgjohansson.solo.utils.parse_item_ID(itemId)['DSID']
             for itemId in dst['item_id']
         ),
     )
@@ -727,7 +727,7 @@ def _find_DST_subset(
             instrument=instrumentArray[i],
             level     =levelArray[i],
             beginTime =beginTimeArray[i],
-            datasetId =datasetIdArray[i],
+            dsid      =dsidArray[i],
         )
 
     return bSubset

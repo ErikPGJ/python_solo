@@ -31,18 +31,18 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
             are organized, but have a separate acronym for the ~type-sorted
             directory trees L2, L3.
 
-PROPOSAL: Use class for L2_L3_DSI_TO_DTDN.
+PROPOSAL: Use class for L2_L3_DSID_TO_DTDN.
     PRO: Assertions.
     PRO: Clearer
     CON: Must repeat class name (constructor).
         CON-PROPOSAL: Can use local shortening.
-PROPOSAL: Check L2_L3_DSI_TO_DTDN for duplicated dataset ID.
+PROPOSAL: Check L2_L3_DSID_TO_DTDN for duplicated DSIDs.
     PRO: Has happened.
-PROPOSAL: Check L2_L3_DSI_TO_DTDN for illegal (non-parsable) dataset IDs.
+PROPOSAL: Check L2_L3_DSID_TO_DTDN for illegal (non-parsable) DSIDs.
     PRO: Has happened.
 '''
 
-L2_L3_DSI_TO_DTDN = (
+L2_L3_DSID_TO_DTDN = (
     #######
     #  L2
     #######
@@ -122,14 +122,14 @@ L2_L3_DSI_TO_DTDN = (
         }, 'lfr_density',
     ),
 )
-'''Data structure that tabulates how to convert DATASET_ID-->DTDN for
+'''Data structure that tabulates how to convert DSID-->DTDN for
 special cases, including all RPW(?) cases. A general rule is used if the
 conversion is not tabulated here.
 
-NOTE: Can only convert DATASET_ID-->DTDN for L2 & L3.
+NOTE: Can only convert DSID-->DTDN for L2 & L3.
 
-[i][j][0] = Set of DATASET_IDs
-[i][j][1] = DTDN associated with above set of DATASET_IDs.
+[i][j][0] = Set of DSIDs
+[i][j][1] = DTDN associated with above set of DSIDs.
 '''
 
 
@@ -157,7 +157,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         None : If can not parse filename.
     '''
     '''
-    PROPOSAL: DATASET_ID+time (year+month) as argument?
+    PROPOSAL: DSID+time (year+month) as argument?
         PRO: Entire filename is not used (version, cdag)
     '''
     assert type(dtdnInclInstrument) is bool
@@ -165,11 +165,11 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     d = erikpgjohansson.solo.utils.parse_dataset_filename(filename)
     if not d:
         return None
-    datasetId = d['DATASET_ID']
-    tv1       = d['time vector 1']
+    dsid = d['DSID']
+    tv1  = d['time vector 1']
 
     junk, level, instrument, descriptor = \
-        erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
+        erikpgjohansson.solo.utils.parse_DSID(dsid)
 
     yearStr  = f'{tv1[0]:04}'
     monthStr = f'{tv1[1]:02}'
@@ -182,8 +182,8 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         raise Exception(f'Illegal argument value instrDirCase={instrDirCase}')
 
     if level in ['L2', 'L3']:
-        dtdn = erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN(
-            datasetId, includeInstrument=dtdnInclInstrument,
+        dtdn = erikpgjohansson.solo.iddt.convert_DSID_to_DTDN(
+            dsid, includeInstrument=dtdnInclInstrument,
         )
         return os.path.join(instrDirName, level, dtdn, yearStr, monthStr)
     elif level in ['LL02', 'LL03', 'L1', 'L1R']:
@@ -195,9 +195,9 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         )
 
 
-def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
+def convert_DSID_to_DTDN(dsid, includeInstrument=False):
     '''
-    Convert DATASET_ID --> DTDN.
+    Convert DSID --> DTDN.
 
     Only applies to L2 & L3 since DTDNs are only defined for L2 & L3.
 
@@ -210,43 +210,43 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
         DTDN directory name
     '''
     # ASSERTIONS: Arguments
-    if not datasetId.upper() == datasetId:
-        raise Exception(f'Not uppercase datasetId="{datasetId}"')
+    if not dsid.upper() == dsid:
+        raise Exception(f'Not uppercase dsid="{dsid}"')
     assert type(includeInstrument) is bool
 
     dataSrc, level, instrument, descriptor = \
-        erikpgjohansson.solo.utils.parse_DATASET_ID(datasetId)
+        erikpgjohansson.solo.utils.parse_DSID(dsid)
 
     # ASSERTION: L2 or L3
     if level not in {'L2', 'L3'}:
         raise Exception(
-            'Can not generate DTDN for level={level}, datasetId="{datasetId}"',
+            'Can not generate DTDN for level={level}, dsid="{dsid}"',
         )
 
     # __IF__ a tabulated special case applies, then handle that.
-    for (dsiSet, dtdn) in L2_L3_DSI_TO_DTDN:
-        if datasetId in dsiSet:
+    for (dsidSet, dtdn) in L2_L3_DSID_TO_DTDN:
+        if dsid in dsidSet:
             return dtdn    # NOTE: EXIT
 
     # ASSERTION
     if instrument == 'RPW':
-        raise Exception(f'Can not handle datasetId="{datasetId}".')
+        raise Exception(f'Can not handle dsid="{dsid}".')
 
     ################
     # CASE: Not RPW
     ################
     # Previous handling of special cases has already handled all RPW cases.
-    # ==> L2_L3_DSI_TO_DTDN must describe all relevant RPW dataset IDs.
+    # ==> L2_L3_DSID_TO_DTDN must describe all relevant RPW DSIDs.
 
-    # CASE: No special case applies when converting DATASET_ID --> DTDN
-    # Derive DTDN from DATASET_ID descriptor using general rule.
+    # CASE: No special case applies when converting DSID --> DTDN
+    # Derive DTDN from DSID descriptor using general rule.
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             descriptor, ['[A-Z]+', '-', '[A-Z0-9-]+'], 1, 'permit non-match',
         )
 
     if not isPerfectMatch:
-        raise Exception(f'Can not handle datasetId="{datasetId}".')
+        raise Exception(f'Can not handle dsid="{dsid}".')
 
     if includeInstrument:
         dtdn = descriptor.lower()
@@ -455,7 +455,7 @@ def copy_move_datasets_to_IRFU_dir_tree(
     IMPLEMENTATION NOTE: Not creating directories and moving files immediately
     in order to first find errors in order to avoid interrupting the procedure
     half-way.
-    Ex: Finding DATASET_IDs that the code can not handle.'''
+    Ex: Finding DSIDs that the code can not handle.'''
     pathTable = []
     maxLenOp = 0
     for (oldDirPath, _dirnameList, filenameList) in os.walk(sourceDir):
