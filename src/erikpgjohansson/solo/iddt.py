@@ -41,13 +41,13 @@ L2_L3_DSI_TO_DTDN = (
     ),
     (
         {
-            'SOLO_L2_RPW-LFR-SBM1-CWF-E',
-            'SOLO_L2_RPW-LFR-SBM2-CWF-E',
             'SOLO_L2_RPW-LFR-SURV-CWF-E',
             'SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND',
             'SOLO_L2_RPW-LFR-SURV-SWF-E',
         }, 'lfr_wf_e',
     ),
+    ({'SOLO_L2_RPW-LFR-SBM1-CWF-E'}, 'lfr_sbm1_wf_e'),
+    ({'SOLO_L2_RPW-LFR-SBM2-CWF-E'}, 'lfr_sbm2_wf_e'),
     ({'SOLO_L2_RPW-LFR-SURV-ASM'}, 'lfr_asm'),
     (
         {

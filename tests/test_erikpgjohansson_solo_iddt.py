@@ -12,7 +12,7 @@ def test_get_IDDT_subdir():
 
     test(
         'SOLO_L2_RPW-LFR-SBM2-CWF-E_20200401_V01.cdf',
-        {}, 'rpw/L2/lfr_wf_e/2020/04',
+        {}, 'rpw/L2/lfr_sbm2_wf_e/2020/04',
     )
     test(
         'solo_L2_rpw-lfr-surv-bp1_20201001_V02.cdf',
@@ -79,7 +79,7 @@ def test_convert_DATASET_ID_to_DTDN():
                 datasetId, **kwargs,
             )
 
-    test('SOLO_L2_RPW-LFR-SBM2-CWF-E',          {}, 'lfr_wf_e')
+    test('SOLO_L2_RPW-LFR-SBM2-CWF-E',          {}, 'lfr_sbm2_wf_e')
     test('SOLO_L2_RPW-LFR-SURV-CWF-E',          {}, 'lfr_wf_e')
     test('SOLO_L2_RPW-LFR-SURV-CWF-E-1-SECOND', {}, 'lfr_wf_e')
     test('SOLO_L2_MAG-SRF-BURST',               {}, 'srf-burst')
