@@ -25,18 +25,34 @@ DC : Dictionary (Python type).
 
 DOM : Day-Of-Month
 
+DSI : Same as DATASET_ID.
+
 DST : Instance of class `erikpgjohansson.solo.soar.dst.DatasetsTable`.
 
-DT = Instance of class `datetime.datetime`.
+DT : Instance of class `datetime.datetime`.
 
 DTDN : Data Type Directory Name. Standardized (sub)directory name used
-for subset of DATASET_IDs in the "IRFU SolO data directory structure". Ex:
-lfr_wf_e.
+for SolO L2 & L3 DATASET_IDs in the "IRFU SolO data directory structure". See
+IDDT.
 
-IDTD : IRFU (SolO) Datasets Directory Tree. "SolO" is excluded from the
+- Ex: lfr_wf_e.
+- NOTE: There are no DTDNs for non-L2/L3.
+- NOTE: ROC defines DTDNs for _L2 & L3 RPW_ datasets via their
+  directory structure for sharing datasets within the RPWI consortium.
+- DTDNs for (L2 & L3) non-RPW datasets are defined by
+  `erikpgjohansson.solo.iddt.convert_DATASET_ID_to_DTDN()` and are thus
+  more arbitrary.
+
+IDDT : IRFU (SolO) Datasets Directory Tree. "SolO" is excluded from the
 name since it is implicit from parent package "solo". The way datasets are
 organized for SolO L2 & L3 datasets at IRFU. Directory paths:
 `<instrument>/<DTDN>/<year>/<month>/<dataset file>`.
+
+- Note: This does not apply to L1.
+- ROC stores non-L2, non-L3 datasets as
+  - `{L1,L1R,L1_SBM,L1R_SBM}/<year>/<month>/<day>/<dataset file>`
+    - Note: L1/L1R excludes SBM1/2.
+- SOAR mirroring also requires constructing paths for storing L1 datasets.
 
 Item ID : SOAR uses this term in SOAR's datasets tables. Subset of SolO
 dataset file name in SolO's filenaming convention.

@@ -30,9 +30,22 @@ PROPOSAL: Better module name (so.*) or shortening for IDDT.
         PROPOSAL: Module should (in principle) cover how all directory trees
             are organized, but have a separate acronym for the ~type-sorted
             directory trees L2, L3.
+
+PROPOSAL: Use class for L2_L3_DSI_TO_DTDN.
+    PRO: Assertions.
+    PRO: Clearer
+    CON: Must repeat class name (constructor).
+        CON-PROPOSAL: Can use local shortening.
+PROPOSAL: Check L2_L3_DSI_TO_DTDN for duplicated dataset ID.
+    PRO: Has happened.
+PROPOSAL: Check L2_L3_DSI_TO_DTDN for illegal (non-parsable) dataset IDs.
+    PRO: Has happened.
 '''
 
 L2_L3_DSI_TO_DTDN = (
+    #######
+    #  L2
+    #######
     (
         {
             'SOLO_L2_RPW-LFR-SURV-CWF-B',
@@ -86,6 +99,9 @@ L2_L3_DSI_TO_DTDN = (
             'SOLO_L2_RPW-TNR-SURV',
         }, 'thr',
     ),
+    #######
+    #  L3
+    #######
     ({'SOLO_L3_RPW-TNR-FP'}, 'tnr_fp'),
     (
         {
@@ -107,7 +123,8 @@ L2_L3_DSI_TO_DTDN = (
     ),
 )
 '''Data structure that tabulates how to convert DATASET_ID-->DTDN for
-special cases. A general rule is used if the conversion is not tabulated here.
+special cases, including all RPW(?) cases. A general rule is used if the
+conversion is not tabulated here.
 
 NOTE: Can only convert DATASET_ID-->DTDN for L2 & L3.
 
@@ -180,7 +197,17 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
 
 def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
     '''
-    Convert DATASET_ID --> DTDN (L2 & L3 only)
+    Convert DATASET_ID --> DTDN.
+
+    Only applies to L2 & L3 since DTDNs are only defined for L2 & L3.
+
+    Arguments:
+        includeInstrument
+            Whether non-RPW DTDNs should include the instrument name.
+            Ex: "srf-burst" vs "mag-srf-burst".
+
+    Return value:
+        DTDN directory name
     '''
     # ASSERTIONS: Arguments
     if not datasetId.upper() == datasetId:
@@ -201,10 +228,15 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
         if datasetId in dsiSet:
             return dtdn    # NOTE: EXIT
 
-    # ASSERTION: Previous handling of special cases has already handled
-    # all RPW L2+L3 cases.
-    if instrument == 'RPW' and level in ['L2', 'L3']:
+    # ASSERTION
+    if instrument == 'RPW':
         raise Exception(f'Can not handle datasetId="{datasetId}".')
+
+    ################
+    # CASE: Not RPW
+    ################
+    # Previous handling of special cases has already handled all RPW cases.
+    # ==> L2_L3_DSI_TO_DTDN must describe all relevant RPW dataset IDs.
 
     # CASE: No special case applies when converting DATASET_ID --> DTDN
     # Derive DTDN from DATASET_ID descriptor using general rule.
@@ -220,6 +252,7 @@ def convert_DATASET_ID_to_DTDN(datasetId, includeInstrument=False):
         dtdn = descriptor.lower()
     else:
         dtdn = substrList[2].lower()
+
     return dtdn
 
 

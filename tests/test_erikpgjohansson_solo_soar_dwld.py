@@ -11,6 +11,15 @@ import tempfile
 import zipfile
 
 
+'''
+PROPOSAL: Abolish test download from SOAR.
+    PRO: Slows down tests(?)
+    PRO: Risks being blacklisted by SOAR.
+    CON-PROPOSAL: Constant for switching.
+    CON-PROPOSAL: Convert into "manual test".
+'''
+
+
 def test_download_latest_dataset(tmp_path):
     '''
     NOTE: Downloads from internet. Assumes that certain files are available
@@ -55,6 +64,17 @@ def test_download_latest_dataset(tmp_path):
 
 JSON_SDTs_ZIP_FILENAME = \
     'JSON_SDTs_2022-10-19T15.30.16.zip'
+'''Linux utility "unzip" (version "20 April 2009 (v6.0)"; Ubuntu 22.04) can
+not open file. The automated tests work. /2024-02-15
+
+Message:
+""""
+Archive:  JSON_SDTs_2022-10-19T15.30.16.zip
+   skipping: EPD_v_public_files.json  need PK compat. v6.3 (can do v4.6)
+   skipping: MAG_v_public_files.json  need PK compat. v6.3 (can do v4.6)
+   skipping: SWA_v_public_files.json  need PK compat. v6.3 (can do v4.6)
+""""
+'''
 
 
 def test_convert_JSON_SDT_to_DST(tmp_path):
