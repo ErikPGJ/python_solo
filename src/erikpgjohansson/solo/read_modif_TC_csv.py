@@ -145,21 +145,21 @@ def main(
     Asserts that files do not overlap in time.
     '''
 
-    fileDictList = []
+    fileDcList = []
     for filePath in fileList:
-        fileDict = read_TC_csv_file(filePath)
-        fileDict['filePath'] = filePath
-        fileDictList.append(fileDict)
+        fileDc = read_TC_csv_file(filePath)
+        fileDc['filePath'] = filePath
+        fileDcList.append(fileDc)
 
     # Sort files in (increasing) time order.
-    fileDictList.sort(key=operator.itemgetter('DtFirst'))
+    fileDcList.sort(key=operator.itemgetter('DtFirst'))
 
     # ASSERT: Files do not overlap in time coverage.
     # (Assumes they are sorted in time internally.)
-    for (fileDict1, fileDict2) in zip(fileDictList[:-1], fileDictList[1:]):
-        filePath1 = fileDict1['filePath']
-        filePath2 = fileDict2['filePath']
-        assert fileDict1['DtLast'] < fileDict2['DtFirst'], \
+    for (fileDc1, fileDc2) in zip(fileDcList[:-1], fileDcList[1:]):
+        filePath1 = fileDc1['filePath']
+        filePath2 = fileDc2['filePath']
+        assert fileDc1['DtLast'] < fileDc2['DtFirst'], \
             f'Files\n{filePath1}\nand\n{filePath2} overlap in time.'
 
     # ========================================
@@ -171,34 +171,34 @@ def main(
     # NOTE: Does NOT assume that files have the same column names.
     #
     # TODO-NI: Is this code needed?
-    #     fileDict['colMaxWidthDict'] should contain the max column widths
+    #     fileDc['colMaxWidthDc'] should contain the max column widths
     #     already.
-    # colMaxWidthDict = {}
-    # for fileDict in fileDictList:
-    #     csvColMaxWidthDict = fileDict['colMaxWidthDict']
-    #     for (colName, csvCmw) in csvColMaxWidthDict.items():
-    #         #l = len(colMaxWidthDict[colName])
-    #         if colName in colMaxWidthDict:
-    #             cmw = max(csvCmw, csvColMaxWidthDict[colName])
+    # colMaxWidthDc = {}
+    # for fileDc in fileDcList:
+    #     csvColMaxWidthDc = fileDc['colMaxWidthDc']
+    #     for (colName, csvCmw) in csvColMaxWidthDc.items():
+    #         #l = len(colMaxWidthDc[colName])
+    #         if colName in colMaxWidthDc:
+    #             cmw = max(csvCmw, csvColMaxWidthDc[colName])
     #         else:
     #             cmw = csvCmw
-    #         colMaxWidthDict[colName] = cmw
-    colMaxWidthDict = fileDict['colMaxWidthDict']
+    #         colMaxWidthDc[colName] = cmw
+    colMaxWidthDc = fileDc['colMaxWidthDc']
 
     # =================================
     # Print filtered and modified table
     # =================================
-    for fileDict in fileDictList:
-        s = '-' * len(fileDict['filePath'])
+    for fileDc in fileDcList:
+        s = '-' * len(fileDc['filePath'])
         print(s)
-        print(fileDict['filePath'])   # DEBUG
+        print(fileDc['filePath'])   # DEBUG
         print(s)
 
-        dataDict = fileDict['dataDict']
+        dataDc = fileDc['dataDc']
 
-        for iRow in range(fileDict['nDataRows']):
-            seqDescr = dataDict['Seq. Descr.'][iRow]
-            descr    = dataDict['Description'][iRow]
+        for iRow in range(fileDc['nDataRows']):
+            seqDescr = dataDc['Seq. Descr.'][iRow]
+            descr    = dataDc['Description'][iRow]
 
             # Empirically:
             # ============
@@ -245,10 +245,10 @@ def main(
             # p = p or 'CP_BIA_SET_MODE_SET_MX_MODE' == descr
 
             if p:
-                print_row(dataDict, colMaxWidthDict, iRow)
+                print_row(dataDc, colMaxWidthDc, iRow)
 
 
-def print_row(dataDict, colWidthDict, iRow):
+def print_row(dataDc, colWidthDc, iRow):
     '''
     Print one-row representation of the content of one CSV row.
 
@@ -265,7 +265,7 @@ def print_row(dataDict, colWidthDict, iRow):
 
     Arguments
     ---------
-    colWidthDict :
+    colWidthDc :
     '''
 
     # Find nearest preceding row (or this row) with timestamp.
@@ -273,7 +273,7 @@ def print_row(dataDict, colWidthDict, iRow):
     iRowTimestamp  = iRow
     preExecTimeStr = ''
     while (not execTimeStr) & (iRowTimestamp >= 0):
-        execTimeStr = dataDict['Execution Time'][iRowTimestamp]
+        execTimeStr = dataDc['Execution Time'][iRowTimestamp]
         if execTimeStr:
             break
         else:
@@ -301,33 +301,33 @@ def print_row(dataDict, colWidthDict, iRow):
             execTimeYmdStr,
             preExecTimeStr,
             execTimeStr,
-            colWidthDict['Execution Time'],
+            colWidthDc['Execution Time'],
         ),
     )
     strList.append(
         '{0:{1}}'.format(
-            dataDict['Description'][iRow],
-            colWidthDict['Description'],
+            dataDc['Description'][iRow],
+            colWidthDc['Description'],
         ),
     )
     strList.append(
         '{0:{1}}'.format(
-            dataDict['MD'][iRow],
-            colWidthDict['MD'],
+            dataDc['MD'][iRow],
+            colWidthDc['MD'],
         ),
     )
-    # IMPLEMENTATION NOTE: colWidthDict['SSID'] is much greater than necessary
+    # IMPLEMENTATION NOTE: colWidthDc['SSID'] is much greater than necessary
     # for values actually printed (empirically).
     # Therefore uses hardcoded column width.
     strList.append(
         '{:7}'.format(
-            dataDict['SSID'][iRow],
+            dataDc['SSID'][iRow],
         ),
     )
     strList.append(
         '{0:{1}}'.format(
-            dataDict['Seq. Descr.'][iRow],
-            colWidthDict['Seq. Descr.'],
+            dataDc['Seq. Descr.'][iRow],
+            colWidthDc['Seq. Descr.'],
         ),
     )
 
@@ -348,12 +348,12 @@ def read_TC_csv_file(filePath):
 
     Returns
     -------
-    dict : dataDict extended with various related data.
+    dict : dataDc extended with various related data.
 
     '''
-    fileDict = read_CSV_file(filePath)
+    fileDc = read_CSV_file(filePath)
 
-    execTimeStrList = fileDict['dataDict']['Execution Time']
+    execTimeStrList = fileDc['dataDc']['Execution Time']
 
     execTimeStr1 = next(s for s in execTimeStrList if s)
     execTimeStr2 = next(s for s in reversed(execTimeStrList) if s)
@@ -366,13 +366,13 @@ def read_TC_csv_file(filePath):
     )
     assert DtFirst <= DtLast
 
-    fileDictExtra = {
+    fileDcExtra = {
         'DtFirst':  DtFirst,
         'DtLast':   DtLast,
     }
-    fileDict = {**fileDict, **fileDictExtra}
+    fileDc = {**fileDc, **fileDcExtra}
 
-    return fileDict
+    return fileDc
 
 
 def read_CSV_file(filePath):
@@ -385,11 +385,11 @@ def read_CSV_file(filePath):
 
     Returns
     -------
-    fileDict : Data and various metadata
-        ['dataDict'][colName][iRow]
+    fileDc : Data and various metadata
+        ['dataDc'][colName][iRow]
             String
         ['nDataRows']
-        ['colMaxWidthDict'][colName]
+        ['colMaxWidthDc'][colName]
             Scalar integer. Max number of characters for any string in this
             column.
     '''
@@ -420,19 +420,19 @@ def read_CSV_file(filePath):
                 nCols, filePath,
             )
 
-    # Create: dataDict[colName][iRow]
-    dataDict        = {}
-    colMaxWidthDict = {}
+    # Create: dataDc[colName][iRow]
+    dataDc        = {}
+    colMaxWidthDc = {}
     for colName, iCol in zip(colNameList, range(nCols)):
-        dataDict[colName] = [
+        dataDc[colName] = [
             strListList[iCsvRow][iCol] for iCsvRow in range(1, nFileRows)
         ]
-        colMaxWidthDict[colName] = max(len(s) for s in dataDict[colName])
+        colMaxWidthDc[colName] = max(len(s) for s in dataDc[colName])
 
     return {
-        'dataDict':        dataDict,
-        'nDataRows':       nFileRows-1,
-        'colMaxWidthDict': colMaxWidthDict,
+        'dataDc':        dataDc,
+        'nDataRows':     nFileRows-1,
+        'colMaxWidthDc': colMaxWidthDc,
     }
 
 

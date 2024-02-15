@@ -21,7 +21,7 @@ PROPOSAL: Change way of representing FS objects.
         CON: May have to linebreak paths.
 
 PROPOSAL: Recursive function for comparing dict representations of FS.
-    assert act_dict_objs == exp_dict_objs
+    assert act_dc_objs == exp_dc_objs
 '''
 
 
@@ -70,8 +70,8 @@ metadata. '''
 
 
 def _get_SOAR_JSON_metadata_ls_index(json_metadata_ls, name):
-    for i, entry_dict in enumerate(json_metadata_ls):
-        if entry_dict['name'] == name:
+    for i, entry_dc in enumerate(json_metadata_ls):
+        if entry_dc['name'] == name:
             return i
     raise AssertionError()
 
@@ -339,19 +339,19 @@ def create_file(path, size):
         f.write(b'0' * size)
 
 
-def setup_FS(root_dir, dict_objs):
+def setup_FS(root_dir, dc_objs):
     '''Create specified directory tree of (nonsense) files and directories.
     FS = File System.
 
     Note: Function fully validates the input arguments.
     '''
 
-    assert type(dict_objs) is dict
+    assert type(dc_objs) is dict
 
     # NOTE: Permits pre-existing directory.
     os.makedirs(root_dir, exist_ok=True)
 
-    for obj_name, obj_content in dict_objs.items():
+    for obj_name, obj_content in dc_objs.items():
         assert type(obj_name) is str
         if type(obj_content) is int:
             create_file(os.path.join(root_dir, obj_name), obj_content)
@@ -362,27 +362,27 @@ def setup_FS(root_dir, dict_objs):
             raise Exception()
 
 
-def assert_FS(root_dir, exp_dict_objs):
+def assert_FS(root_dir, exp_dc_objs):
     '''Verify that a directory contains exactly the specified set of
     directories and files.'''
 
     def get_FS(root_dir):
-        dict_fs = {}
+        dc_fs = {}
         it = os.scandir(root_dir)
         for de in it:
             obj_name = de.name
             assert not de.is_symlink()
             if de.is_file():
-                dict_fs[obj_name] = de.stat().st_size
+                dc_fs[obj_name] = de.stat().st_size
             elif de.is_dir():
-                dict_fs[obj_name] = get_FS(os.path.join(root_dir, obj_name))
+                dc_fs[obj_name] = get_FS(os.path.join(root_dir, obj_name))
             else:
                 raise Exception('')
 
-        return dict_fs
+        return dc_fs
 
-    act_dict_objs = get_FS(root_dir)
-    assert act_dict_objs == exp_dict_objs, 'Directory tree is not as expected.'
+    act_dc_objs = get_FS(root_dir)
+    assert act_dc_objs == exp_dc_objs, 'Directory tree is not as expected.'
 
 
 if __name__ == '__main__':

@@ -28,11 +28,11 @@ def test_setup_FS_assert_FS(tmp_path):
     '''Test that setup_FS() and assert_FS() are consistent with each other.'''
     dp = tests.DirProducer(tmp_path)
 
-    def test_eq(dict_objs):
+    def test_eq(dc_objs):
         test_dir = dp.get_new_dir()
 
-        tests.setup_FS(test_dir, dict_objs)
-        tests.assert_FS(test_dir, dict_objs)
+        tests.setup_FS(test_dir, dc_objs)
+        tests.assert_FS(test_dir, dc_objs)
 
     # ===========================================
     # Equality between setup_FS() and assert_FS()

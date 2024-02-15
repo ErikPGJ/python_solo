@@ -85,7 +85,7 @@ class SoarDownloader(Downloader):
 
         Returns
         -------
-        JsonDict : Representation of SOAR dataset list.
+        JsonDc : Representation of SOAR dataset list.
         --
         NOTE: begin_time may contain string "null".
         NOTE: item_version == string, e.g. "V02".
@@ -141,8 +141,8 @@ class SoarDownloader(Downloader):
             f' Size: {len(s)} bytes',
         )
 
-        JsonDict = json.loads(s)
-        if type(JsonDict) is not dict:
+        JsonDc = json.loads(s)
+        if type(JsonDc) is not dict:
             msg = (
                 f'JSON SDT (SOAR Datasets Table)'
                 f' downloaded from SOAR for {instrument} :'
@@ -152,7 +152,7 @@ class SoarDownloader(Downloader):
             L.error(msg)
             raise Exception(msg)
 
-        return JsonDict
+        return JsonDc
 
     def download_latest_dataset(
         self, dataItemId, dirPath,
@@ -357,7 +357,7 @@ def download_SDT_DST(downloader: Downloader):
 
 
 @codetiming.Timer('_convert_JSON_SDT_to_DST', logger=None)
-def _convert_JSON_SDT_to_DST(JsonDict):
+def _convert_JSON_SDT_to_DST(JsonDc):
     '''
     Convert downloaded JSON SDT to better format.
 
@@ -365,7 +365,7 @@ def _convert_JSON_SDT_to_DST(JsonDict):
 
     Parameters
     ----------
-    JsonDict
+    JsonDc
         JSON-like representation of SDT.
 
     Returns
@@ -395,15 +395,15 @@ def _convert_JSON_SDT_to_DST(JsonDict):
     # string --> datetime64
     STR_TO_DT64_COLUMN_NAMES = {'begin_time', 'archived_on'}
 
-    assert type(JsonDict) is dict
+    assert type(JsonDc) is dict
 
     L = logging.getLogger(__name__)
     # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
     L.info('Converting downloaded JSON SDT (SOAR Datasets Table) to DST.')
 
-    metadataList = JsonDict['metadata']
-    dataTuples   = JsonDict['data']
-    del JsonDict
+    metadataList = JsonDc['metadata']
+    dataTuples   = JsonDc['data']
+    del JsonDc
 
     # =====================================================================
     # For every column in the JSON SDT, create one column in the DST. For
@@ -412,7 +412,7 @@ def _convert_JSON_SDT_to_DST(JsonDict):
     # NOTE: Implementation should permit the JSON SDT to add or remove columns
     # for future compatibility.
     columnNameList = [
-        columnMetadataDict['name'] for columnMetadataDict in metadataList
+        columnMetadataDc['name'] for columnMetadataDc in metadataList
     ]
     dc_na = {}
     for iCol in range(len(columnNameList)):
