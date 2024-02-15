@@ -85,30 +85,34 @@ def test_convert_DATASET_ID_to_DTDN():
     test('SOLO_L2_MAG-SRF-BURST',               {}, 'srf-burst')
     test('SOLO_L2_MAG-RTN-NORMAL-1-MINUTE',     {}, 'rtn-normal-1-minute')
 
-    if 0:
-        test('SOLO_L3_RPW-BIA-EFIELD-10-SECONDS', {}, 'bia-efield-10-seconds')
+    test('SOLO_L3_RPW-BIA-DENSITY-10-SECONDS',  {}, 'lfr_density')
+    test('SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',    {}, 'lfr_scpot')
+    test('SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',   {}, 'lfr_efield')
+    test('SOLO_L3_RPW-TNR-FP',                  {}, 'tnr_fp')
+
+    ####################
+    # includeInstrument
+    ####################
+    # RPW
+    for includeInstrument in [False, True]:
         test(
-            'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': False},
-            'bia-efield',
-        )
-        test(
-            'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': True},
-            'rpw-bia-efield',
-        )
-    else:
-        test('SOLO_L3_RPW-BIA-DENSITY-10-SECONDS', {}, 'lfr_density')
-        test('SOLO_L3_RPW-BIA-SCPOT-10-SECONDS',   {}, 'lfr_scpot')
-        test('SOLO_L3_RPW-BIA-EFIELD-10-SECONDS',  {}, 'lfr_efield')
-        test('SOLO_L3_RPW-TNR-FP',                 {}, 'tnr_fp')
-        test(
-            'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': False},
-            'lfr_efield',
-        )
-        test(
-            'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': True},
+            'SOLO_L3_RPW-BIA-EFIELD', {'includeInstrument': includeInstrument},
             'lfr_efield',
         )
 
+    # Non-RPW
+    test(
+        'SOLO_L2_EPD-HET-SUN-RATES', {'includeInstrument': False},
+        'het-sun-rates',
+    )
+    test(
+        'SOLO_L2_EPD-HET-SUN-RATES', {'includeInstrument': True},
+        'epd-het-sun-rates',
+    )
+
+    #############
+    # Exceptions
+    #############
     test_exc('SOLO_L1_EPD-SIS-B-HEHIST', {})
     test_exc('SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG', {})
     test_exc('solo_l2_rpw-lfr-sbm2-cwf-e', {})
