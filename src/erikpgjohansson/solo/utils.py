@@ -81,6 +81,8 @@ def parse_dataset_filename(filename):
     '''
     PROPOSAL: Return "time vector 2" (end of dataset time according to name).
         PROBLEM: How increment day (over month/year boundary) to find it?
+
+    PROPOSAL: Return namedtuple, not dictionary.
     '''
     # NOTE: Reg.exp. "[CIU]?" appears to be required(?) for LL data, but is
     # absent otherwise.
@@ -297,9 +299,6 @@ def parse_DSID(dsid):
         NOTE: "descriptor" is wrong term?
     '''
     '''
-    PROPOSAL: Return dictionary instead.
-        TODO-DEC: Term for last segment.
-            NOTE: "descriptor" could be bad term.
     BUG?: Can not handle LL01 (does not exist?), LL03 (can not find any example
           yet).
     '''

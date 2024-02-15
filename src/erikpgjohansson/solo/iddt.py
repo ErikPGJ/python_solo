@@ -9,8 +9,8 @@ Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 import dataclasses
 import erikpgjohansson.solo.asserts
-import erikpgjohansson.solo.utils
 import erikpgjohansson.solo.str
+import erikpgjohansson.solo.utils
 import itertools
 import logging
 import os.path
@@ -20,18 +20,26 @@ import shutil
 '''
 BOGIQ
 =====
-PROPOSAL: Better module name (so.*) or shortening for IDDT.
-    PROPOSAL: irfudirtree
-    PROPOSAL: irfudirstruct
-    PROPOSAL: idds/iddt irfu datasets dir struct/tree
-        ~irfu, ~org, ~data, ~structure, ~dir, ~dir tree, ~format, ~instrument
-        ~datasets
+PROPOSAL: Better module name (so.*) and shortening for IDDT.
+    ~IRFU
+    ~directory tree
+    ~org
+    ~data,
+    ~structure
+    ~format
+    ~datasets
     PROPOSAL: Something that implies that it does not imply the directory
         trees that follow other convention: L1, L1R.
         PROPOSAL: ~type-sorted
         PROPOSAL: Module should (in principle) cover how all directory trees
             are organized, but have a separate acronym for the ~type-sorted
             directory trees L2, L3.
+
+PROPOSAL: Better name for DTDN.
+    ~DSID
+    ~subdirectory
+    ~directory
+    ~name
 '''
 
 
@@ -188,7 +196,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     dsid = d['DSID']
     tv1  = d['time vector 1']
 
-    junk, level, instrument, descriptor = \
+    _, level, instrument, descriptor = \
         erikpgjohansson.solo.utils.parse_DSID(dsid)
 
     yearStr  = f'{tv1[0]:04}'
