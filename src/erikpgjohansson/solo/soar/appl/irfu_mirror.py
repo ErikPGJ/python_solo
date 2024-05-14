@@ -54,9 +54,9 @@ include: bool
 def sync():
     # NOTE: Script can be used on irony if SO directories have been
     # mounted.
-    assert os.uname().nodename in ['brain', 'spis', 'irony'], (
+    assert os.uname().nodename in ['brain', 'spis', 'anna', 'irony'], (
         'This code is not intended to run on this machine (not'
-        ' configured for it.'
+        ' configured for it).'
     )
 
     # NOTE: const.LS_SOAR_INSTRUMENTS determines which instruments can at
