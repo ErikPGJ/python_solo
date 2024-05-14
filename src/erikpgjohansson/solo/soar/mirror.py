@@ -110,6 +110,29 @@ PROPOSAL: Download exact version of dataset, not the latest version.
              and is thus not dependent on exact filenames.
 
 PROPOSAL: Make code robust w.r.t. network error, file not present at SOAR.
+
+PROPOSAL: Use configuration file (JSON) to set system/setup-dependent values.
+          Abolish wrappers irfu_mirror (probably), mtest_mirror.
+    NOTE: Can not completely abolish irfu_mirror_shell. (Can abolish
+          mtest_mirror_shell though).
+    PRO: No hardcoded values in git repo.
+    CON: Can not specify generic datasets_include_func/datasetsSubsetFunc in
+         configuration file! "Must" always have code for datasets_include_func
+         for the official IRFU SOAR mirror!
+        CON-PROPOSAL: Invent syntax/storable data structure which covers the
+            official mirror's datasets_include_func.
+            CON: Less general.
+            PRO: Might be ~easy.
+            PROPOSAL: List of entries, where each entry contains fields for
+                instrument, level, etc. Field=null <=> wildcard (accept any
+                value).
+            PROPOSAL: List of explicit DSIDs.
+
+PROPOSAL: Replace datasetsSubsetFunc with class.
+    CON: Only one function replaced by one method.
+    PRO: Can potentially configure (set values) in constructor.
+    PRO: Better documentation of methdo/function signature.
+    PROPOSAL: Use class for returning other configuration values.
 '''
 
 

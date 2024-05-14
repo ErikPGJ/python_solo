@@ -67,10 +67,10 @@ Essentially DSID + time interval in official filename.
 
 NA : Numpy Array.
 
-SOAR : Solar Orbiter ARchive. `https://soar.esac.esa.int/soar/`
-
 SDT : SOAR Datasets Table. Table over datasets (metadata) at SOAR, either all
 or some subset. Not to be confused with DST, which can be a way of storing e.g.
 an SDT.
+
+SOAR : Solar Orbiter ARchive. `https://soar.esac.esa.int/soar/`
 
 TD = Instance of class `datetime.timedelta`.

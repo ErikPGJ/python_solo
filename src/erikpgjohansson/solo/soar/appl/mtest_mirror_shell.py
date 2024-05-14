@@ -11,8 +11,8 @@ specifies the correct Python environment.
 __author__ = "Erik P G Johansson, IRF"
 
 
-import sys
 import erikpgjohansson.solo.soar.appl.mtest_mirror
+import sys
 
 
 '''
