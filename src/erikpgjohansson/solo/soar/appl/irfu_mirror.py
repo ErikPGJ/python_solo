@@ -67,7 +67,8 @@ def sync():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
 
     log_file = os.path.join(
-        f'/home/erjo/logs/so_soar_irfu_mirror_sync.{timestamp}.log',
+        f'/home/erjo/logs/'
+        f'so_soar_irfu_mirror_sync.{os.uname().nodename}.{timestamp}.log',
     )
     removal_dir = os.path.join(MIRROR_ADMIN, 'removal', timestamp)
 
