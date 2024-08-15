@@ -203,8 +203,8 @@ def sync(
     BUG: Can not handle multiple identical datasets.
 
     ~BUG: Not sure about behaviour for datasets (mistakenly) not recognized by
-        erikpgjohansson.solo.metadata.parse_dataset_filename among the SOAR
-        datasets.
+        erikpgjohansson.solo.metadata.DatasetFilename.parse_filename() among
+        the SOAR datasets.
             NOTE: Should only happen if datasetsSubsetFunc() uses time.
 
     BUG: Gets frequent error messages when calling from bash/python wrapper

@@ -33,105 +33,137 @@ _RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
 RE_OBT                = '[0-9]{10,10}'
 
 
-def parse_dataset_filename(filename):
-    '''
-    Parse dataset filename following official filenaming convention.
+class DatasetFilename:
+    '''Class which represents (some of) the content of a dataset filename
+    which follows official filenaming conventions.
 
-    NOTE: Can amend code to return more filename fields eventually.
-    NOTE: Includes added support for tolerating the RPW-specific
-    consortium-internal "-cdag" extension to official filenaming conventions.
-    NOTE: Only permits specific file extensions. Some file extensions will
-    always result in filename no being recognized as a dataset despite that
-    there are official datasets with those file extensions. SOAR mirror uses
-    erikpgjohansson.solo.soar.const.FILE_SUFFIX_IGNORE_LIST
+    Note: The class does not contain all the information in the dataset
+    filename.
 
-    IMPLEMENTATION NOTE: The functionality kind of overlaps with
-    parse_item_ID(), except that that function does not support the "-CDAG"
-    extension. Can therefore not use parse_item_ID() in the implementation of
-    this function.
-
-    Parameters
-    ----------
-    filename : String
-        Nominally file name following official naming conventions.
-        NOTE: Applies to datasets for all instruments (not just RPW).
-
-    Returns
-    -------
-    If filename can not be parsed :
-        None
-    If filename can be parsed :
-        Dictionary
-            'DSID'                 : Always upper case. (Excludes CDAG.)
-            'time interval string' :
-            'time vector 1'        : Tuple. (year,month,day,hour,minute,second)
-            'item ID'              : String. Ex: 'solo_HK_rpw-bia_20200301'
-                                     As defined by SDT.
-            'version string'       : String. Ex: '02'.
-
-
-    Examples of in-flight dataset filenames
-    ---------------------------------------
-    solo_HK_rpw-bia_20200301_V01.cdf
-    solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V01.cdf
-    solo_L1_rpw-bia-sweep-cdag_20200307T053018-20200307T053330_V01.cdf
-    solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf
-    # NOTE: Upper case in DSID outside level.
-    solo_L1_swa-eas2-NM3D_20201027T000007-20201027T030817_V01.cdf
-    # NOTE: LL, V03I
-    solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025_V03I.cdf
-    # NOTE: File suffix ".fits".
-    # NOTE: Extra second decimals.
-    solo_L1_eui-fsi174-image_20200806T083130185_V01.fits
+    Note: Implementation inspired by irfu-matlab's
+    solo.adm.dsfn.DatasetFilename but does not fully conform to it. That
+    implementation also includes creating dataset filenames, handling
+    redundant information through properties (calculated on demand), and is
+    fully invertible. Any future expansions or refactoring to this dataset
+    filename code should (probably) follow that design.
     '''
     '''
-    PROPOSAL: Return "time vector 2" (end of dataset time according to name).
-        PROBLEM: How increment day (over month/year boundary) to find it?
-
-    PROPOSAL: Return namedtuple, not dictionary.
-    PROPOSAL: Return class.
-        NOTE: Cf. solo.adm.dsfn.DatasetFilename in irfu-matlab.
+    PROPOSAL: Replace versionStr-->versionNbr.
+        PROBLEM: LL "I" and "C" could maybe be considered part of version.
     '''
-    # NOTE: Reg.exp. "[CIU]?" appears to be required(?) for LL data, but is
-    # absent otherwise.
-    # /SOL-SGS-TN-0009 MetadataStandard
-    substrList, remainingStr, isPerfectMatch = \
-        erikpgjohansson.solo.str.regexp_str_parts(
-            filename, [
-                '.*',                   # 0
-                '(|-cdag|-CDAG)',
-                '_',
-                _RE_TIME_INTERVAL_STR,   # 3
-                '_V',
-                '[0-9][0-9]+',          # 5
-                '[CIU]?',
-                r'\.(cdf|fits|bin)',
-            ],
-            -1, 'permit non-match',
+
+    def __init__(self, dsid, timeIntervalStr, timeVector1, itemId, versionStr):
+        # Always upper case. (Excludes CDAG.)
+        self.dsid            = dsid
+        self.timeIntervalStr = timeIntervalStr
+        # Tuple.(year, month, day, hour, minute, second)
+        self.timeVector1     = timeVector1
+        # String. Ex: 'solo_HK_rpw-bia_20200301'
+        # As defined by SDT.
+        self.itemId          = itemId
+        # String. Ex: '02'.
+        self.versionStr      = versionStr
+
+    def __eq__(self, other):
+        '''Useful for tests.
+        '''
+        # NOTE: Do not permit any difference in class.
+        if type(self) is not type(other):
+            return False
+        else:
+            return self.__dict__ == other.__dict__
+
+    @staticmethod
+    def parse_filename(filename):
+        '''
+        Parse dataset filename following official filenaming convention.
+
+        NOTE: Can amend code to return more filename fields eventually.
+
+        NOTE: Includes added support for tolerating the RPW-specific
+        consortium-internal "-cdag" extension to official filenaming
+        conventions.
+        NOTE: Only permits specific file extensions. Some file extensions
+        will always result in filename no being recognized as a dataset
+        despite that there are official datasets with those file extensions.
+        SOAR mirror uses
+        erikpgjohansson.solo.soar.const.FILE_SUFFIX_IGNORE_LIST
+
+        IMPLEMENTATION NOTE: The functionality kind of overlaps with
+        parse_item_ID(), except that that function does not support the
+        "-CDAG" extension. Can therefore not use parse_item_ID() in the
+        implementation of this function.
+
+        Parameters
+        ----------
+        filename : String
+            Nominally file name following official dataset filenaming
+            conventions.
+            NOTE: Applies to datasets for all instruments (not just RPW).
+
+        Returns
+        -------
+        If filename can not be parsed :
+            None
+        If filename can be parsed :
+            Instance of `erikpgjohansson.solo.DatasetFilename`.
+
+        Examples of in-flight dataset filenames
+        ---------------------------------------
+        solo_HK_rpw-bia_20200301_V01.cdf
+        solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V01.cdf
+        solo_L1_rpw-bia-sweep-cdag_20200307T053018-20200307T053330_V01.cdf
+        solo_L2_epd-step-burst_20200703T232228-20200703T233728_V02.cdf
+        # NOTE: Upper case in DSID outside level.
+        solo_L1_swa-eas2-NM3D_20201027T000007-20201027T030817_V01.cdf
+        # NOTE: LL, V03I
+        solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025_V03I.cdf
+        # NOTE: File suffix ".fits".
+        # NOTE: Extra second decimals.
+        solo_L1_eui-fsi174-image_20200806T083130185_V01.fits
+        '''
+        '''
+        PROPOSAL: Return "timeVector2" (end of dataset time according to name).
+            PROBLEM: How increment day (over month/year boundary) to find it?
+        '''
+        # NOTE: Reg.exp. "[CIU]?" after version string appears to be
+        # required(?) for LL data, but is absent otherwise.
+        # /SOL-SGS-TN-0009 MetadataStandard
+        substrList, remainingStr, isPerfectMatch = \
+            erikpgjohansson.solo.str.regexp_str_parts(
+                filename, [
+                    '.*',                   # 0
+                    '(|-cdag)',
+                    '_',
+                    _RE_TIME_INTERVAL_STR,   # 3
+                    '_V',
+                    '[0-9][0-9]+',          # 5
+                    '[CIU]?',
+                    r'\.(cdf|fits|bin)',
+                ],
+                -1, 'permit non-match',
+            )
+
+        if not isPerfectMatch:
+            return None
+
+        # NOTE: Does not store any separate flag for CDAG/non-CDAG. Only
+        #       tolerates it.
+        itemId = ''.join(substrList[0:1] + substrList[2:4])
+        dsid            = substrList[0].upper()
+        timeIntervalStr = substrList[3]
+        versionStr      = substrList[5]
+
+        try:
+            tv1 = _parse_time_interval_str(timeIntervalStr)
+        except Exception:
+            return None
+
+        dsfn = DatasetFilename(
+            dsid=dsid, timeIntervalStr=timeIntervalStr, versionStr=versionStr,
+            timeVector1=tv1, itemId=itemId,
         )
-
-    if not isPerfectMatch:
-        return None
-
-    # NOTE: No separate flag to capture CDAG/non-CDAG. Only tolerates it.
-    # NOTE: Excludes CDAG=substrList[1].
-    itemId = ''.join(substrList[0:1] + substrList[2:4])
-    dsid            = substrList[0].upper()
-    timeIntervalStr = substrList[3]
-    versionStr      = substrList[5]
-    try:
-        tv1 = _parse_time_interval_str(timeIntervalStr)
-    except Exception:
-        return None
-
-    d = {
-        'DSID':                 dsid,
-        'time interval string': timeIntervalStr,
-        'version string':       versionStr,
-        'time vector 1':        tv1,
-        'item ID':              itemId,
-    }
-    return d
+        return dsfn
 
 
 def parse_item_ID(itemId: str):

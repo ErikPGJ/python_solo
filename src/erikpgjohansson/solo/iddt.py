@@ -190,11 +190,13 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     '''
     assert type(dtdnInclInstrument) is bool
 
-    d = erikpgjohansson.solo.metadata.parse_dataset_filename(filename)
-    if not d:
+    dsfn = erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
+        filename,
+    )
+    if not dsfn:
         return None
-    dsid = d['DSID']
-    tv1  = d['time vector 1']
+    dsid = dsfn.dsid
+    tv1  = dsfn.timeVector1
 
     _, level, instrument, descriptor = \
         erikpgjohansson.solo.metadata.parse_DSID(dsid)

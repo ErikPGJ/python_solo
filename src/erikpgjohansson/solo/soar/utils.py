@@ -10,6 +10,7 @@ import codetiming
 import collections
 import concurrent.futures
 import datetime
+import erikpgjohansson.solo.metadata
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.dwld as dwld
@@ -551,20 +552,24 @@ def derive_DST_from_dir(rootDir):
     for (dirPath, subDirNames, fileNames) in os.walk(rootDir):
         for fileName in fileNames:
 
-            di = erikpgjohansson.solo.metadata.parse_dataset_filename(fileName)
-            # IMPLEMENTATION NOTE: parse_dataset_filename() returns None for
-            # non-parsable filenames.
-            if di:
+            dsfn = \
+                erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
+                    fileName,
+                )
+            # IMPLEMENTATION NOTE:
+            # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
+            # returns None for non-parsable filenames.
+            if dsfn:
                 _dataSrc, level, instrument, _descriptor = \
                     erikpgjohansson.solo.metadata.parse_DSID(
-                        di['DSID'],
+                        dsfn.dsid,
                     )
 
                 filePath = os.path.join(dirPath, fileName)
                 filePathList   += [filePath]
                 fileNameList   += [fileName]
-                fileVerList    += [int(di['version string'])]
-                itemIdList     += [di['item ID']]
+                fileVerList    += [int(dsfn.versionStr)]
+                itemIdList     += [dsfn.itemId]
                 fileSizeList   += [os.stat(filePath).st_size]
                 instrumentList += [instrument]
                 levelList      += [level]
@@ -572,7 +577,7 @@ def derive_DST_from_dir(rootDir):
                 # NOTE: datetime.datetime requires integer seconds+microseconds
                 # in separate arguments (as integers). Filenames should only
                 # contain time with microseconds=0 so we ignore them.
-                tv1    = list(di['time vector 1'])
+                tv1    = list(dsfn.timeVector1)
                 tv1[5] = int(tv1[5])
                 beginTimeFnList += [datetime.datetime(*tv1)]
 

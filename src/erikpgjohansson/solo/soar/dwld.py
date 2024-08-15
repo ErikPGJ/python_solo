@@ -379,7 +379,8 @@ def _convert_JSON_SDT_to_DST(JsonDc):
                 Ex: Numeric (instead of string), time format.
 
     PROPOSAL: Assert that files not recognized by
-        erikpgjohansson.solo.parse_dataset_filename() are really not datasets.
+        erikpgjohansson.solo.metadata.DatasetFilename.parse_filename() are
+        really not datasets.
         PROPOSAL: Assert that there is a non-null begin_time.
 
     PROPOSAL: Abolish creation of "begin_time_FN". Seems unnecessary.
@@ -459,18 +460,22 @@ def _convert_JSON_SDT_to_DST(JsonDc):
     )
     for iRow in range(nRows):
         fileName = filenameArray[iRow]
-        di = erikpgjohansson.solo.metadata.parse_dataset_filename(fileName)
-        # IMPORTANT NOTE: parse_dataset_filename() might fail for datasets
-        # which have a valid non-null begin_time. Is therefore dependent on how
+        dsfn = erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
+            fileName,
+        )
+
+        # IMPORTANT NOTE: erikpgjohansson.solo.metadata.DatasetFilename
+        # .parse_filename() might fail for datasets which have a valid
+        # non-null begin_time. Is therefore dependent on how
         # well-implemented that function is.
 
-        if di and len(di['time vector 1']) == 6:
+        if dsfn and len(dsfn.timeVector1) == 6:
             # CASE: Can parse dataset filename and time interval string.
 
             # NOTE: datetime.datetime requires integer seconds+microseconds
             # in separate arguments (as integers). Filenames should only
             # contain time with microseconds=0 so we ignore them.
-            tv1    = list(di['time vector 1'])
+            tv1    = list(dsfn.timeVector1)
             tv1[5] = int(tv1[5])
             value  = datetime.datetime(*tv1)
             beginTimeFnArray[iRow] = np.datetime64(value, 'ms')
@@ -486,7 +491,8 @@ def _convert_JSON_SDT_to_DST(JsonDc):
         else:
             # CASE: Can NOT parse filename.
             # ASSERTION: Assert that file is any of the known cases that
-            # erikpgjohansson.solo.parse_dataset_filename() can not handle.
+            # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
+            # can not handle.
             fileNameSuffix = pathlib.Path(fileName).suffix
             assert (fileNameSuffix in const.FILE_SUFFIX_IGNORE_LIST), (
                 f'Can neither parse SOAR file name "{fileName}", nor recognize'

@@ -23,6 +23,8 @@ DC : Dictionary (Python type).
 
 DOM : Day-Of-Month
 
+DSFN : Class `erikpgjohansson.solo.DatasetFilename`.
+
 DSID : "Dataset ID". A string constant which uniquely represents a type of
 SolO dataset. Probably defined by LESIA for SolO/RPW datasets. Identical to
 the beginning of filenames following the official mission-wide filenaming

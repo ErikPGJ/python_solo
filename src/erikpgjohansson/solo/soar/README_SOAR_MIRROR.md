@@ -50,7 +50,7 @@ for the progress of downloads is therefore detailed.
 
 Caveat: As it stands, the SOAR mirror code can only handle CDF datasets, and
 only ones that follow those official filenaming conventions that are already
-supported by `erikpgjohansson.solo.parse_dataset_filename()`.
+supported by `erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()`.
 
 # Important source code files
 
