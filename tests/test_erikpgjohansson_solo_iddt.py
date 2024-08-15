@@ -116,8 +116,3 @@ def test_convert_DSID_to_DTDN():
     test_exc('SOLO_L1_EPD-SIS-B-HEHIST', {})
     test_exc('SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG', {})
     test_exc('solo_l2_rpw-lfr-sbm2-cwf-e', {})
-
-
-if __name__ == '__main__':
-    test_get_IDDT_subdir()
-    test_convert_DSID_to_DTDN()

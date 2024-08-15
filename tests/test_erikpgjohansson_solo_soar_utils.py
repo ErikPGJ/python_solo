@@ -2,10 +2,7 @@ import datetime
 import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.tests as tests
 import erikpgjohansson.solo.soar.utils as utils
-import logging
 import numpy as np
-import sys
-import tempfile
 
 
 def test_download_latest_datasets_batch(tmp_path):
@@ -176,14 +173,3 @@ def test_log_DST():
         ['MAG', 'EPD', 'EPD', 'EPD'],
         ['L1', 'L2', 'L2', 'L2'],
     )
-
-
-if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    t = tempfile.TemporaryDirectory()
-    test_download_latest_datasets_batch(t.name)
-
-    test_download_latest_datasets_batch_log_progress()
-    test_find_latest_versions()
-    test_log_DST()

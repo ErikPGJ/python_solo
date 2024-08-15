@@ -1,6 +1,5 @@
 import erikpgjohansson.solo.soar.tests as tests
 import os
-import tempfile
 
 
 def test_assert_FS(tmp_path):
@@ -59,11 +58,3 @@ def test_setup_FS_assert_FS(tmp_path):
             },
         },
     })
-
-
-if __name__ == '__main__':
-    t = tempfile.TemporaryDirectory()
-    test_assert_FS(t.name)
-
-    t = tempfile.TemporaryDirectory()
-    test_setup_FS_assert_FS(t.name)

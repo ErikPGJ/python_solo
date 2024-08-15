@@ -10,10 +10,7 @@ content, but including file sizes).
 import erikpgjohansson.solo.soar.mirror
 import erikpgjohansson.solo.soar.dwld
 import erikpgjohansson.solo.soar.tests as tests
-import logging
 import os
-import sys
-import tempfile
 
 
 '''
@@ -365,10 +362,3 @@ def test_offline_cleanup(tmp_path):
 
     test0()
     test1()
-
-
-if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    test_sync(tempfile.TemporaryDirectory().name)
-    test_offline_cleanup(tempfile.TemporaryDirectory().name)

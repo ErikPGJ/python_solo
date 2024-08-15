@@ -87,7 +87,3 @@ def test_DatasetsTable():
     test2()
     test_index()
     test_add()
-
-
-if __name__ == '__main__':
-    test_DatasetsTable()

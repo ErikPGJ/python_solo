@@ -203,10 +203,3 @@ def test_parse_DSID():
         erikpgjohansson.solo.metadata.parse_DSID(
             'solo_l2_rpw-lfr-sbm2-cwf-e',
         )
-
-
-if __name__ == '__main__':
-    test_DatasetFilename()
-    test_parse_item_ID()
-    test_parse_time_interval_str()
-    test_parse_DSID()

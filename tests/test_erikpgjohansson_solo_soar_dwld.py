@@ -2,11 +2,8 @@ import erikpgjohansson.solo.soar.const
 import erikpgjohansson.solo.soar.dwld
 import erikpgjohansson.solo.soar.tests as tests
 import json
-import logging
 import numpy as np
 import pathlib
-import sys
-import tempfile
 import zipfile
 
 
@@ -111,10 +108,3 @@ def test_convert_JSON_SDT_to_DST(tmp_path):
 
     test_stored_actual_SDTs()
     test_manual_SDTs()
-
-
-if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    t = tempfile.TemporaryDirectory()
-    test_convert_JSON_SDT_to_DST(t.name)
