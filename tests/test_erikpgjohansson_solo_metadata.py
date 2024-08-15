@@ -1,5 +1,4 @@
 import erikpgjohansson.solo.metadata
-import inspect
 import pytest
 
 
@@ -157,28 +156,24 @@ def test_parse_item_ID():
 
 
 def test_parse_time_interval_str():
-    def test(s, expResult):
-        if inspect.isclass(expResult) and issubclass(expResult, Exception):
-            expException = expResult
-            with pytest.raises(expException):
-                erikpgjohansson.solo.metadata._parse_time_interval_str(s)
-        else:
-            expTv = expResult
-            actTv = erikpgjohansson.solo.metadata._parse_time_interval_str(s)
+    def test(s, expTv):
+        actTv = erikpgjohansson.solo.metadata._parse_time_interval_str(s)
+        if expTv is not None:
             assert len(actTv) == 6
             assert all(type(x) is int for x in actTv[0:5])
             assert type(actTv[5]) is float
-            assert actTv == expTv
+
+        assert actTv == expTv
 
     test('20200623',                          (2020, 6, 23,  0,  0,  0.0))
     test('20200623T112233',                   (2020, 6, 23, 11, 22, 33.0))
     test('20200623T1122331',                  (2020, 6, 23, 11, 22, 33.1))
     test('20200623T11223312',                 (2020, 6, 23, 11, 22, 33.12))
     test('20200623T112233123',                (2020, 6, 23, 11, 22, 33.123))
-    test('20200623T1122331234',               Exception)
+    test('20200623T1122331234',               None)
     test('20200623-20200624',                 (2020, 6, 23,  0,  0,  0.0))
     test('20200623T112233-20200624T112233',   (2020, 6, 23, 11, 22, 33.0))
-    test('20200623T1122331-20200624T1122331', Exception)
+    test('20200623T1122331-20200624T1122331', None)
 
 
 def test_parse_DSID():

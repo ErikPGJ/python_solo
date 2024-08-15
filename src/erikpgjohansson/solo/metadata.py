@@ -154,9 +154,8 @@ class DatasetFilename:
         timeIntervalStr = substrList[3]
         versionStr      = substrList[5]
 
-        try:
-            tv1 = _parse_time_interval_str(timeIntervalStr)
-        except Exception:
+        tv1 = _parse_time_interval_str(timeIntervalStr)
+        if tv1 is None:
             return None
 
         dsfn = DatasetFilename(
@@ -197,9 +196,8 @@ def parse_item_ID(itemId: str):
 
     dsid            = substrList[0].upper()
     timeIntervalStr = substrList[2]
-    try:
-        tv1 = _parse_time_interval_str(timeIntervalStr)
-    except Exception:
+    tv1 = _parse_time_interval_str(timeIntervalStr)
+    if tv1 is None:
         return None
 
     return {'DSID': dsid, 'time vector 1': tv1}
@@ -220,17 +218,10 @@ def _parse_time_interval_str(timeIntervalStr: str):
 
     Returns
     -------
-    year, month, day, hour, minute (all int)
-    second (float)
-
-    Exception
-    ---------
-    If can not parse string.
-    '''
-    '''
-    PROPOSAL: Refactor to return ~None if can not parse.
-        PRO: Analogous with parse_dataset_filename().
-        CON: Must reinterpret assertions.
+    If can parse string.
+        year, month, day, hour, minute (all int), second (float)
+    Else
+        None
     '''
 
     def parse_YYYYMMDD(s):
@@ -306,7 +297,7 @@ def _parse_time_interval_str(timeIntervalStr: str):
     if isPerfectMatch:
         return parse_OBT(substrList[0])
 
-    raise Exception(f'Can not parse time interval string "{timeIntervalStr}".')
+    return None
 
 
 def parse_DSID(dsid):
