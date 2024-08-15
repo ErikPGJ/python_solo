@@ -11,3 +11,4 @@ src/*.egg-info/
 venv/
 private/
 *.DISABLED
+node_modules/

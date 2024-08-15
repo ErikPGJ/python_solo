@@ -13,7 +13,6 @@ import erikpgjohansson.solo.soar.mirror
 import logging
 import numpy
 import os
-# import sys
 
 
 '''
@@ -28,7 +27,7 @@ NOTE: Hard-coded local directory.
 
 def datasets_include_func(instrument, level, beginTime, dsid):
     '''
-Function that determines whether a specific dataset is included/excluded in
+Function which determines whether a specific dataset is included/excluded in
 the sync.
 
 
@@ -66,16 +65,18 @@ include: bool
 
 def sync():
     assert os.uname().nodename in ['brain', 'spis', 'irony'], \
-        'This code is not meant to run on this machine.'
+        'This code is not designed to run on this machine.'
 
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
-    removal_dir = os.path.join(ROOT_DIR, f'removal_{timestamp}')
+    s_timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
+    removal_dir = os.path.join(ROOT_DIR, f'removal_{s_timestamp}')
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.basicConfig(
-        filename=os.path.join(ROOT_DIR, f'mtest_mirror_sync.{timestamp}.log'),
+        filename=os.path.join(
+            ROOT_DIR, f'mtest_mirror_sync.{s_timestamp}.log',
+        ),
         level=logging.INFO,
         format='{asctime} {levelname:<8} {message}',
         style='{',

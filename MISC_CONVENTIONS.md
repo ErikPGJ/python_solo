@@ -65,6 +65,8 @@ Essentially DSID + time interval in official filename.
   - `solo_L2_epd-ept-south-rates_20200720`
   - `solo_LL02_epd-het-sun-rates_20201012T000034-20201013T000034`
 
+L : `logging.Logger` object.
+
 NA : Numpy Array.
 
 SDT : SOAR Datasets Table. Table over datasets (metadata) at SOAR, either all
@@ -74,3 +76,7 @@ an SDT.
 SOAR : Solar Orbiter ARchive. `https://soar.esac.esa.int/soar/`
 
 TD = Instance of class `datetime.timedelta`.
+
+## Logging
+
+Logging objects are obtained using `logging.getLogger(__name__)`.

@@ -6,6 +6,7 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 import codetiming
+import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.iddt
 import erikpgjohansson.solo.soar.const as const
 import erikpgjohansson.solo.soar.dwld as dwld
@@ -131,7 +132,8 @@ PROPOSAL: Use configuration file (JSON) to set system/setup-dependent values.
 PROPOSAL: Replace datasetsSubsetFunc with class.
     CON: Only one function replaced by one method.
     PRO: Can potentially configure (set values) in constructor.
-    PRO: Better documentation of methdo/function signature.
+    PRO: Better documentation of method/function signature.
+    PRO: Can verify that class has expected superclass.
     PROPOSAL: Use class for returning other configuration values.
 '''
 
@@ -178,6 +180,9 @@ def sync(
     removeRemovalDir
         Bool. If using a removal directory, then whether to actually remove the
         removal directory or keep it.
+    downloader
+        erikpgjohansson.solo.soar.dwld object. The default value should be used
+        except for automated tests.
 
 
     Return values
@@ -528,7 +533,7 @@ def _calculate_sync_dir_update(
         )
         L.error(msg)
         L.error(
-            f'First {const.N_EXCESS_DATASETS_PRINT} dataset that would have '
+            f'First {const.N_EXCESS_DATASETS_PRINT} dataset that would have'
             f' been deleted:',
         )
         for fileName in localExcessDst['file_name'][

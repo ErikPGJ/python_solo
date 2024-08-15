@@ -12,6 +12,15 @@ PROPOSAL: Move constants to "settings" dictionary.
     PROPOSAL: Custom dictionary with hardcoded set of permitted keys.
 PROPOSAL: Move constants to erikpgjohansson.solo.soar.mirror.sync() keyword
           arguments with default values.
+
+PROPOSAL: Replace FILE_SUFFIX_IGNORE_LIST with list for file suffixes which
+          should only be considered (ignore all other).
+    TODO-NI: Can dataset filenaming code handle other file suffixes than
+             ".cdf"?
+PROPOSAL: Generalize dataset filenaming functionality to handle all file
+          suffixes.
+    TODO-NI: Can on have file/datasets with same basename but with different
+             file suffixes?
 '''
 
 
@@ -62,4 +71,7 @@ Should speed up downloads.
 
 2022-10-21: Seems to work very well from testing, except for some mixing of
 log messages from different threads. Not tested "in production" but is ready
-to be.'''
+to be.
+
+2024-08-15: Seems to work well "in production".
+'''
