@@ -53,7 +53,7 @@ SOAR_TAP_URL = 'http://soar.esac.esa.int/soar-sl-tap'
 arguments added to actually be used.'''
 
 
-FILE_SUFFIX_IGNORE_LIST = ['.zip', '.jp2', '.h5', '.bin', '.fits']
+FILE_SUFFIX_IGNORE_LIST = ['.zip', '.jp2', '.h5', '.bin', '.fits', '.png']
 '''File suffixes of SOAR files whose dataset filenames are permitted to not be
 recognized (parsable) by the code. These files will effectively be ignored.
 
