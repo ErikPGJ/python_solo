@@ -551,12 +551,12 @@ def derive_DST_from_dir(rootDir):
     for (dirPath, subDirNames, fileNames) in os.walk(rootDir):
         for fileName in fileNames:
 
-            di = erikpgjohansson.solo.utils.parse_dataset_filename(fileName)
+            di = erikpgjohansson.solo.metadata.parse_dataset_filename(fileName)
             # IMPLEMENTATION NOTE: parse_dataset_filename() returns None for
             # non-parsable filenames.
             if di:
                 _dataSrc, level, instrument, _descriptor = \
-                    erikpgjohansson.solo.utils.parse_DSID(
+                    erikpgjohansson.solo.metadata.parse_DSID(
                         di['DSID'],
                     )
 

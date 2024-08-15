@@ -23,7 +23,7 @@ import datetime
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.soar.const as const
 import erikpgjohansson.solo.soar.dst
-import erikpgjohansson.solo.utils
+import erikpgjohansson.solo.metadata
 import json
 import logging
 import numpy as np
@@ -232,10 +232,10 @@ class SoarDownloader(Downloader):
         assert type(dataItemId) is str
 
         # Extract level from item ID.
-        d1 = erikpgjohansson.solo.utils.parse_item_ID(dataItemId)
+        d1 = erikpgjohansson.solo.metadata.parse_item_ID(dataItemId)
         if d1 is None:
             raise Exception(f'Can not parse dataItemId="{dataItemId}"')
-        _, level, _, _ = erikpgjohansson.solo.utils.parse_DSID(
+        _, level, _, _ = erikpgjohansson.solo.metadata.parse_DSID(
             d1['DSID'],
         )
 
@@ -459,7 +459,7 @@ def _convert_JSON_SDT_to_DST(JsonDc):
     )
     for iRow in range(nRows):
         fileName = filenameArray[iRow]
-        di = erikpgjohansson.solo.utils.parse_dataset_filename(fileName)
+        di = erikpgjohansson.solo.metadata.parse_dataset_filename(fileName)
         # IMPORTANT NOTE: parse_dataset_filename() might fail for datasets
         # which have a valid non-null begin_time. Is therefore dependent on how
         # well-implemented that function is.

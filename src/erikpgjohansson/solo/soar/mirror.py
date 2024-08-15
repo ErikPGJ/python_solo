@@ -11,7 +11,7 @@ import erikpgjohansson.solo.iddt
 import erikpgjohansson.solo.soar.const as const
 import erikpgjohansson.solo.soar.dwld as dwld
 import erikpgjohansson.solo.soar.utils as utils
-import erikpgjohansson.solo.utils
+import erikpgjohansson.solo.metadata
 import logging
 import numpy as np
 import os
@@ -203,7 +203,7 @@ def sync(
     BUG: Can not handle multiple identical datasets.
 
     ~BUG: Not sure about behaviour for datasets (mistakenly) not recognized by
-        erikpgjohansson.solo.utils.parse_dataset_filename among the SOAR
+        erikpgjohansson.solo.metadata.parse_dataset_filename among the SOAR
         datasets.
             NOTE: Should only happen if datasetsSubsetFunc() uses time.
 
@@ -757,7 +757,7 @@ def _find_DST_subset(
 
     dsidArray = np.array(
         tuple(
-            erikpgjohansson.solo.utils.parse_item_ID(itemId)['DSID']
+            erikpgjohansson.solo.metadata.parse_item_ID(itemId)['DSID']
             for itemId in dst['item_id']
         ),
     )

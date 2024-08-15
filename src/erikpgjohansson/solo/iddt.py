@@ -10,7 +10,7 @@ Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 import dataclasses
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.str
-import erikpgjohansson.solo.utils
+import erikpgjohansson.solo.metadata
 import itertools
 import logging
 import os.path
@@ -53,10 +53,10 @@ class DtdnEntry:
         assert type(self.setDsid) is set
         assert self.setDsid    # Assert not empty.
         for dsid in self.setDsid:
-            # NOTE: Using erikpgjohansson.solo.utils.parse_DSID() as an
+            # NOTE: Using erikpgjohansson.solo.metadata.parse_DSID() as an
             # assertion on DSID.
             _, level, instrument, descriptor = \
-                _ = erikpgjohansson.solo.utils.parse_DSID(dsid)
+                _ = erikpgjohansson.solo.metadata.parse_DSID(dsid)
             assert level in ['L2', 'L3']
             # NOTE: Does not assert instrument, since might want special
             # treatment of non-RPW datasets too.
@@ -190,14 +190,14 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     '''
     assert type(dtdnInclInstrument) is bool
 
-    d = erikpgjohansson.solo.utils.parse_dataset_filename(filename)
+    d = erikpgjohansson.solo.metadata.parse_dataset_filename(filename)
     if not d:
         return None
     dsid = d['DSID']
     tv1  = d['time vector 1']
 
     _, level, instrument, descriptor = \
-        erikpgjohansson.solo.utils.parse_DSID(dsid)
+        erikpgjohansson.solo.metadata.parse_DSID(dsid)
 
     yearStr  = f'{tv1[0]:04}'
     monthStr = f'{tv1[1]:02}'
@@ -243,7 +243,7 @@ def convert_DSID_to_DTDN(dsid, includeInstrument=False):
     assert type(includeInstrument) is bool
 
     dataSrc, level, instrument, descriptor = \
-        erikpgjohansson.solo.utils.parse_DSID(dsid)
+        erikpgjohansson.solo.metadata.parse_DSID(dsid)
 
     # ASSERTION: L2 or L3
     if level not in {'L2', 'L3'}:

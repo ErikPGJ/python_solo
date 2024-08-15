@@ -1,8 +1,11 @@
-'''
-Initially created by Erik P G Johansson 2020-10-16, IRF Uppsala, Sweden.
+'''Module for handling dataset metadata, in particular filenames and
+substrings thereof.
 
 Filenaming conventions are described in
 "Metadata Definition for Solar Orbiter Science Data", SOL-SGS-TN-0009.
+
+Initially created by Erik P G Johansson 2020-10-16,
+IRF Uppsala, Sweden.
 '''
 
 
@@ -10,10 +13,6 @@ import erikpgjohansson.solo.str
 
 
 '''
-PROPOSAL: Rename module.
-    PRO: Only utilities for parsing metadata strings, including filenames.
-    PROPOSAL: erikpgjohansson.soar.metadata
-
 PROPOSAL: Function for parsing "item_id".
     PRO: Can use for deducing level, which can be used for handling special
          case of LL when downloading.
@@ -25,10 +24,10 @@ PROPOSAL: parse_item_ID() to solo.soar.
 
 
 # Regular Expressions (RE)
-RE_TIME_INTERVAL_STR  = '[0-9T-]{8,31}'
-RE_YYYYMMDD           = '[0-9]{8,8}'
-RE_YYYYMMDDThhmmss    = '[0-9]{8,8}T[0-9]{6,6}'
-RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
+_RE_TIME_INTERVAL_STR  = '[0-9T-]{8,31}'
+_RE_YYYYMMDD           = '[0-9]{8,8}'
+_RE_YYYYMMDDThhmmss    = '[0-9]{8,8}T[0-9]{6,6}'
+_RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
 # L0 filenames contain OBT, not UTC. It is not known how many digits these
 # may use, but empirically it is always ten.
 RE_OBT                = '[0-9]{10,10}'
@@ -102,7 +101,7 @@ def parse_dataset_filename(filename):
                 '.*',                   # 0
                 '(|-cdag|-CDAG)',
                 '_',
-                RE_TIME_INTERVAL_STR,   # 3
+                _RE_TIME_INTERVAL_STR,   # 3
                 '_V',
                 '[0-9][0-9]+',          # 5
                 '[CIU]?',
@@ -157,7 +156,7 @@ def parse_item_ID(itemId: str):
             itemId, [
                 '.*',              # 0
                 '_',
-                RE_TIME_INTERVAL_STR,   # 2
+                _RE_TIME_INTERVAL_STR,   # 2
             ],
             -1, 'permit non-match',
         )
@@ -232,7 +231,7 @@ def _parse_time_interval_str(timeIntervalStr: str):
     _, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            [RE_YYYYMMDD],
+            [_RE_YYYYMMDD],
             1, 'permit non-match',
         )
     if isPerfectMatch:
@@ -241,7 +240,7 @@ def _parse_time_interval_str(timeIntervalStr: str):
     substrList, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            [RE_YYYYMMDD, '-', RE_YYYYMMDD],
+            [_RE_YYYYMMDD, '-', _RE_YYYYMMDD],
             1, 'permit non-match',
         )
     if isPerfectMatch:
@@ -250,7 +249,7 @@ def _parse_time_interval_str(timeIntervalStr: str):
     substrList, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            [RE_YYYYMMDDThhmmssddd],
+            [_RE_YYYYMMDDThhmmssddd],
             1, 'permit non-match',
         )
     if isPerfectMatch:
@@ -259,7 +258,7 @@ def _parse_time_interval_str(timeIntervalStr: str):
     substrList, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            [RE_YYYYMMDDThhmmss, '-', RE_YYYYMMDDThhmmss],
+            [_RE_YYYYMMDDThhmmss, '-', _RE_YYYYMMDDThhmmss],
             1, 'permit non-match',
         )
     if isPerfectMatch:

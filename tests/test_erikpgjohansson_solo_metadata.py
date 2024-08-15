@@ -1,4 +1,4 @@
-import erikpgjohansson.solo.utils
+import erikpgjohansson.solo.metadata
 import inspect
 import pytest
 
@@ -6,7 +6,7 @@ import pytest
 def test_parse_dataset_filename():
 
     def test(filename, expResult):
-        actFnResult = erikpgjohansson.solo.utils.parse_dataset_filename(
+        actFnResult = erikpgjohansson.solo.metadata.parse_dataset_filename(
             filename,
         )
         assert actFnResult == expResult
@@ -17,7 +17,7 @@ def test_parse_dataset_filename():
             # parse_item_ID()
             # =======================================================
             # II = Item ID
-            actIiResult = erikpgjohansson.solo.utils.parse_item_ID(
+            actIiResult = erikpgjohansson.solo.metadata.parse_item_ID(
                 actFnResult['item ID'],
             )
             SHARED_KEYS = ('DSID', 'time vector 1')
@@ -114,7 +114,7 @@ def test_parse_dataset_filename():
 
 def test_parse_item_ID():
     def test(itemId, expResult):
-        actResult = erikpgjohansson.solo.utils.parse_item_ID(itemId)
+        actResult = erikpgjohansson.solo.metadata.parse_item_ID(itemId)
         assert actResult == expResult
 
     test(
@@ -160,10 +160,10 @@ def test_parse_time_interval_str():
         if inspect.isclass(expResult) and issubclass(expResult, Exception):
             expException = expResult
             with pytest.raises(expException):
-                erikpgjohansson.solo.utils._parse_time_interval_str(s)
+                erikpgjohansson.solo.metadata._parse_time_interval_str(s)
         else:
             expTv = expResult
-            actTv = erikpgjohansson.solo.utils._parse_time_interval_str(s)
+            actTv = erikpgjohansson.solo.metadata._parse_time_interval_str(s)
             assert len(actTv) == 6
             assert all(type(x) is int for x in actTv[0:5])
             assert type(actTv[5]) is float
@@ -183,7 +183,7 @@ def test_parse_time_interval_str():
 def test_parse_DSID():
 
     def test(dsid, expResult):
-        actResult = erikpgjohansson.solo.utils.parse_DSID(dsid)
+        actResult = erikpgjohansson.solo.metadata.parse_DSID(dsid)
         assert actResult == expResult
 
     test(
@@ -200,11 +200,11 @@ def test_parse_DSID():
     )
 
     with pytest.raises(Exception):
-        erikpgjohansson.solo.utils.parse_DSID(
+        erikpgjohansson.solo.metadata.parse_DSID(
             'SOLO_L2_RPW-LFR-SBM2-CWF-E-CDAG',
         )
     with pytest.raises(Exception):
-        erikpgjohansson.solo.utils.parse_DSID(
+        erikpgjohansson.solo.metadata.parse_DSID(
             'solo_l2_rpw-lfr-sbm2-cwf-e',
         )
 
