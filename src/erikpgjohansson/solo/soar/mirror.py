@@ -260,84 +260,97 @@ def sync(
              PRO: Will only remove replaced datasets when replacement has
                   already been downloaded.
         CON: Slower since has to scan local files twice.
+
+    PROBLEM: How handle exceptions?
+        TODO-DEC: How handle exceptions in log?
+        PROPOSAL: Raise exception
+            PROPOSAL: Print exception in log and propagate exception still.
+                      -- IMPLEMENTED
+        PROPOSAL: Catch exceptions
     '''
     L = logging.getLogger(__name__)
 
-    # ==========
-    # ASSERTIONS
-    # ==========
-    assert isinstance(downloader, dwld.Downloader)
-    erikpgjohansson.solo.asserts.is_dir(syncDir)
-    erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
-    assert callable(datasetsSubsetFunc)
-    assert type(nMaxNetDatasetsToRemove) in [int, float]
+    try:
+        # ==========
+        # ASSERTIONS
+        # ==========
+        assert isinstance(downloader, dwld.Downloader)
+        erikpgjohansson.solo.asserts.is_dir(syncDir)
+        erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
+        assert callable(datasetsSubsetFunc)
+        assert type(nMaxNetDatasetsToRemove) in [int, float]
 
-    # IMPLEMENTATION NOTE: Useful to print Python executable to verify that
-    # the correct Python environment is used.
-    L.info(f'sys.executable = "{sys.executable}"')
+        # IMPLEMENTATION NOTE: Useful to print Python executable to verify that
+        # the correct Python environment is used.
+        L.info(f'sys.executable = "{sys.executable}"')
 
-    # ==============================
-    # Create table of local datasets
-    # ==============================
-    # NOTE: Explicitly includes ALL versions, i.e. also NON-LATEST versions.
-    # There should theoretically only be one version of each dataset locally,
-    # but if there are more, then they should be included so that they can be
-    # removed (or kept in the rare but possible case of SOAR
-    # down-versioning datasets).
-    L.info('Producing table of pre-existing local datasets.')
-    localDst = utils.derive_DST_from_dir(syncDir)
-    utils.log_DST(
-        localDst, 'Pre-existing local datasets that should be synced',
-    )
+        # ==============================
+        # Create table of local datasets
+        # ==============================
+        # NOTE: Explicitly includes ALL versions, i.e. also NON-LATEST
+        # versions. There should theoretically only be one version of each
+        # dataset locally, but if there are more, then they should be
+        # included so that they can be removed (or kept in the rare but
+        # possible case of SOAR down-versioning datasets).
+        L.info('Producing table of pre-existing local datasets.')
+        localDst = utils.derive_DST_from_dir(syncDir)
+        utils.log_DST(
+            localDst, 'Pre-existing local datasets that should be synced',
+        )
 
-    # ============
-    # Download SDT
-    # ============
-    L.info('Downloading SDT (SOAR Datasets Table).')
-    sdtDst = dwld.download_SDT_DST(downloader)
-    utils.log_DST(
-        sdtDst,
-        'SDT (SOAR Datasets Table):'
-        ' Synced and non-synced, all dataset versions,'
-        ' not necessarily all types of datasets.',
-    )
+        # ============
+        # Download SDT
+        # ============
+        L.info('Downloading SDT (SOAR Datasets Table).')
+        sdtDst = dwld.download_SDT_DST(downloader)
+        utils.log_DST(
+            sdtDst,
+            'SDT (SOAR Datasets Table):'
+            ' Synced and non-synced, all dataset versions,'
+            ' not necessarily all types of datasets.',
+        )
 
-    # ASSERTION: SDT is not empty
-    # ---------------------------
-    # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero datasets
-    # by mistake or due to bug. This could in turn lead to deleting all local
-    # datasets.
-    assert sdtDst.n() > 0, (
-        'SOAR returned an empty SDT (SOAR Datasets Table),'
-        ' making it seem as if SOAR has no datasets.'
-        ' This should imply that there is something wrong with either'
-        ' (1) SOAR, or (2) this software.'
-    )
+        # ASSERTION: SDT is not empty
+        # ---------------------------
+        # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero
+        # datasets by mistake or due to bug. This could in turn lead to
+        # deleting all local datasets.
+        assert sdtDst.n() > 0, (
+            'SOAR returned an empty SDT (SOAR Datasets Table),'
+            ' making it seem as if SOAR has no datasets.'
+            ' This should imply that there is something wrong with either'
+            ' (1) SOAR, or (2) this software.'
+        )
 
-    refDst = _calculate_reference_DST(sdtDst, datasetsSubsetFunc)
-    utils.log_DST(
-        refDst, 'Reference datasets that should be synced with local datasets',
-    )
+        refDst = _calculate_reference_DST(sdtDst, datasetsSubsetFunc)
+        utils.log_DST(
+            refDst,
+            'Reference datasets that should be synced with local datasets',
+        )
 
-    soarMissingDst, localExcessDst = _calculate_sync_dir_update(
-        refDst=refDst,
-        localDst=localDst,
-        datasetsSubsetFunc=datasetsSubsetFunc,
-        deleteOutsideSubset=deleteOutsideSubset,
-        nMaxNetDatasetsToRemove=nMaxNetDatasetsToRemove,
-    )
+        soarMissingDst, localExcessDst = _calculate_sync_dir_update(
+            refDst=refDst,
+            localDst=localDst,
+            datasetsSubsetFunc=datasetsSubsetFunc,
+            deleteOutsideSubset=deleteOutsideSubset,
+            nMaxNetDatasetsToRemove=nMaxNetDatasetsToRemove,
+        )
 
-    _execute_sync_dir_SOAR_update(
-        downloader=downloader,
-        soarMissingDst=soarMissingDst,
-        localExcessDst=localExcessDst,
-        syncDir=syncDir,
-        tempDownloadDir=tempDownloadDir,
-        tempRemovalDir=tempRemovalDir,
-        removeRemovalDir=removeRemovalDir,
-    )
+        _execute_sync_dir_SOAR_update(
+            downloader=downloader,
+            soarMissingDst=soarMissingDst,
+            localExcessDst=localExcessDst,
+            syncDir=syncDir,
+            tempDownloadDir=tempDownloadDir,
+            tempRemovalDir=tempRemovalDir,
+            removeRemovalDir=removeRemovalDir,
+        )
 
-    utils.log_codetiming()   # DEBUG
+        utils.log_codetiming()   # DEBUG
+
+    except Exception as e:
+        L.exception(e)
+        raise e
 
 
 def offline_cleanup(
