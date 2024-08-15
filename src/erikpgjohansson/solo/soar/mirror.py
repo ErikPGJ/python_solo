@@ -8,10 +8,10 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 import codetiming
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.iddt
+import erikpgjohansson.solo.metadata
 import erikpgjohansson.solo.soar.const as const
 import erikpgjohansson.solo.soar.dwld as dwld
 import erikpgjohansson.solo.soar.utils as utils
-import erikpgjohansson.solo.metadata
 import logging
 import numpy as np
 import os

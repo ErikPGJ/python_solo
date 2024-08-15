@@ -30,7 +30,7 @@ _RE_YYYYMMDDThhmmss    = '[0-9]{8,8}T[0-9]{6,6}'
 _RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
 # L0 filenames contain OBT, not UTC. It is not known how many digits these
 # may use, but empirically it is always ten.
-RE_OBT                = '[0-9]{10,10}'
+_RE_OBT                = '[0-9]{10,10}'
 
 
 class DatasetFilename:
@@ -78,15 +78,19 @@ class DatasetFilename:
         '''
         Parse dataset filename following official filenaming convention.
 
+        NOTE: Does *not* support all official datasets (from all instruments),
+        but a large subset of them.
+
         NOTE: Can amend code to return more filename fields eventually.
 
         NOTE: Includes added support for tolerating the RPW-specific
         consortium-internal "-cdag" extension to official filenaming
         conventions.
+
         NOTE: Only permits specific file extensions. Some file extensions
         will always result in filename no being recognized as a dataset
         despite that there are official datasets with those file extensions.
-        SOAR mirror uses
+        The SOAR mirror uses
         erikpgjohansson.solo.soar.const.FILE_SUFFIX_IGNORE_LIST
 
         IMPLEMENTATION NOTE: The functionality kind of overlaps with
@@ -126,18 +130,59 @@ class DatasetFilename:
         PROPOSAL: Return "timeVector2" (end of dataset time according to name).
             PROBLEM: How increment day (over month/year boundary) to find it?
         '''
-        # NOTE: Reg.exp. "[CIU]?" after version string appears to be
-        # required(?) for LL data, but is absent otherwise.
-        # /SOL-SGS-TN-0009 MetadataStandard
+        '''
+        NOTE: Reg.exp. "[CIU]?" after version string appears to be
+        required(?) for LL data, but is absent otherwise.
+        /SOL-SGS-TN-0009 MetadataStandard
+
+
+
+        """"""""
+        The CDF files will be named according to the file naming convention
+        described in [METADATA], with the exceptions that the filename shall
+        contain the coarse SCET of the first and last record in the file in
+        decimal, each padded to 10 digits, rather than any UTC timetag,
+        the version number is the generation date and time of the file to
+        minute resolution and incomplete files (see below) are given the
+        suffix ‘I’ after the version number. For example, 1 incomplete day
+        of low latency magnetic field vectors from MAG may be named:
+
+        solo_LL01_mag-vec_0000000000-0000086399_V201810120000I.cdf
+        """"""""
+
+        /SOL-SGS-ICD-0004, "Solar Orbiter Interface Control Document for Low
+        Latency Data CDF Files", 1/4, SOL-SGS-ICD-0004-LLCDFICD-1.4draft3.pdf
+
+
+
+        """"""""
+        The FITS files will be named according to the file naming convention
+        described in [METADATA], with the exception that the filename shall
+        contain the coarse OBT of the observation in the file, padded to 10
+        digits, rather than any UTC timetag. The version number is the
+        generation date and time of the file (in UTC) and (in)complete files
+        are given the suffix (‘I’)‘C’ after the version number, files for
+        which that distinction cannot be made are given the suffix ‘U’ (see
+        Sect. 3.2.2).
+
+        /.../
+
+        For example, a PHI magnetogram may be named:
+
+        solo_LL01_phi-fdt-magn_0000086399_V202001120000C.fits
+        """"""""
+        /SOL-SGS-ICD-0005, "Solar Orbiter Interface Control Document for Low
+        Latency Data FITS Files", 1/5, SOL-SGS-ICD-0005-LLFITSICD-1.5draft.pdf
+        '''
         substrList, remainingStr, isPerfectMatch = \
             erikpgjohansson.solo.str.regexp_str_parts(
                 filename, [
-                    '.*',                   # 0
+                    '.*',                    # 0
                     '(|-cdag)',
                     '_',
                     _RE_TIME_INTERVAL_STR,   # 3
                     '_V',
-                    '[0-9][0-9]+',          # 5
+                    '[0-9][0-9]+',           # 5
                     '[CIU]?',
                     r'\.(cdf|fits|bin)',
                 ],
@@ -149,7 +194,7 @@ class DatasetFilename:
 
         # NOTE: Does not store any separate flag for CDAG/non-CDAG. Only
         #       tolerates it.
-        itemId = ''.join(substrList[0:1] + substrList[2:4])
+        itemId          = ''.join(substrList[0:1] + substrList[2:4])
         dsid            = substrList[0].upper()
         timeIntervalStr = substrList[3]
         versionStr      = substrList[5]
@@ -185,7 +230,7 @@ def parse_item_ID(itemId: str):
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             itemId, [
-                '.*',              # 0
+                '.*',                    # 0
                 '_',
                 _RE_TIME_INTERVAL_STR,   # 2
             ],
@@ -205,7 +250,7 @@ def parse_item_ID(itemId: str):
 
 def _parse_time_interval_str(timeIntervalStr: str):
     '''
-    Parse time interval string.
+    Parse time interval string and return the first timestamp.
 
     Parameters
     ----------
@@ -218,8 +263,12 @@ def _parse_time_interval_str(timeIntervalStr: str):
 
     Returns
     -------
-    If can parse string.
+    If can parse string as UTC.
         year, month, day, hour, minute (all int), second (float)
+        If there are two UTC timestamps, only return value for the first
+        timestamp.
+    If can parse string as OBT-OBT.
+        Length-1 tuple with OBT value (int).
     Else
         None
     '''
@@ -287,11 +336,11 @@ def _parse_time_interval_str(timeIntervalStr: str):
     if isPerfectMatch:
         return parse_YYYYMMDDThhmmssddd(substrList[0])
 
-    # L0 filenames contain OBT, not UTC.
+    # LL01 filenames contain OBT, not UTC.
     substrList, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             timeIntervalStr,
-            [RE_OBT, '-', RE_OBT],
+            [_RE_OBT, '-', _RE_OBT],
             1, 'permit non-match',
         )
     if isPerfectMatch:

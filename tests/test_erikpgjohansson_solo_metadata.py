@@ -157,11 +157,13 @@ def test_parse_item_ID():
 
 def test_parse_time_interval_str():
     def test(s, expTv):
+        if type(expTv) is tuple and len(expTv) == 6:
+            assert all(type(x) is int for x in expTv[0:5])
+            assert type(expTv[5]) is float
+        if type(expTv) is tuple and len(expTv) == 1:
+            assert type(expTv[0]) is int
+
         actTv = erikpgjohansson.solo.metadata._parse_time_interval_str(s)
-        if expTv is not None:
-            assert len(actTv) == 6
-            assert all(type(x) is int for x in actTv[0:5])
-            assert type(actTv[5]) is float
 
         assert actTv == expTv
 
@@ -174,6 +176,8 @@ def test_parse_time_interval_str():
     test('20200623-20200624',                 (2020, 6, 23,  0,  0,  0.0))
     test('20200623T112233-20200624T112233',   (2020, 6, 23, 11, 22, 33.0))
     test('20200623T1122331-20200624T1122331', None)
+    test('0000000000-0000086399',             (0,))
+    test('0000000003-0000086399',             (3,))
 
 
 def test_parse_DSID():

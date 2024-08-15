@@ -9,8 +9,8 @@ Initially created 2020-10-26 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 import dataclasses
 import erikpgjohansson.solo.asserts
-import erikpgjohansson.solo.str
 import erikpgjohansson.solo.metadata
+import erikpgjohansson.solo.str
 import itertools
 import logging
 import os.path
@@ -45,11 +45,13 @@ PROPOSAL: Better name for DTDN.
 
 @dataclasses.dataclass(frozen=True)
 class DtdnEntry:
+    '''
+    Immutable. Defines one DTDN which applies to a set of DSIDs (L2 & L3 only).
+    '''
     setDsid : set
     dtdn : str
 
     def __post_init__(self):
-        # setDsid
         assert type(self.setDsid) is set
         assert self.setDsid    # Assert not empty.
         for dsid in self.setDsid:
@@ -144,11 +146,14 @@ _LS_DTDN_ENTRIES = (
         }, 'lfr_density',
     ),
 )
-'''Data structure that tabulates how to convert DSID-->DTDN for
-special cases, including all RPW(?) cases. A general rule is used if the
-conversion is not tabulated here.
+'''Data structure that tabulates how to convert DSID-->DTDN for special
+cases. Should include all RPW DSIDs (or be added as needed). Could
+potentially be extended for non-RPW DSIDs if needed, but that has not been
+requested yet. A general rule is used if the conversion DSID-->DTDN is not
+tabulated here.
 
-NOTE: Can only convert DSID-->DTDN for L2 & L3.
+NOTE: Can only convert DSID-->DTDN for L2 & L3, since DTDNs are only defined
+(used) for L2 & L3.
 
 [i][j][0] = Set of DSIDs
 [i][j][1] = DTDN associated with above set of DSIDs.
@@ -159,6 +164,10 @@ lsDsid = tuple(
     itertools.chain.from_iterable(dtdne.setDsid for dtdne in _LS_DTDN_ENTRIES),
 )
 assert len(lsDsid) == len(set(lsDsid))
+
+# ASSERT:  _LS_DTDN_ENTRIES: No duplicated DTDNs.
+lsDtdn = tuple(dtdne.dtdn for dtdne in _LS_DTDN_ENTRIES)
+assert len(lsDtdn) == len(set(lsDtdn))
 
 
 def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
@@ -187,6 +196,9 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     '''
     PROPOSAL: DSID+time (year+month) as argument?
         PRO: Entire filename is not used (version, cdag)
+    PROPOSAL: Abolish instrDirCase.
+        PRO: Presumably unused.
+            TODO-NI: Check.
     '''
     assert type(dtdnInclInstrument) is bool
 
@@ -195,6 +207,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     )
     if not dsfn:
         return None
+
     dsid = dsfn.dsid
     tv1  = dsfn.timeVector1
 
@@ -204,6 +217,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
     yearStr  = f'{tv1[0]:04}'
     monthStr = f'{tv1[1]:02}'
     domStr   = f'{tv1[2]:02}'   # DOM = Day-Of-Month
+
     if instrDirCase == 'upper':
         instrDirName = instrument.upper()    # .lower() really unnecessary.
     elif instrDirCase == 'lower':
@@ -212,12 +226,14 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         raise Exception(f'Illegal argument value instrDirCase={instrDirCase}')
 
     if level in ['L2', 'L3']:
-        dtdn = erikpgjohansson.solo.iddt.convert_DSID_to_DTDN(
+        dtdn = convert_DSID_to_DTDN(
             dsid, includeInstrument=dtdnInclInstrument,
         )
         return os.path.join(instrDirName, level, dtdn, yearStr, monthStr)
+
     elif level in ['LL02', 'LL03', 'L1', 'L1R']:
         return os.path.join(instrDirName, level, yearStr, monthStr, domStr)
+
     else:
         # NOTE: Includes HK.
         raise Exception(
@@ -258,7 +274,7 @@ def convert_DSID_to_DTDN(dsid, includeInstrument=False):
         if dsid in dtdne.setDsid:
             return dtdne.dtdn    # NOTE: EXIT
 
-    # ASSERTION
+    # ASSERTION: ALl RPW cases have already been handled.
     if instrument == 'RPW':
         raise Exception(f'Can not handle dsid="{dsid}".')
 
@@ -287,7 +303,7 @@ def convert_DSID_to_DTDN(dsid, includeInstrument=False):
 
 
 def copy_move_datasets_to_IRFU_dir_tree(
-    mode, sourceDir, destDir,
+    mode: str, sourceDir, destDir,
     dirCreationPermissions=0o775,
     dtdnInclInstrument=True,
     instrDirCase='lower',
@@ -493,7 +509,7 @@ def copy_move_datasets_to_IRFU_dir_tree(
             oldPath = os.path.join(oldDirPath, filename)
             maxLenOp = max(len(oldPath), maxLenOp)
 
-            relDirPath = erikpgjohansson.solo.iddt.get_IDDT_subdir(
+            relDirPath = get_IDDT_subdir(
                 filename,
                 dtdnInclInstrument=dtdnInclInstrument,
                 instrDirCase=instrDirCase,

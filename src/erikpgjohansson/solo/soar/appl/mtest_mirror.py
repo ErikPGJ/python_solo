@@ -46,7 +46,8 @@ include: bool
     # downloaded.
     # solo_L2_mag-rtn-burst_20220311_V01.cdf
 
-    # NOTE: Should be configured to match only ONE dataset (file)
+    # NOTE: Should be configured to match only a small non-zero number of
+    # datasets.
     START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
     STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
 

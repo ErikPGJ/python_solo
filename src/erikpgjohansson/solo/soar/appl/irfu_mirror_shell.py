@@ -50,6 +50,8 @@ def main(ls_args):
 
     # NOTE: Python function check whether it is running on a legal machine.
     # Does not need to do that check here (or in bash).
+    if len(ls_args) != 0:
+        raise Exception('Illegal number of arguments.')
     erikpgjohansson.solo.soar.appl.irfu_mirror.sync()
 
 

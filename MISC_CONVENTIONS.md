@@ -30,37 +30,67 @@ SolO dataset. Probably defined by LESIA for SolO/RPW datasets. Identical to
 the beginning of filenames following the official mission-wide filenaming
 convention (except for case).
 
-- Always uppercase in this code.
-- Always excludes "-CDAG".
-- Ex: `solo_L2_rpw-lfr-surv-cwf-e_20221006_V01.cdf` is a dataset (file) with
-  DSID = `SOLO_L2_RPW-LFR-SURV-CWF-E`.
+In this code, DSID is defined to always:
+
+- Be uppercase.
+- Exclude "-CDAG".
+
+Ex: `solo_L2_rpw-lfr-surv-cwf-e_20221006_V01.cdf` is a dataset (file) with
+DSID = `SOLO_L2_RPW-LFR-SURV-CWF-E`.
 
 DST : Instance of class `erikpgjohansson.solo.soar.dst.DatasetsTable`.
 
 DT : Instance of class `datetime.datetime`.
 
-DTDN : Data Type Directory Name. Standardized (sub)directory name used
-for SolO L2 & L3 DSIDs in the "IRFU SolO data directory structure". See
-IDDT.
+DTDN : Dataset Type Directory Name. Standardized (sub)directory name used
+for SolO L2 & L3 DSIDs in IDDT and ROC directory structure. String constant
+which is a function of the DSID.
 
-- Ex: lfr_wf_e.
-- NOTE: There are no DTDNs for non-L2/L3.
-- NOTE: ROC defines DTDNs for _L2 & L3 RPW_ datasets via their
+- Ex: "lfr_wf_e".
+
+- DTDNs are only defined for L2 and L3 DSIDs.
+- There can be multiple DSIDs for the same DTDN.
+- ROC defines DTDNs for _L2 & L3 RPW_ datasets via their
   directory structure for sharing datasets within the RPWI consortium.
 - DTDNs for (L2 & L3) non-RPW datasets are defined by
   `erikpgjohansson.solo.iddt.convert_DSID_to_DTDN()` and are thus
   more arbitrary.
 
 IDDT : IRFU (SolO) Datasets Directory Tree. "SolO" is excluded from the
-name since it is implicit from parent package "solo". The way datasets are
-organized for SolO L2 & L3 datasets at IRFU. Directory paths:
-`<instrument>/<DTDN>/<year>/<month>/<dataset file>`.
+abbreviation since it is implicit from parent package "solo". Refers to a
+standardized directory structure in which SolO datasets are organized at IRFU
+and which is overlaps with the way ROC stores their datasets. It is
+therefore important to compare the two.
 
-- Note: This does not apply to L1.
-- ROC stores non-L2, non-L3 datasets as
-  - `{L1,L1R,L1_SBM,L1R_SBM}/<year>/<month>/<day>/<dataset file>`
-    - Note: L1/L1R excludes SBM1/2.
-- SOAR mirroring also requires constructing paths for storing L1 datasets.
+Note: SOAR mirroring requires constructing paths for LL and L1.
+
+- IDDT:
+  - Is not defined for HK.
+  - L2 & L3
+    - `<instrument>/<level>/<DTDN>/<year>/<month>/<dataset file>`
+  - LL02, LL03, L1, L1R:
+    - `<instrument>/<level>/<year>/<month>/<day>/<dataset file>`
+    - Should possibly ideally use the same exception for L1/L1R SBM1/2 as in
+      ROC's directory structure? Otherwise identical to RDDT for L1, L1R.
+  - Covers all SolO instruments.
+- RDDT:
+  - Only covers RPW datasets.
+  - L2 & L3: Same as IDDT.
+  - Non-L2/L3:
+    - `{L1,L1R,L1_SBM,L1R_SBM}/<year>/<month>/<day>/<dataset file>`
+      - Note: L1/L1R excludes (RPW) SBM1/2.
+      - Note: L1 sweeps are a special case.
+      - Note: Subdirectories for days.
+      - Note: No DTDN.
+  - Defined also for other RPW datasets (HK), but that is not relevant here.
+
+RDDT : ROC's Dataset Directory Tree. Refers to a standardized directory
+structure in which SolO datasets are organized by ROC. This is the same
+directory structure that is used for datasets which are shared inside the RPW
+consortium. See IDDT.
+
+IRFU, IRF-U : Institutet för Rymdfysik, Uppsala department (Swedish Institute
+of Space Physics).
 
 Item ID, item_id : SOAR uses this term in SOAR's datasets tables. Subset of SolO
 dataset file name in SolO's filenaming convention.
@@ -88,3 +118,5 @@ an SDT.
 SOAR : Solar Orbiter ARchive. `https://soar.esac.esa.int/soar/`
 
 TD = Instance of class `datetime.timedelta`.
+
+TV, Time Vector : Tuple of (year, month, day, hour, minute, second).

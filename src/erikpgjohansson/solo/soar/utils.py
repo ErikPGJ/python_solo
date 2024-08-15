@@ -10,11 +10,10 @@ import codetiming
 import collections
 import concurrent.futures
 import datetime
-import erikpgjohansson.solo.metadata
 import erikpgjohansson.solo.asserts
+import erikpgjohansson.solo.metadata
 import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.dwld as dwld
-import erikpgjohansson.solo.soar.utils as utils
 import logging
 import numpy as np
 import os
@@ -141,10 +140,10 @@ def download_latest_datasets_batch(
 
     # ASSERTIONS
     assert isinstance(downloader, dwld.Downloader)
-    utils.assert_1D_NA(itemIdArray, np.dtype('O'))
+    assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
-    utils.assert_1D_NA(fileSizeArray, np.dtype('int64'))
+    assert_1D_NA(fileSizeArray, np.dtype('int64'))
     assert itemIdArray.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
@@ -262,10 +261,10 @@ def download_latest_datasets_batch2(
     # ASSERTIONS
     # ==========
     assert isinstance(downloader, dwld.Downloader)
-    utils.assert_1D_NA(itemIdArray, np.dtype('O'))
+    assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
-    utils.assert_1D_NA(fileSizeArray, np.dtype('int64'))
+    assert_1D_NA(fileSizeArray, np.dtype('int64'))
     assert itemIdArray.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
@@ -480,8 +479,8 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
     # import pdb; pdb.set_trace()
-    utils.assert_1D_NA(itemIdArray,     np.dtype('O'))
-    utils.assert_1D_NA(itemVerNbrArray, np.dtype('int64'))
+    assert_1D_NA(itemIdArray,     np.dtype('O'))
+    assert_1D_NA(itemVerNbrArray, np.dtype('int64'))
     assert itemIdArray.shape == itemVerNbrArray.shape
 
     # NOTE: itemIdArray[iUniques] == uniqItemIdArray
@@ -549,8 +548,8 @@ def derive_DST_from_dir(rootDir):
     instrumentList  = []
     levelList       = []
     beginTimeFnList = []    # FN = File Name. Time derived from filename.
-    for (dirPath, subDirNames, fileNames) in os.walk(rootDir):
-        for fileName in fileNames:
+    for (dirPath, _subDirNameList, dirFileNamesList) in os.walk(rootDir):
+        for fileName in dirFileNamesList:
 
             dsfn = \
                 erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
@@ -561,9 +560,7 @@ def derive_DST_from_dir(rootDir):
             # returns None for non-parsable filenames.
             if dsfn:
                 _dataSrc, level, instrument, _descriptor = \
-                    erikpgjohansson.solo.metadata.parse_DSID(
-                        dsfn.dsid,
-                    )
+                    erikpgjohansson.solo.metadata.parse_DSID(dsfn.dsid)
 
                 filePath = os.path.join(dirPath, fileName)
                 filePathList   += [filePath]

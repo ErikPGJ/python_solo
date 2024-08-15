@@ -470,7 +470,9 @@ def _convert_JSON_SDT_to_DST(JsonDc):
         # well-implemented that function is.
 
         if dsfn and len(dsfn.timeVector1) == 6:
-            # CASE: Can parse dataset filename and time interval string.
+            # =========================================================
+            # CASE: Can parse dataset filename and time interval string
+            # =========================================================
 
             # NOTE: datetime.datetime requires integer seconds+microseconds
             # in separate arguments (as integers). Filenames should only
@@ -489,7 +491,10 @@ def _convert_JSON_SDT_to_DST(JsonDc):
             #     pass   # For setting breakpoints
             #     raise E
         else:
-            # CASE: Can NOT parse filename.
+            # ============================
+            # CASE: Can NOT parse filename
+            # ============================
+
             # ASSERTION: Assert that file is any of the known cases that
             # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
             # can not handle.

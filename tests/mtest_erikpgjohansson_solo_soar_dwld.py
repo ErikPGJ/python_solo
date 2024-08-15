@@ -1,8 +1,9 @@
-'''Manual test code for
+'''
+*Manual* test code for
 erikpgjohansson.solo.soar.dwld.SoarDownloader.download_latest_dataset().
 
 It is useful to *not* do this automatically with other tests since it
-downloads data from SOAR (over the internet) which:
+downloads data from SOAR (over the internet) which in turn:
 * slows down tests,
 * may increase the risk of having one's IP blacklisted by SOAR.
 '''
