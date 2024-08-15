@@ -72,12 +72,13 @@ PROPOSAL: DST filtering functions should accept DST+relevant column names.
 '''
 
 
-def assert_col_array(v, dtype=None):
-
-    # PROPOSAL: Use numpy.issubdtype()
-    #   PRO: Useful for categories of types.
-    #       Ex: Variants of datetime64, strings?
-    #       Ex: np.issubdtype(beginTimeArray.dtype, np.dtype('<M8[ms]'))
+def assert_1D_NA(v, dtype=None):
+    '''
+    PROPOSAL: Use numpy.issubdtype()
+      PRO: Useful for categories of types.
+          Ex: Variants of datetime64, strings?
+          Ex: np.issubdtype(beginTimeArray.dtype, np.dtype('<M8[ms]'))
+    '''
 
     # IMPLEMENTATION NOTE: Some automatic tests have historically mistakenly
     # used 0-dim arrays which causes hard-to-understand errors.
@@ -139,10 +140,10 @@ def download_latest_datasets_batch(
 
     # ASSERTIONS
     assert isinstance(downloader, dwld.Downloader)
-    utils.assert_col_array(itemIdArray, np.dtype('O'))
+    utils.assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
-    utils.assert_col_array(fileSizeArray, np.dtype('int64'))
+    utils.assert_1D_NA(fileSizeArray, np.dtype('int64'))
     assert itemIdArray.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
@@ -260,10 +261,10 @@ def download_latest_datasets_batch2(
     # ASSERTIONS
     # ==========
     assert isinstance(downloader, dwld.Downloader)
-    utils.assert_col_array(itemIdArray, np.dtype('O'))
+    utils.assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
-    utils.assert_col_array(fileSizeArray, np.dtype('int64'))
+    utils.assert_1D_NA(fileSizeArray, np.dtype('int64'))
     assert itemIdArray.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
@@ -478,8 +479,8 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
     # import pdb; pdb.set_trace()
-    utils.assert_col_array(itemIdArray,     np.dtype('O'))
-    utils.assert_col_array(itemVerNbrArray, np.dtype('int64'))
+    utils.assert_1D_NA(itemIdArray,     np.dtype('O'))
+    utils.assert_1D_NA(itemVerNbrArray, np.dtype('int64'))
     assert itemIdArray.shape == itemVerNbrArray.shape
 
     # NOTE: itemIdArray[iUniques] == uniqItemIdArray

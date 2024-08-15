@@ -1,5 +1,9 @@
 # Miscellaneous conventions
 
+# Logging
+
+Logging objects are obtained using `logging.getLogger(__name__)`.
+
 # Shortenings
 
 ## Introduction
@@ -12,6 +16,9 @@ variable naming conventions.
 data_item_id : SOAR uses this term in SOAR's datasets tables. Appears to be
 same as "item_id".
 
+Note: Can not find this term in SOL-SGS-TN-0009, "Metadata Definition for Solar
+Orbiter Science Data", 2/6.
+
 DC : Dictionary (Python type).
 
 DOM : Day-Of-Month
@@ -22,7 +29,7 @@ the beginning of filenames following the official mission-wide filenaming
 convention (except for case).
 
 - Always uppercase in this code.
-- Always excludes "CDAG".
+- Always excludes "-CDAG".
 - Ex: `solo_L2_rpw-lfr-surv-cwf-e_20221006_V01.cdf` is a dataset (file) with
   DSID = `SOLO_L2_RPW-LFR-SURV-CWF-E`.
 
@@ -53,7 +60,7 @@ organized for SolO L2 & L3 datasets at IRFU. Directory paths:
     - Note: L1/L1R excludes SBM1/2.
 - SOAR mirroring also requires constructing paths for storing L1 datasets.
 
-Item ID : SOAR uses this term in SOAR's datasets tables. Subset of SolO
+Item ID, item_id : SOAR uses this term in SOAR's datasets tables. Subset of SolO
 dataset file name in SolO's filenaming convention.
 Type of return value from SOAR when requesting table of datasets.
 Essentially DSID + time interval in official filename.
@@ -64,6 +71,9 @@ Essentially DSID + time interval in official filename.
   - `solo_L2_rpw-tds-surv-tswf-b_20200707`
   - `solo_L2_epd-ept-south-rates_20200720`
   - `solo_LL02_epd-het-sun-rates_20201012T000034-20201013T000034`
+
+Note: Can not find this term in SOL-SGS-TN-0009, "Metadata Definition for Solar
+Orbiter Science Data", 2/6.
 
 L : `logging.Logger` object.
 
@@ -76,7 +86,3 @@ an SDT.
 SOAR : Solar Orbiter ARchive. `https://soar.esac.esa.int/soar/`
 
 TD = Instance of class `datetime.timedelta`.
-
-## Logging
-
-Logging objects are obtained using `logging.getLogger(__name__)`.

@@ -34,7 +34,7 @@ class DatasetsTable:
         for key, na in dc.items():
             assert type(key) is str
             # Can not due to circular imports.
-            # erikpgjohansson.solo.soar.utils.assert_col_array(na)
+            # erikpgjohansson.solo.soar.utils.assert_1D_NA(na)
 
         # Dictionary of numpy arrays.
         self._dc_na = {}

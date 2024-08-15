@@ -690,11 +690,11 @@ def _find_DST_difference(
     # ==========
     # ASSERTIONS
     # ==========
-    utils.assert_col_array(fileNameArray1, np.dtype('O'))
-    utils.assert_col_array(fileNameArray2, np.dtype('O'))
+    utils.assert_1D_NA(fileNameArray1, np.dtype('O'))
+    utils.assert_1D_NA(fileNameArray2, np.dtype('O'))
 
-    utils.assert_col_array(fileSizeArray1, np.dtype('int64'))
-    utils.assert_col_array(fileSizeArray2, np.dtype('int64'))
+    utils.assert_1D_NA(fileSizeArray1, np.dtype('int64'))
+    utils.assert_1D_NA(fileSizeArray2, np.dtype('int64'))
 
     # =========
     # ALGORITHM

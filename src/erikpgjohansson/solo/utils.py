@@ -10,8 +10,10 @@ import erikpgjohansson.solo.str
 
 
 '''
-BOGIQ
-=====
+PROPOSAL: Rename module.
+    PRO: Only utilities for parsing metadata strings, including filenames.
+    PROPOSAL: erikpgjohansson.soar.metadata
+
 PROPOSAL: Function for parsing "item_id".
     PRO: Can use for deducing level, which can be used for handling special
          case of LL when downloading.
@@ -39,10 +41,15 @@ def parse_dataset_filename(filename):
     NOTE: Can amend code to return more filename fields eventually.
     NOTE: Includes added support for tolerating the RPW-specific
     consortium-internal "-cdag" extension to official filenaming conventions.
+    NOTE: Only permits specific file extensions. Some file extensions will
+    always result in filename no being recognized as a dataset despite that
+    there are official datasets with those file extensions. SOAR mirror uses
+    erikpgjohansson.solo.soar.const.FILE_SUFFIX_IGNORE_LIST
 
-    IMPLEMENTATION NOTE: Functionality kind of overlaps with parse_item_ID(),
-    except that that function does not support for "-CDAG" extension. Can
-    therefore not use parse_item_ID() in the implementation of this function.
+    IMPLEMENTATION NOTE: The functionality kind of overlaps with
+    parse_item_ID(), except that that function does not support the "-CDAG"
+    extension. Can therefore not use parse_item_ID() in the implementation of
+    this function.
 
     Parameters
     ----------
@@ -83,6 +90,8 @@ def parse_dataset_filename(filename):
         PROBLEM: How increment day (over month/year boundary) to find it?
 
     PROPOSAL: Return namedtuple, not dictionary.
+    PROPOSAL: Return class.
+        NOTE: Cf. solo.adm.dsfn.DatasetFilename in irfu-matlab.
     '''
     # NOTE: Reg.exp. "[CIU]?" appears to be required(?) for LL data, but is
     # absent otherwise.
@@ -90,12 +99,14 @@ def parse_dataset_filename(filename):
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             filename, [
-                '.*',              # 0
-                '(|-cdag|-CDAG)', '_',
+                '.*',                   # 0
+                '(|-cdag|-CDAG)',
+                '_',
                 RE_TIME_INTERVAL_STR,   # 3
                 '_V',
-                '[0-9][0-9]+',     # 5
-                '[CIU]?', r'\.(cdf|fits|bin)',
+                '[0-9][0-9]+',          # 5
+                '[CIU]?',
+                r'\.(cdf|fits|bin)',
             ],
             -1, 'permit non-match',
         )
@@ -341,7 +352,3 @@ def parse_DSID(dsid):
     # NOTE: Descriptor INCLUDES instrument.
 
     return dataSrc, level, instrument, descriptor
-
-
-if __name__ == '__main__':
-    pass
