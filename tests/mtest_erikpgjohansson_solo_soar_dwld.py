@@ -9,10 +9,18 @@ downloads data from SOAR (over the internet) which in turn:
 '''
 
 
+import erikpgjohansson.solo.soar.const
 import erikpgjohansson.solo.soar.dwld
 import os.path
 import pathlib
 import tempfile
+
+
+def mtest_SoarDownloader_download_SDT_DST():
+    dwld = erikpgjohansson.solo.soar.dwld.SoarDownloader()
+
+    for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
+        _ = dwld.download_JSON_SDT(instrument)
 
 
 def mtest_SoarDownloader_download_latest_dataset(tmp_path):
@@ -40,8 +48,7 @@ def mtest_SoarDownloader_download_latest_dataset(tmp_path):
         os.mkdir(dirPath)
 
         print(
-            f'ATEST: Downloading online data from SOAR:'
-            f' dataItemId={dataItemId}',
+            f'Downloading online data from SOAR: dataItemId={dataItemId}',
         )
         actFilePath = downloader.download_latest_dataset(
             dataItemId, dirPath,
@@ -53,10 +60,13 @@ def mtest_SoarDownloader_download_latest_dataset(tmp_path):
     test('solo_L1_epd-step-nom-close_20200813')
 
     # Test LL
-    test('solo_LL02_mag_20220621T000205-20220622T000204')
+    # test('solo_LL02_mag_20220621T000205-20220622T000204') # No longer works.
     test('solo_LL02_epd-het-south-rates_20200813T000026-20200814T000025')
 
 
 if __name__ == '__main__':
-    t = tempfile.TemporaryDirectory()
-    mtest_SoarDownloader_download_latest_dataset(t.name)
+    if 1:
+        mtest_SoarDownloader_download_SDT_DST()
+    if 1:
+        t = tempfile.TemporaryDirectory()
+        mtest_SoarDownloader_download_latest_dataset(t.name)
