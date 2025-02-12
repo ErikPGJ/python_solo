@@ -21,8 +21,17 @@ import threading
 
 
 '''
-BOGIQ
-=====
+PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
+    TODO-DEC: Should functionality for managing DSTs be considered ~SOAR?
+    TODO-DEC: Should separate SOAR and mirroring code?
+        PROPOSAL: so.soar + so.soar_mirror
+            PRO: so.soar_mirror USES so.soar, but is not PART of
+                 SOAR functionality.
+    PROPOSAL: so.filter, so.filterdst
+    PROPOSAL: so.soar.download/connect/network/access or so.soar (only)
+    PROPOSAL: so.soar.mirror, so.soar_mirror, so.soar_utils
+    PROPOSAL: so.soar.misc, so.soar.other, so.soar.utils
+
 NOTE: download_latest_dataset() downloads latest dataset
           version, not specified dataset version?
     PROPOSAL: Compare downloaded datasets with online list.
@@ -50,19 +59,6 @@ PROPOSAL: Function: Difference between DSTs.
              sizes, item IDs)
     PROPOSAL: Difference between DSTs for selected columns.
         In practice: item ID, item ID+version, item ID+version+file size (?)
-
-
-
-PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
-    TODO-DEC: Should functionality for managing DSTs be considered ~SOAR?
-    TODO-DEC: Should separate SOAR and mirroring code?
-        PROPOSAL: so.soar + so.soar_mirror
-            PRO: so.soar_mirror USES so.soar, but is not PART of
-                 SOAR functionality.
-    PROPOSAL: so.filter, so.filterdst
-    PROPOSAL: so.soar.download/connect/network/access or so.soar (only)
-    PROPOSAL: so.soar.mirror, so.soar_mirror, so.soar_utils
-    PROPOSAL: so.soar.misc, so.soar.other, so.soar.utils
 
 PROPOSAL: DST filtering functions should accept arrays (not DST) and return
           logical index array (not DST).
@@ -192,7 +188,7 @@ def download_latest_datasets_batch2(
     downloadByIncrFileSize=False,
 ):
     '''
-    Experimental parallized version of download_latest_datasets_batch().
+    Parallelized version of download_latest_datasets_batch().
     '''
     '''
     PROPOSAL: Somehow return results (nbr of exceptions).
@@ -360,7 +356,7 @@ def _download_latest_datasets_batch_log_progress(
     # mb     = MiB
     # mbps   = MiB/s
 
-    def TD_to_str(td):
+    def _TD_to_str(td):
         '''Hack to make timedelta better for printing.'''
         '''Ex: "3 days, 17:53:42.966222" --> "3 days, 17:53:42"
         '''
@@ -418,9 +414,9 @@ def _download_latest_datasets_batch_log_progress(
 
     speed_mbps = (bytes_compl / sec_compl) / 2 ** 20
 
-    s_td_compl = TD_to_str(td_compl)
-    s_td_remain = TD_to_str(td_remain)
-    s_td_tot = TD_to_str(td_tot)
+    s_td_compl = _TD_to_str(td_compl)
+    s_td_remain = _TD_to_str(td_remain)
+    s_td_tot = _TD_to_str(td_tot)
     if dt_end is None:
         s_dt_end = 'n/a'
     else:

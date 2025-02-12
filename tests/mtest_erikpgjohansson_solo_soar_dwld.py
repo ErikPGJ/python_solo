@@ -1,6 +1,5 @@
 '''
-*Manual* test code for
-erikpgjohansson.solo.soar.dwld.SoarDownloader.download_latest_dataset().
+*Manual* test code for erikpgjohansson.solo.soar.dwld.
 
 It is useful to *not* do this automatically with other tests since it
 downloads data from SOAR (over the internet) which in turn:
@@ -14,6 +13,15 @@ import erikpgjohansson.solo.soar.dwld
 import os.path
 import pathlib
 import tempfile
+
+
+'''
+PROPOSAL: Refactor all "mtests" into regular pytest tests, but have switch for
+          enabling/disabling them.
+    PROPOSAL: Global switch.
+        TODO-DEC: Global wrt. what? git repo? erikpgjohansson.solo.soar?
+    PROPOSAL: Constant in erikpgjohansson.solo.soar.const.
+'''
 
 
 def mtest_SoarDownloader_download_SDT_DST():

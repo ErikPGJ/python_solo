@@ -104,12 +104,6 @@ def download_zip_JSON_SDTs(output_dir):
             with open(output_file, 'w') as f:
                 f.write(s)
 
-            # urllib.request.urlretrieve(
-            #     f'{erikpgjohansson.solo.soar.const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery&LANG=ADQL'
-            #     f'&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files+WHERE'
-            #     f'+instrument=\'{instrument}\'',
-            #     output_file,
-            # )
             print(' -- Zipping', end='')
             z.write(output_file, arcname=output_file.name)
             print(' -- Done')

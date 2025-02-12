@@ -41,14 +41,13 @@ def test_convert_JSON_SDT_to_DST___actual_saved_SDTs(tmp_path):
     # ----------
     # Setup test
     # ----------
-    # tmp_path = pathlib.Path(tmp_path)
     zip_file = pathlib.Path(__file__).parent / JSON_SDTs_ZIP_FILENAME
-    dwnl = _get_MockDownloader(zip_file, tmp_path)
+    dwld = _get_MockDownloader(zip_file, tmp_path)
 
     # ---------------
     # Test if crashes
     # ---------------
-    _ = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwnl)
+    _ = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwld)
 
 
 def test_convert_JSON_SDT_to_DST___manual_SDTs(tmp_path):
@@ -68,8 +67,8 @@ def test_convert_JSON_SDT_to_DST___manual_SDTs(tmp_path):
         "", 2746275, "EPD",
         "solo_L0_epd-step-ll_0680054400-0680140799", "V02", "L0",
     ]]
-    dwnl = tests.MockDownloader(dc_json_data_ls={'EPD': json_data_ls})
-    dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwnl)
+    dwld = tests.MockDownloader(dc_json_data_ls={'EPD': json_data_ls})
+    dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwld)
 
     na = dst['begin_time']
     assert na.shape == (1,)
@@ -98,8 +97,8 @@ def test_convert_JSON_SDT_to_DST___manual_SDTs(tmp_path):
         "solo_LL02_swa-his-rat_20210421T220208-20210422T215738", "V01",
         "LL02",
     ]]
-    dwnl = tests.MockDownloader(dc_json_data_ls={'SWA': json_data_ls})
-    dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwnl)
+    dwld = tests.MockDownloader(dc_json_data_ls={'SWA': json_data_ls})
+    dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwld)
 
     na = dst['begin_time_FN']
     assert np.issubdtype(na.dtype, np.datetime64)

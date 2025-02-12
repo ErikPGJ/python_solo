@@ -1,3 +1,8 @@
+'''
+Module for the DST class.
+'''
+
+
 import numpy as np
 
 
@@ -5,7 +10,7 @@ class DatasetsTable:
     '''Immutable "datasets table". Stores table of datasets.
 
     Encapsulates a dictionary in which each key is a string and each value
-    is a same-sized 1D numpy array.
+    is a 1D numpy array where all values have the same array shape.
     '''
     '''
     PROPOSAL: Change name of class.
@@ -53,11 +58,13 @@ class DatasetsTable:
         Set entry.
         NOTE: Can not overwrite previous entry.
         '''
+        # ASSERTIONS
         if key in self._dc_na:
             raise KeyError(f'There already is an entry for key="{key}".')
         assert type(na) is np.ndarray
         assert na.ndim == 1
 
+        # Set/use self._n
         if self._n is None:
             self._n = na.shape[0]
         else:
@@ -67,6 +74,7 @@ class DatasetsTable:
                 f' value.shape[0] = {na.shape[0]}, self._n = {self._n}.'
             )
 
+        # Set self._dc_na
         self._dc_na[key] = na
 
     def index(self, bi: np.ndarray):
@@ -90,6 +98,7 @@ class DatasetsTable:
     def __add__(self, dst2):
         assert isinstance(dst2, DatasetsTable)
         assert self._dc_na.keys() == dst2._dc_na.keys()
+
         dc = {}
         for key in self._dc_na.keys():
             dc[key] = np.concatenate((self._dc_na[key], dst2[key]))

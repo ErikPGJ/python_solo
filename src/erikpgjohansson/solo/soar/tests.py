@@ -86,7 +86,7 @@ class MockDownloader(erikpgjohansson.solo.soar.dwld.Downloader):
         Parameters
         ----------
         dc_json_dc
-            Dictionary. Data structure that represents the exact JSON SDT,
+            Dictionary. Data structure that represents the exact SOAR JSON SDT,
             i.e. e.g.
             [instrument]['data'][i_entry][i_column] = value.
             [instrument]['metadata'][i_entry][i_column] = ...
@@ -209,7 +209,7 @@ def JSON_SDT_filename(instrument):
     '''Generate file name for an JSON SDT file.
 
     Not using any timestamp so that file names are deterministic and files
-    can be lcoated using the same file name.
+    can be located using the same file name.
     '''
     return f'{instrument}_v_public_files.json'
 

@@ -14,6 +14,12 @@ Empirical: numpy.datetime64(..., dtype='datetime64[ms]') works with numpy
 v1.18.5, but not numpy v1.19.5.
 
 
+Documentation of JSON SDT format
+--------------------------------
+processing_level:
+    Is None for CAL files.
+
+
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 '''
 
@@ -46,8 +52,26 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
             PROPOSAL: New module ~retrieve, ~access
                 CON: Just one function.
 
-PROPOSAL: download_JSON_SDT() should return JSON string.
+PROPOSAL: download_JSON_SDT() should only return JSON *string*, not string
+          converted to json data structure.
     CON: Harder to hard code return values for mock object in test code.
+
+PROPOSAL: Rename Downloader (abstract superclas), SoarDownloader
+          (implementation)
+    PRO: All subclasses do or emulate downloading from SOAR, not downloading in
+         general.
+    ~SOAR
+    ~Downloader
+        NOTE: Only downloads, never uploads.
+    ~communication
+    ~network, internet
+    ~SDT=SOAR Dataset Table
+        CON: Downloads both SDT and actual datasets.
+    PROPOSAL: Change abbreviation for class. DWNL-->?
+    PROPOSAL: Change module name.
+
+TODO-DEC: Where document the JSON format returned from SOAR (input to this
+          function)?
 '''
 
 
@@ -212,8 +236,7 @@ class SoarDownloader(Downloader):
                   boolean(s) instead.
         PROPOSAL: Change to downloading specific version. Can probably be done.
             TODO-DEC: How?
-                Ex:
-                http://soar.esac.esa.int/soar-sl-tap/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+FROM+soar.v_sc_repository_file+WHERE+filename='solo_L2_epd-sis-a-rates-slow_20200615_V05.cdf'
+                Ex: http://soar.esac.esa.int/soar-sl-tap/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+FROM+soar.v_sc_repository_file+WHERE+filename='solo_L2_epd-sis-a-rates-slow_20200615_V05.cdf'    # noqa: E501
             PRO: More reliable for calling code if SOAR updates version
                  between decision to download specific version, and actual
                  download.
@@ -381,28 +404,33 @@ def _convert_JSON_SDT_to_DST(JsonDc):
     Parameters
     ----------
     JsonDc
-        JSON-like representation of SDT.
+        JSON-like representation of SDT, as downloaded from SOAR.
 
     Returns
     -------
     dst : DST
     '''
     '''
-    PROPOSAL: Use entirely independent column names.
+    PROPOSAL: Use column names which are entirely independent of SOAR's naming.
         PRO: Can use own naming convention.
             PRO: Can indicate format.
                 Ex: Numeric (instead of string), time format.
 
     PROPOSAL: Assert that files not recognized by
         erikpgjohansson.solo.metadata.DatasetFilename.parse_filename() are
-        really not datasets.
+        not datasets.
         PROPOSAL: Assert that there is a non-null begin_time.
 
     PROPOSAL: Abolish creation of "begin_time_FN". Seems unnecessary.
               "begin_time" probably works.
         TODO: Check.
+
+    PROPOSAL: Require explicit column names and formats. Permit additional
+              ignored columns.
+        PRO: Safer. Fails if JSON SDT format changes.
+        PRO: Better documentation of columns.
     '''
-    # Columns that should be converted int-->int
+    # Columns that should be converted integer-->integer
     INT_TO_INT_COLUMN_NAMES = {'file_size'}
     # Columns that should be converted string-->string
     # (numpy array of objects).
