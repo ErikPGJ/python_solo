@@ -75,6 +75,9 @@ TODO-DEC: Where document the JSON format returned from SOAR (input to this
 '''
 
 
+NO_PROCESSING_LEVEL_NAME = 'n/a'
+
+
 class Downloader:
     '''Abstract class for class that handles all communication with SOAR.
     This is to permit the use of "mock object" for automated testing.
@@ -493,6 +496,12 @@ def _convert_JSON_SDT_to_DST(JsonDc):
             columnArray = np.array(columnList, dtype=object)
 
         dc_na[columnNameList[iCol]] = columnArray
+
+    # tuple(dc_na.keys()) == ('archived_on', 'begin_time', 'data_type',
+    # 'file_name', 'file_size', 'instrument', 'item_id', 'item_version',
+    # 'processing_level')
+    b = dc_na['processing_level'] == None   # noqa: E711
+    dc_na['processing_level'][b] = NO_PROCESSING_LEVEL_NAME
 
     # =================================
     # Add extra column "begin_time_FN"
