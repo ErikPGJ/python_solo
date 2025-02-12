@@ -7,18 +7,15 @@ import pathlib
 import zipfile
 
 
-JSON_SDTs_ZIP_FILENAME = \
-    'JSON_SDTs_2022-10-19T15.30.16.zip'
-'''Linux utility "unzip" (version "20 April 2009 (v6.0)"; Ubuntu 22.04) can
-not open file. The automated tests work. /2024-02-15
+JSON_SDTs_ZIP_FILENAME = 'JSON_SDTs_2025-02-12T19.23.58.zip'
+'''
+Can not open file with Linux utility unzip, but the tests work.
 
-Message:
-""""
-Archive:  JSON_SDTs_2022-10-19T15.30.16.zip
+>> unzip JSON_SDTs_2025-02-12T19.23.58.zip
+Archive:  JSON_SDTs_2025-02-12T19.23.58.zip
    skipping: EPD_v_public_files.json  need PK compat. v6.3 (can do v4.6)
    skipping: MAG_v_public_files.json  need PK compat. v6.3 (can do v4.6)
    skipping: SWA_v_public_files.json  need PK compat. v6.3 (can do v4.6)
-""""
 '''
 
 

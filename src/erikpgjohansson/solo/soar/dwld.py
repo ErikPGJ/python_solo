@@ -69,31 +69,10 @@ class SoarDownloader(Downloader):
     '''Class that handles all actual (i.e. not simulated) communication with
     SOAR.'''
 
-    @codetiming.Timer('download_JSON_SDT', logger=None)
-    def download_JSON_SDT(self, instrument: str):
+    @staticmethod
+    def _get_JSON_SDT_URL(instrument: str):
+        '''Return the URL for downloading SDT for a specific instrument.
         '''
-        Download complete list of datasets from SOAR, and return the resulting
-        JSON table as a Python data structure.
-
-        NOTE: Uses SOAR list "v_public_files" which presumably contains all
-              datasets, including older dataset versions. It does include LL02
-              and ANC.
-
-        NOTE: This call is slow.
-        NOTE: Only downloads SDT for one instrument at a time in
-              order to reduce the size of the returned list.
-
-        Returns
-        -------
-        JsonDc : Representation of SOAR dataset list.
-        --
-        NOTE: begin_time may contain string "null".
-        NOTE: item_version == string, e.g. "V02".
-        '''
-        assert type(instrument) is str
-
-        L = logging.getLogger(__name__)
-
         # URL to JSON SDT (science + LL + "kernel type files")
         # ===============================================================
         # URL that covers all instruments.
@@ -131,10 +110,46 @@ class SoarDownloader(Downloader):
             f'instrument=\'{instrument}\''
         ).replace('\'', '%27')
 
+        return url
+
+    @staticmethod
+    def download_JSON_SDT_JSON_string(instrument: str):
+        L = logging.getLogger(__name__)
+
+        url = SoarDownloader._get_JSON_SDT_URL(instrument)
+
         L.info(f'Calling URL: {url}')
         HttpResponse = urllib.request.urlopen(url)
 
         s = HttpResponse.read().decode()
+        return s
+
+    @codetiming.Timer('download_JSON_SDT', logger=None)
+    def download_JSON_SDT(self, instrument: str):
+        '''
+        Download complete list of datasets from SOAR for *one* instrument, and
+        return the resulting JSON table as a Python data structure.
+
+        NOTE: Uses SOAR list "v_public_files" which presumably contains all
+              datasets, including older dataset versions. It does include LL02
+              and ANC.
+        NOTE: This call is slow.
+        NOTE: Only downloads SDT for one instrument at a time in
+              order to reduce the size of the returned list.
+
+        Returns
+        -------
+        JsonDc : Representation of SOAR dataset list.
+        --
+        NOTE: begin_time may contain string "null".
+        NOTE: item_version == string, e.g. "V02".
+        '''
+        assert type(instrument) is str
+
+        L = logging.getLogger(__name__)
+
+        s = self.download_JSON_SDT_JSON_string(instrument)
+
         L.info(
             f'JSON SDT (SOAR Datasets Table)'
             f' downloaded from SOAR for {instrument} :'
