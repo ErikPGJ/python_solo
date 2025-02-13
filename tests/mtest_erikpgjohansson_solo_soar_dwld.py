@@ -28,7 +28,7 @@ def mtest_SoarDownloaderImpl_download_SDT_DST():
     sodl = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl()
 
     for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
-        _ = sodl.download_JSON_SDT(instrument)
+        _ = sodl.download_SDT_JSON(instrument)
 
 
 def mtest_SoarDownloaderImpl_download_latest_dataset(tmp_path):

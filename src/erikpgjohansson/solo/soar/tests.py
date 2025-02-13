@@ -165,7 +165,7 @@ class SoarDownloaderTest(erikpgjohansson.solo.soar.dwld.SoarDownloader):
 
         self._dc_json_dc = dc_json_dc
 
-    def download_JSON_SDT(self, instrument: str):
+    def download_SDT_JSON(self, instrument: str):
         return self._dc_json_dc[instrument]
 
     def download_latest_dataset(

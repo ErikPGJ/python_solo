@@ -56,7 +56,7 @@ PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
             PROPOSAL: New module ~retrieve, ~access
                 CON: Just one function.
 
-PROPOSAL: download_JSON_SDT() should only return JSON *string*, not string
+PROPOSAL: download_SDT_JSON() should only return JSON *string*, not string
           converted to json data structure.
     CON: Harder to hard code return values for mock object in test code.
 
@@ -100,7 +100,7 @@ class SoarDownloader:
     '''Abstract class for class that handles all communication with SOAR.
     This is to permit the use of "mock object" for automated testing.
     '''
-    def download_JSON_SDT(self, instrument: str):
+    def download_SDT_JSON(self, instrument: str):
         raise NotImplementedError()
 
     def download_latest_dataset(
@@ -115,8 +115,9 @@ class SoarDownloaderImpl(SoarDownloader):
     SOAR.'''
 
     @staticmethod
-    def _get_JSON_SDT_URL(instrument: str):
-        '''Return the URL for downloading SDT for a specific instrument.
+    def _get_SDT_JSON_URL(instrument: str):
+        '''Return the URL for downloading SDT on JSON format for a specific
+        instrument.
         '''
         # URL to JSON SDT (science + LL + "kernel type files")
         # ===============================================================
@@ -171,10 +172,10 @@ class SoarDownloaderImpl(SoarDownloader):
         )
 
     @staticmethod
-    def download_JSON_SDT_JSON_string(instrument: str):
+    def download_SDT_JSON_string(instrument: str):
         L = logging.getLogger(__name__)
 
-        url = SoarDownloaderImpl._get_JSON_SDT_URL(instrument)
+        url = SoarDownloaderImpl._get_SDT_JSON_URL(instrument)
 
         L.info(f'Calling URL: {url}')
         HttpResponse = urllib.request.urlopen(url)
@@ -183,11 +184,11 @@ class SoarDownloaderImpl(SoarDownloader):
         return s
 
     # OVERRIDE
-    @codetiming.Timer('download_JSON_SDT', logger=None)
-    def download_JSON_SDT(self, instrument: str):
+    @codetiming.Timer('download_SDT_JSON', logger=None)
+    def download_SDT_JSON(self, instrument: str):
         '''
         Download complete list of datasets from SOAR for *one* instrument, and
-        return the resulting JSON table as a Python data structure.
+        return the resulting JSON table as a JSON-like Python data structure.
 
         NOTE: Uses SOAR list "v_public_files" which presumably contains all
               datasets, including older dataset versions. It does include LL02
@@ -207,7 +208,7 @@ class SoarDownloaderImpl(SoarDownloader):
 
         L = logging.getLogger(__name__)
 
-        s = self.download_JSON_SDT_JSON_string(instrument)
+        s = self.download_SDT_JSON_string(instrument)
 
         L.info(
             f'JSON SDT (SOAR Datasets Table)'
@@ -412,7 +413,7 @@ def download_SDT_DST(sodl: SoarDownloader):
 
     ls_dst = []
     for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
-        dc_json = sodl.download_JSON_SDT(instrument)
+        dc_json = sodl.download_SDT_JSON(instrument)
         ls_dst.append(_convert_JSON_SDT_to_DST(dc_json))
 
     all_dst = ls_dst[0]
