@@ -19,7 +19,7 @@ same as "item_id".
 Note: Can not find this term in SOL-SGS-TN-0009, "Metadata Definition for Solar
 Orbiter Science Data", 2/6.
 
-DC : Dictionary (Python type).
+DC : Python Dictionary.
 
 DOM : Day-Of-Month
 
@@ -41,6 +41,8 @@ DSID = `SOLO_L2_RPW-LFR-SURV-CWF-E`.
 DST : Instance of class `erikpgjohansson.solo.soar.dst.DatasetsTable`.
 
 DT : Instance of class `datetime.datetime`.
+
+DT64 : numpy array data type "`numpy.datetim64`".
 
 DTDN : Dataset Type Directory Name. Standardized (sub)directory name used
 for SolO L2 & L3 DSIDs in IDDT and RDDT. String constant which is a function of
@@ -102,6 +104,8 @@ Note: Can not find this term in SOL-SGS-TN-0009, "Metadata Definition for Solar
 Orbiter Science Data", 2/6.
 
 L : `logging.Logger` object.
+
+LS : Python list/tuple.
 
 NA : Numpy Array.
 

@@ -199,7 +199,7 @@ class SoarDownloaderImpl(SoarDownloader):
 
         Returns
         -------
-        JsonDc :
+        json_sdt :
             JSON-like data structure directly representing the downloaded SDT
             JSON file.
         --
@@ -216,8 +216,8 @@ class SoarDownloaderImpl(SoarDownloader):
             f' Size: {len(s)} bytes',
         )
 
-        JsonDc = json.loads(s)
-        if type(JsonDc) is not dict:
+        json_sdt = json.loads(s)
+        if type(json_sdt) is not dict:
             msg = (
                 f'JSON SDT (SOAR Datasets Table)'
                 f' downloaded from SOAR for {instrument} :'
@@ -227,7 +227,7 @@ class SoarDownloaderImpl(SoarDownloader):
             L.error(msg)
             raise Exception(msg)
 
-        return JsonDc
+        return json_sdt
 
     # OVERRIDE
     def download_latest_dataset(
@@ -424,7 +424,7 @@ def download_SDT_DST(sodl: SoarDownloader):
 
 
 @codetiming.Timer('_convert_JSON_SDT_to_DST', logger=None)
-def _convert_JSON_SDT_to_DST(JsonDc):
+def _convert_JSON_SDT_to_DST(json_sdt):
     '''
     Convert downloaded JSON SDT to better format.
 
@@ -432,7 +432,7 @@ def _convert_JSON_SDT_to_DST(JsonDc):
 
     Parameters
     ----------
-    JsonDc
+    json_sdt
         JSON-like representation of SDT, as downloaded from SOAR.
 
     Returns
@@ -468,15 +468,15 @@ def _convert_JSON_SDT_to_DST(JsonDc):
     # string --> datetime64
     STR_TO_DT64_COLUMN_NAMES = {'begin_time', 'archived_on'}
 
-    assert type(JsonDc) is dict
+    assert type(json_sdt) is dict
 
     L = logging.getLogger(__name__)
     # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
     L.info('Converting downloaded JSON SDT (SOAR Datasets Table) to DST.')
 
-    metadataList = JsonDc['metadata']
-    dataTuples   = JsonDc['data']
-    del JsonDc
+    metadataList = json_sdt['metadata']
+    dataTuples   = json_sdt['data']
+    del json_sdt
 
     # =====================================================================
     # For every column in the JSON SDT, create one column in the DST. For
