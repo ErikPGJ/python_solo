@@ -92,7 +92,7 @@ TODO-DEC: Where document the JSON format returned from SOAR (input to this
 NO_PROCESSING_LEVEL_NAME = 'n/a'
 
 
-class Downloader:
+class SoarDownloader:
     '''Abstract class for class that handles all communication with SOAR.
     This is to permit the use of "mock object" for automated testing.
     '''
@@ -106,7 +106,7 @@ class Downloader:
         raise NotImplementedError()
 
 
-class SoarDownloaderImpl(Downloader):
+class SoarDownloaderImpl(SoarDownloader):
     '''Class that handles all actual (i.e. not simulated) communication with
     SOAR.'''
 
@@ -375,11 +375,11 @@ class SoarDownloaderImpl(Downloader):
 
 
 @codetiming.Timer('download_SDT_DST', logger=None)
-def download_SDT_DST(downloader: Downloader):
+def download_SDT_DST(downloader: SoarDownloader):
     '''
     Download table of datasets (+metadata) from SOAR.
 
-    Besides downloading the original JSON via Downloader, this function
+    Besides downloading the original JSON via SoarDownloader, this function
     (1) splits up the download into separate downloads for separate
         instruments (to avoid SOAR bug), and then combines them into one table,
     (2) converts JSON file to a DST.
@@ -397,7 +397,7 @@ def download_SDT_DST(downloader: Downloader):
     NOTE: See notes at top of file.
     NOTE: Same dataset may have multiple versions in list.
     '''
-    assert isinstance(downloader, Downloader)
+    assert isinstance(downloader, SoarDownloader)
 
     ls_dst = []
     for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:

@@ -96,7 +96,7 @@ def assert_1D_NA(v, dtype=None):
 
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
-    downloader: dwld.Downloader,
+    downloader: dwld.SoarDownloader,
     itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
@@ -135,7 +135,7 @@ def download_latest_datasets_batch(
     '''
 
     # ASSERTIONS
-    assert isinstance(downloader, dwld.Downloader)
+    assert isinstance(downloader, dwld.SoarDownloader)
     assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
@@ -183,7 +183,7 @@ def download_latest_datasets_batch(
 
 @codetiming.Timer('download_latest_datasets_batch2', logger=None)
 def download_latest_datasets_batch2(
-    downloader: dwld.Downloader,
+    downloader: dwld.SoarDownloader,
     itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
@@ -256,7 +256,7 @@ def download_latest_datasets_batch2(
     # ==========
     # ASSERTIONS
     # ==========
-    assert isinstance(downloader, dwld.Downloader)
+    assert isinstance(downloader, dwld.SoarDownloader)
     assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
@@ -585,7 +585,7 @@ def derive_DST_from_dir(rootDir):
         'processing_level': np.array(levelList,       dtype=object),
     })
     # NOTE: Key name "processing_level" chosen to be in agreement with
-    # erikpgjohansson.solo.soar.dwld.Downloader.download_SDT_DST().
+    # erikpgjohansson.solo.soar.dwld.SoarDownloader.download_SDT_DST().
     return dst
 
 

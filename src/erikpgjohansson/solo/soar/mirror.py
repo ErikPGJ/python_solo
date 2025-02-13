@@ -145,7 +145,7 @@ def sync(
     nMaxNetDatasetsToRemove=10,
     tempRemovalDir=None,
     removeRemovalDir=False,
-    downloader: dwld.Downloader = dwld.SoarDownloaderImpl(),
+    downloader: dwld.SoarDownloader = dwld.SoarDownloaderImpl(),
 ):
     '''
     Sync local directory with subset of online SOAR datasets.
@@ -279,7 +279,7 @@ def sync(
         # ==========
         # ASSERTIONS
         # ==========
-        assert isinstance(downloader, dwld.Downloader)
+        assert isinstance(downloader, dwld.SoarDownloader)
         erikpgjohansson.solo.asserts.is_dir(syncDir)
         erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
         assert callable(datasetsSubsetFunc)
@@ -547,7 +547,7 @@ def _calculate_sync_dir_update(
 
 
 def _execute_sync_dir_SOAR_update(
-    downloader: dwld.Downloader,
+    downloader: dwld.SoarDownloader,
     soarMissingDst, localExcessDst, syncDir, tempDownloadDir,
     tempRemovalDir, removeRemovalDir,
 ):
@@ -571,7 +571,7 @@ def _execute_sync_dir_SOAR_update(
         update_sync_dir
         execute_sync
     '''
-    assert isinstance(downloader, dwld.Downloader)
+    assert isinstance(downloader, dwld.SoarDownloader)
 
     L = logging.getLogger(__name__)
 
