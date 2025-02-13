@@ -109,6 +109,8 @@ LS : Python list/tuple.
 
 NA : Numpy Array.
 
+NDT : numpy data type. A type used for setting numpy's `dtype` arguments.
+
 RDDT : ROC's Dataset Directory Tree. Refers to a standardized directory
 structure in which SolO datasets are organized by ROC. This is the same
 directory structure that is used for datasets which are shared inside the RPW

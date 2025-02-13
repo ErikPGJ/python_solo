@@ -454,136 +454,152 @@ def _convert_JSON_SDT_to_DST(json_sdt):
               "begin_time" probably works.
         TODO: Check.
 
-    PROPOSAL: Require explicit column names and formats. Permit additional
-              ignored columns.
-        PRO: Safer. Fails if JSON SDT format changes.
-        PRO: Better documentation of columns.
+    PROPOSAL: Convert (som/all?) to class encapsulating JSON data structure.
+              Constructor takes JSON data structure argument, methods return
+              selected data.
+        PRO: Can better group local private functions as methods outside get_*
+             methods.
+        PRO: Can use temporary local variables as private instance variables
+             which are effective implicit input (arguments) to the methods.
+            Ex: ls_ls_value, ls_column_name, ls_dc_column_metadata
+        TODO-DEC: How handle filename_NA_to_begin_time_NA(na_filename):
+                  Custom function for converting "file_name" to custom NA.
+            PROPOSAL: Method which derives na_filename itself and converts to
+                      begin_time_na.
+                CON: Derives na_filename separately from derivation of
+                     na_filename for its own sake.
+            PROPOSAL: Function outside of class.
+                PRO: Is not about reading JSON data structure.
+            PROPOSAL: Static method.
     '''
-    # Columns that should be converted integer-->integer
-    INT_TO_INT_COLUMN_NAMES = {'file_size'}
-    # Columns that should be converted string-->string
-    # (numpy array of objects).
-    STRING_TO_STRING_COLUMN_NAMES = {'item_id'}
-    # Columns that should be converted
-    # string --> datetime64
-    STR_TO_DT64_COLUMN_NAMES = {'begin_time', 'archived_on'}
-
     assert type(json_sdt) is dict
 
     L = logging.getLogger(__name__)
     # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
     L.info('Converting downloaded JSON SDT (SOAR Datasets Table) to DST.')
 
+    # Reformat the JSON data structure somewhat.
     ls_dc_column_metadata = json_sdt['metadata']
     ls_ls_value           = json_sdt['data']
-    del json_sdt
-
-    # =====================================================================
-    # For every column in the JSON SDT, create one column in the DST. For
-    # columns recognized by name, convert types as specified.
-    # =====================================================================
-    # NOTE: Implementation should permit the JSON SDT to add or remove columns
-    # for future compatibility.
     ls_column_name = [
         dc_column_metadata['name']
         for dc_column_metadata in ls_dc_column_metadata
     ]
-    dc_na = {}
-    for i_col in range(len(ls_column_name)):
-        column_name = ls_column_name[i_col]
-        column_ls_value  = [value[i_col] for value in ls_ls_value]
+    del json_sdt
+
+    def get_column_ls(sdt_column_name):
+        try:
+            i_col = ls_column_name.index(sdt_column_name)
+        except ValueError as exc:
+            raise Exception(
+                f'Can not identify column "{sdt_column_name}" in JSON SDT.',
+            ) from exc
+
+        return [value[i_col] for value in ls_ls_value]
+
+    def get_column_NA(sdt_column_name, ndt):
+        ls_value = get_column_ls(sdt_column_name)
+        return np.array(ls_value, dtype=ndt)
+
+    def get_column_string_to_DT64_NA(sdt_column_name):
+        column_ls_value = get_column_ls(sdt_column_name)
         n_rows = len(column_ls_value)
+        na = np.full(n_rows, np.datetime64('NaT'), dtype='datetime64[ms]')
 
-        # ================================================
-        # Convert data to numpy array, depending on column
-        # ================================================
-        if column_name in INT_TO_INT_COLUMN_NAMES:
-            na = np.array(column_ls_value, dtype='int64')
+        # NOTE: Must iterate over rows to handle special string "null".
+        for i_row in range(len(column_ls_value)):
+            if column_ls_value[i_row] == 'null':
+                na[i_row] = np.datetime64('NaT')
+            else:
+                na[i_row] = np.datetime64(column_ls_value[i_row], 'ms')
 
-        elif column_name in STRING_TO_STRING_COLUMN_NAMES:
-            na = np.array(column_ls_value, dtype=object)
+        return na
 
-        elif column_name in STR_TO_DT64_COLUMN_NAMES:
-            na = np.full(
-                n_rows, np.datetime64('NaT'), dtype='datetime64[ms]',
-            )
-            # NOTE: Must iterate over rows to handle special string "null".
-            for i_row in range(len(column_ls_value)):
-                if column_ls_value[i_row] != 'null':
-                    na[i_row] = np.datetime64(column_ls_value[i_row], 'ms')
+    def filename_NA_to_begin_time_NA(na_filename):
+        n_rows = len(na_filename)
+        na_dt64_begin = np.full(
+            n_rows, np.datetime64('nat'), dtype='datetime64[ms]',
+        )
+        for i_row in range(n_rows):
+            filename = na_filename[i_row]
+            dsfn = erikpgjohansson.solo.metadata.DatasetFilename.\
+                parse_filename(filename)
 
-        elif column_name == 'item_version':
-            for value in column_ls_value:
-                assert value[0] == 'V'
-            na = np.array(
-                [int(s[1:]) for s in column_ls_value], dtype='int64',
-            )
+            # IMPORTANT NOTE:
+            # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
+            # might fail for datasets which have a valid non-null
+            # begin_time. Is therefore dependent on how well-implemented
+            # that function is.
 
-        else:
-            na = np.array(column_ls_value, dtype=object)
+            if dsfn and len(dsfn.timeVector1) == 6:
+                # =========================================================
+                # CASE: Can parse dataset filename and time interval string
+                # =========================================================
 
-        dc_na[ls_column_name[i_col]] = na
+                # NOTE: datetime.datetime requires integer seconds+microseconds
+                # in separate arguments (as integers). Filenames should only
+                # contain time with microseconds=0 so we ignore them.
+                tv1    = list(dsfn.timeVector1)
+                tv1[5] = int(tv1[5])
+                value  = datetime.datetime(*tv1)
+                na_dt64_begin[i_row] = np.datetime64(value, 'ms')
 
-    # tuple(dc_na.keys()) == ('archived_on', 'begin_time', 'data_type',
-    # 'file_name', 'file_size', 'instrument', 'item_id', 'item_version',
-    # 'processing_level')
-    b = dc_na['processing_level'] == None   # noqa: E711
-    dc_na['processing_level'][b] = NO_PROCESSING_LEVEL_NAME
+                # NOTE: Ex:
+                # solo_LL02_eui-fsi174-image_20201021T100259_V01C.fits
+                # has begin_time = null, despite having a begin_time_FN.
+
+                # ==> Can therefore not assert that there should be a
+                #     begin_time_FN.
+                #     assert not np.isnat(dst['begin_time'][i_row])
+                # except Exception as E:
+                #     pass   # For setting breakpoints
+                #     raise E
+            else:
+                # ============================
+                # CASE: Can NOT parse filename
+                # ============================
+
+                # ASSERTION: Assert that file is any of the known cases that
+                # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()    # noqa: E501
+                # can not handle.
+                filename_suffix = pathlib.Path(filename).suffix
+                assert (filename_suffix in const.FILE_SUFFIX_IGNORE_LIST), (
+                    f'Can neither parse SOAR file name "{filename}",'
+                    f' nor recognize the file suffix "{filename_suffix}"'
+                    f' as a file type that should be ignored.'
+                )
+
+        return na_dt64_begin
+
+    # ==========================================================
+    # Convert selected (all?) SDT "columns" to dictionary of NAs
+    # ==========================================================
+    dc_na = dict()
+
+    column_ls_value = get_column_ls('item_version')
+    assert all(value[0] == 'V' for value in column_ls_value), \
+        'Found item_version value which does not being with "V".'
+    dc_na['item_version'] = np.array(
+        [int(s[1:]) for s in column_ls_value], dtype='int64',
+    )
+
+    dc_na['file_size'] = get_column_NA('file_size', 'int64')
+    dc_na['begin_time']  = get_column_string_to_DT64_NA('begin_time')
+    dc_na['archived_on'] = get_column_string_to_DT64_NA('archived_on')
+
+    for sdt_column_name in [
+        'data_type', 'file_name', 'instrument', 'item_id', 'processing_level',
+    ]:
+        assert sdt_column_name not in dc_na
+        dc_na[sdt_column_name] = get_column_NA(sdt_column_name, object)
+
+    # Modify "processing_level" to handle special case.
+    na_b = dc_na['processing_level'] == None   # noqa: E711
+    dc_na['processing_level'][na_b] = NO_PROCESSING_LEVEL_NAME
 
     # =================================
     # Add extra column "begin_time_FN"
     # =================================
-    na_filename = dc_na['file_name']
-    na_dt64_begin = np.full(
-        n_rows, np.datetime64('nat'), dtype='datetime64[ms]',
-    )
-    for i_row in range(n_rows):
-        filename = na_filename[i_row]
-        dsfn = erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
-            filename,
-        )
-
-        # IMPORTANT NOTE: erikpgjohansson.solo.metadata.DatasetFilename
-        # .parse_filename() might fail for datasets which have a valid
-        # non-null begin_time. Is therefore dependent on how
-        # well-implemented that function is.
-
-        if dsfn and len(dsfn.timeVector1) == 6:
-            # =========================================================
-            # CASE: Can parse dataset filename and time interval string
-            # =========================================================
-
-            # NOTE: datetime.datetime requires integer seconds+microseconds
-            # in separate arguments (as integers). Filenames should only
-            # contain time with microseconds=0 so we ignore them.
-            tv1    = list(dsfn.timeVector1)
-            tv1[5] = int(tv1[5])
-            value  = datetime.datetime(*tv1)
-            na_dt64_begin[i_row] = np.datetime64(value, 'ms')
-
-            # NOTE: Ex: solo_LL02_eui-fsi174-image_20201021T100259_V01C.fits
-            # has begin_time = null, despite having a begin_time_FN.
-            # ==> Can therefore not assert that there should be a
-            #     begin_time_FN.
-            #     assert not np.isnat(dst['begin_time'][i_row])
-            # except Exception as E:
-            #     pass   # For setting breakpoints
-            #     raise E
-        else:
-            # ============================
-            # CASE: Can NOT parse filename
-            # ============================
-
-            # ASSERTION: Assert that file is any of the known cases that
-            # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
-            # can not handle.
-            filename_suffix = pathlib.Path(filename).suffix
-            assert (filename_suffix in const.FILE_SUFFIX_IGNORE_LIST), (
-                f'Can neither parse SOAR file name "{filename}", nor recognize'
-                f' the file suffix "{filename_suffix}" as a file type'
-                ' that should be ignored.'
-            )
-
-    dc_na['begin_time_FN'] = na_dt64_begin
+    dc_na['begin_time_FN'] = filename_NA_to_begin_time_NA(dc_na['file_name'])
 
     return erikpgjohansson.solo.soar.dst.DatasetsTable(dc_na)
