@@ -320,7 +320,7 @@ def sync(
         # IMPLEMENTATION NOTE: SOAR might one day return a DST with zero
         # datasets by mistake or due to bug. This could in turn lead to
         # deleting all local datasets.
-        assert sdtDst.n() > 0, (
+        assert sdtDst.n_rows() > 0, (
             'SOAR returned an empty SDT (SOAR Datasets Table),'
             ' making it seem as if SOAR has no datasets.'
             ' This should imply that there is something wrong with either'
@@ -406,7 +406,7 @@ def offline_cleanup(
         deleteOutsideSubset=deleteOutsideSubset,
         nMaxNetDatasetsToRemove=float("Inf"),
     )
-    assert refMissingDst.n() == 0
+    assert refMissingDst.n_rows() == 0
 
     # =====================
     # Remove local datasets
@@ -415,7 +415,7 @@ def offline_cleanup(
     # new ones (including potential replacements for removed files).
     # This is to avoid that bugs lead to unnecessarily deleting datasets that
     # are hard/slow to replace.
-    n_datasets = localExcessDst.n()
+    n_datasets = localExcessDst.n_rows()
     L.info(f'Removing {n_datasets} local datasets')
     pathsToRemoveList = localExcessDst['file_path'].tolist()
     stdoutStr = _remove_files(
@@ -479,7 +479,7 @@ def _calculate_sync_dir_update(
     # ASSERT: The list of reference datasets is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
     # files due to e.g. a faulty datasetsSubsetFunc.
-    assert refDst.n() > 0, (
+    assert refDst.n_rows() > 0, (
         'Trying to sync with empty subset of reference datasets.'
         ' Argument "datasetsSubsetFunc" could be faulty.'
     )
@@ -522,7 +522,7 @@ def _calculate_sync_dir_update(
     # ASSERTION
     # NOTE: Deliberately doing this first after logging which datasets to
     # download and delete.
-    nNetDatasetsToRemove = localExcessDst.n() - refMissingDst.n()
+    nNetDatasetsToRemove = localExcessDst.n_rows() - refMissingDst.n_rows()
     if nNetDatasetsToRemove > nMaxNetDatasetsToRemove:
         msg = (
             f'Net number of datasets to remove ({nNetDatasetsToRemove})'
@@ -599,7 +599,7 @@ def _execute_sync_dir_SOAR_update(
     # new ones (including potential replacements for removed files).
     # This is to avoid that bugs lead to unnecessarily deleting datasets that
     # are hard/slow to replace.
-    n_datasets = localExcessDst.n()
+    n_datasets = localExcessDst.n_rows()
     L.info(f'Removing {n_datasets} local datasets')
     pathsToRemoveList = localExcessDst['file_path'].tolist()
     stdoutStr = _remove_files(

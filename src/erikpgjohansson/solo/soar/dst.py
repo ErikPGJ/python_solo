@@ -94,7 +94,7 @@ class DatasetsTable:
 
         return DatasetsTable({key: na[bi] for key, na in self._dc_na.items()})
 
-    def n(self):
+    def n_rows(self):
         '''
         Return the length of the stored arrays. "None" if
         there are no entries/arrays yet.'''

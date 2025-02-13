@@ -12,10 +12,10 @@ def test_DatasetsTable():
     def test1():
         dst = erikpgjohansson.solo.soar.dst.DatasetsTable()
 
-        assert dst.n() is None
+        assert dst.n_rows() is None
         with pytest.raises(KeyError):
             _ = dst['x']
-        assert dst.n() is None
+        assert dst.n_rows() is None
 
         with pytest.raises(AssertionError):
             _ = erikpgjohansson.solo.soar.dst.DatasetsTable({
@@ -42,14 +42,14 @@ def test_DatasetsTable():
         assert np.array_equal(na_x, NA_INT1)
         na_y = dst['y']
         assert np.array_equal(na_y, NA_STR1)
-        assert dst.n() == len(NA_INT1)
+        assert dst.n_rows() == len(NA_INT1)
 
     def test2():
         dst = erikpgjohansson.solo.soar.dst.DatasetsTable(
             {'x': NA_INT1, 'y': NA_STR1},
         )
 
-        assert dst.n() == len(NA_INT1)
+        assert dst.n_rows() == len(NA_INT1)
         na_x = dst['x']
         assert np.array_equal(na_x, NA_INT1)
         na_y = dst['y']
@@ -65,7 +65,7 @@ def test_DatasetsTable():
 
         dst2 = dst1.index(BI)
 
-        assert dst2.n() == len(NA_INT1b)
+        assert dst2.n_rows() == len(NA_INT1b)
         na_x = dst2['x']
         assert np.array_equal(na_x, NA_INT1b)
         na_y = dst2['y']
@@ -79,7 +79,7 @@ def test_DatasetsTable():
             {'x': NA_INT2, 'y': NA_STR2},
         )
         dst3 = dst1 + dst2
-        assert dst3.n() == dst1.n() + dst2.n()
+        assert dst3.n_rows() == dst1.n_rows() + dst2.n_rows()
         assert np.array_equal(dst3['x'], np.concatenate((NA_INT1, NA_INT2)))
         assert np.array_equal(dst3['y'], np.concatenate((NA_STR1, NA_STR2)))
 
