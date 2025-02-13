@@ -16,8 +16,12 @@ v1.18.5, but not numpy v1.19.5.
 
 Documentation of JSON SDT format
 --------------------------------
-processing_level:
+processing_level
     Is None for CAL files.
+begin_time
+    May contain string "null".
+item_version
+    string, e.g. "V02".
 
 
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
@@ -56,7 +60,7 @@ PROPOSAL: download_JSON_SDT() should only return JSON *string*, not string
           converted to json data structure.
     CON: Harder to hard code return values for mock object in test code.
 
-PROPOSAL: Rename
+PROPOSAL: Rename -- DONE
         Downloader (abstract superclas)
         SoarDownloader (implementation)
         MockDownloader (tests)
@@ -178,6 +182,7 @@ class SoarDownloaderImpl(SoarDownloader):
         s = HttpResponse.read().decode()
         return s
 
+    # OVERRIDE
     @codetiming.Timer('download_JSON_SDT', logger=None)
     def download_JSON_SDT(self, instrument: str):
         '''
@@ -193,10 +198,10 @@ class SoarDownloaderImpl(SoarDownloader):
 
         Returns
         -------
-        JsonDc : Representation of SOAR dataset list.
+        JsonDc :
+            JSON-like data structure directly representing the downloaded SDT
+            JSON file.
         --
-        NOTE: begin_time may contain string "null".
-        NOTE: item_version == string, e.g. "V02".
         '''
         assert type(instrument) is str
 
@@ -223,6 +228,7 @@ class SoarDownloaderImpl(SoarDownloader):
 
         return JsonDc
 
+    # OVERRIDE
     def download_latest_dataset(
         self, dataItemId, dirPath,
         expectedFileName=None, expectedFileSize=None,
@@ -290,13 +296,14 @@ class SoarDownloaderImpl(SoarDownloader):
         d1 = erikpgjohansson.solo.metadata.parse_item_ID(dataItemId)
         if d1 is None:
             raise Exception(f'Can not parse dataItemId="{dataItemId}"')
-        _, level, _, _ = erikpgjohansson.solo.metadata.parse_DSID(
-            d1['DSID'],
-        )
+        _, level, _, _ = erikpgjohansson.solo.metadata.parse_DSID(d1['DSID'])
 
         url = SoarDownloaderImpl.get_latest_dataset_URL(dataItemId, level)
         L.info(f'Calling URL: {url}')
 
+        # ========================
+        # Get filename to download
+        # ========================
         HttpResponse = urllib.request.urlopen(url)
         fileName = self._extract_HTTP_response_filename(HttpResponse)
 
@@ -312,11 +319,13 @@ class SoarDownloaderImpl(SoarDownloader):
 
         erikpgjohansson.solo.asserts.path_is_available(filePath)
 
-        # Download file from `HttpResponse` and save it as `filePath`
-        # -----------------------------------------------------------
+        # ===============================================
+        # Download (?) file from `HttpResponse`
+        # -------------------------------------
         # open() options:
         # 'w' open for writing, truncating the file first
         # 'b' binary mode
+        # ===============================================
         FileObj = open(filePath, 'wb')
         shutil.copyfileobj(HttpResponse, FileObj)
         FileObj.close()
@@ -361,6 +370,7 @@ class SoarDownloaderImpl(SoarDownloader):
         #  ('Connection', 'close')]
 
         FILENAME_PREFIX = 'filename='
+
         header_value = HttpResponse.getheader('Content-Disposition')
         assert header_value is not None
 
@@ -379,15 +389,16 @@ def download_SDT_DST(sodl: SoarDownloader):
     '''
     Download table of datasets (+metadata) from SOAR.
 
-    Besides downloading the original JSON via SoarDownloader, this function
+    This function
     (1) splits up the download into separate downloads for separate
-        instruments (to avoid SOAR bug), and then combines them into one table,
-    (2) converts JSON file to a DST.
+        instruments (to avoid SOAR bug),
+    (2) separately converts the JSON files to DSTs.
+    (3) merges the DSTs into one DST.
 
     Returns
     -------
-    dst : dict[colName][iRow] = numpy.ndarray
-        colName : String as in JSON table metadata.
+    dst : erikpgjohansson.solo.soar.dst.DatasetsTable
+        columns :
             ['archived_on', 'begin_time', 'data_type', 'file_name',
             'file_size', 'instrument', 'item_id', 'item_version',
             'processing_level']  /2020-10-12
@@ -425,7 +436,7 @@ def _convert_JSON_SDT_to_DST(JsonDc):
 
     Returns
     -------
-    dst : DST
+    dst : erikpgjohansson.solo.soar.dst.DatasetsTable
     '''
     '''
     PROPOSAL: Use column names which are entirely independent of SOAR's naming.

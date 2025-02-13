@@ -27,6 +27,7 @@ class DatasetsTable:
         get_subset()
     PROPOSAL: Change name "n()".
         size()
+    PROPOSAL: Convert n() into readonly property.
     PROPOSAL: Use "None"/NaN for unknown values.
     '''
 

@@ -64,8 +64,8 @@ def mtest_SoarDownloaderImpl_download_latest_dataset(tmp_path):
         )
         assert os.path.isfile(actFilePath)
 
-    test('solo_L1_epd-sis-a-rates-slow_20200813')
-    test('solo_L1_epd-step-nom-close_20200813')
+    test('solo_L1_epd-sis-a-rates-slow_20200813')    # 11037 bytes
+    test('solo_L1_epd-step-nom-close_20200813')      # 65536 bytes
 
     # Test LL
     # test('solo_LL02_mag_20220621T000205-20220622T000204') # No longer works.

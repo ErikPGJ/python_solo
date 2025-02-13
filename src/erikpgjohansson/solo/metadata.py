@@ -227,6 +227,9 @@ def parse_item_ID(itemId: str):
     Dictionary: if can parse string.
     None: if can not parse string.
     '''
+    '''
+    PROPOSAL: Class/namedtuple for return value.
+    '''
     substrList, remainingStr, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
             itemId, [
