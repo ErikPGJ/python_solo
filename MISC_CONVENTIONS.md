@@ -4,6 +4,27 @@
 
 Logging objects are obtained using `logging.getLogger(__name__)`.
 
+# Naming convention
+
+Naming should use abbreviations when applicable. Abbreviations in
+function/method names are uppercase.
+
+Classes are named using CamelCase (uppercase initial).
+
+Constants use SCREAMING_SNAKE_CASE.
+
+Naming convention for variables is inconsistent but follows either:
+(1) camelCase for variables: uppercase initial for class variables(?);
+otherwise lowercase initial, or
+(2) snake_case
+
+The long term goal is to only use convention (2) (?).
+
+Use of "ls"/"dc" implies that what comes to the left (if anything) refers
+to the entire ls/dc, and what come to the right refers to the content of
+each component in the ls/dc.
+Ex: dc_ls_x = dictionary of lists/tuples of "x".
+
 # Shortenings
 
 ## Introduction

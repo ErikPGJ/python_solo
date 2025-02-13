@@ -181,8 +181,8 @@ def sync(
         Bool. If using a removal directory, then whether to actually remove the
         removal directory or keep it.
     sodl
-        erikpgjohansson.solo.soar.dwld object. The default value should be used
-        except for automated tests.
+        erikpgjohansson.solo.soar.dwld.SoarDownloader object. The default value
+        should be used except for automated tests.
 
 
     Return values

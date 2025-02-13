@@ -25,8 +25,15 @@ class DatasetsTable:
 
     PROPOSAL: Change name "index()".
         get_subset()
+        get_indices()
+        PROPOSAL: Use __getitem__()
+            PROPOSAL: Only for ranges.
     PROPOSAL: Change name "n()".
         size()
+            PRO: Consistent with NAs.
+            CON: Can be conflated with number of keys/columns.
+        n_rows()
+            PRO: Can not be conflated with number of keys/columns.
     PROPOSAL: Convert n() into readonly property.
     PROPOSAL: Use "None"/NaN for unknown values.
     '''
@@ -56,8 +63,8 @@ class DatasetsTable:
 
     def _set_item(self, key, na):
         '''
-        Set entry.
-        NOTE: Can not overwrite previous entry.
+        Set new "column"/NA.
+        NOTE: Can not overwrite previous entry (NA; assertion).
         '''
         # ASSERTIONS
         if key in self._dc_na:
