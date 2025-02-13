@@ -474,8 +474,8 @@ def _convert_JSON_SDT_to_DST(json_sdt):
     # IMPLEMENTATION NOTE: Useful since function may take a lot of time.
     L.info('Converting downloaded JSON SDT (SOAR Datasets Table) to DST.')
 
-    metadataList = json_sdt['metadata']
-    dataTuples   = json_sdt['data']
+    ls_dc_column_metadata = json_sdt['metadata']
+    ls_ls_value           = json_sdt['data']
     del json_sdt
 
     # =====================================================================
@@ -484,44 +484,45 @@ def _convert_JSON_SDT_to_DST(json_sdt):
     # =====================================================================
     # NOTE: Implementation should permit the JSON SDT to add or remove columns
     # for future compatibility.
-    columnNameList = [
-        columnMetadataDc['name'] for columnMetadataDc in metadataList
+    ls_column_name = [
+        dc_column_metadata['name']
+        for dc_column_metadata in ls_dc_column_metadata
     ]
     dc_na = {}
-    for iCol in range(len(columnNameList)):
-        colName    = columnNameList[iCol]
-        columnList = [value[iCol] for value in dataTuples]
-        nRows = len(columnList)
+    for i_col in range(len(ls_column_name)):
+        column_name = ls_column_name[i_col]
+        column_ls_value  = [value[i_col] for value in ls_ls_value]
+        n_rows = len(column_ls_value)
 
         # ================================================
         # Convert data to numpy array, depending on column
         # ================================================
-        if colName in INT_TO_INT_COLUMN_NAMES:
-            columnArray = np.array(columnList, dtype='int64')
+        if column_name in INT_TO_INT_COLUMN_NAMES:
+            na = np.array(column_ls_value, dtype='int64')
 
-        elif colName in STRING_TO_STRING_COLUMN_NAMES:
-            columnArray = np.array(columnList, dtype=object)
+        elif column_name in STRING_TO_STRING_COLUMN_NAMES:
+            na = np.array(column_ls_value, dtype=object)
 
-        elif colName in STR_TO_DT64_COLUMN_NAMES:
-            columnArray = np.full(
-                nRows, np.datetime64('NaT'), dtype='datetime64[ms]',
+        elif column_name in STR_TO_DT64_COLUMN_NAMES:
+            na = np.full(
+                n_rows, np.datetime64('NaT'), dtype='datetime64[ms]',
             )
             # NOTE: Must iterate over rows to handle special string "null".
-            for iRow in range(len(columnList)):
-                if columnList[iRow] != 'null':
-                    columnArray[iRow] = np.datetime64(columnList[iRow], 'ms')
+            for i_row in range(len(column_ls_value)):
+                if column_ls_value[i_row] != 'null':
+                    na[i_row] = np.datetime64(column_ls_value[i_row], 'ms')
 
-        elif colName == 'item_version':
-            for value in columnList:
+        elif column_name == 'item_version':
+            for value in column_ls_value:
                 assert value[0] == 'V'
-            columnArray = np.array(
-                [int(s[1:]) for s in columnList], dtype='int64',
+            na = np.array(
+                [int(s[1:]) for s in column_ls_value], dtype='int64',
             )
 
         else:
-            columnArray = np.array(columnList, dtype=object)
+            na = np.array(column_ls_value, dtype=object)
 
-        dc_na[columnNameList[iCol]] = columnArray
+        dc_na[ls_column_name[i_col]] = na
 
     # tuple(dc_na.keys()) == ('archived_on', 'begin_time', 'data_type',
     # 'file_name', 'file_size', 'instrument', 'item_id', 'item_version',
@@ -532,14 +533,14 @@ def _convert_JSON_SDT_to_DST(json_sdt):
     # =================================
     # Add extra column "begin_time_FN"
     # =================================
-    filenameArray = dc_na['file_name']
-    beginTimeFnArray = np.full(
-        nRows, np.datetime64('nat'), dtype='datetime64[ms]',
+    na_filename = dc_na['file_name']
+    na_dt64_begin = np.full(
+        n_rows, np.datetime64('nat'), dtype='datetime64[ms]',
     )
-    for iRow in range(nRows):
-        fileName = filenameArray[iRow]
+    for i_row in range(n_rows):
+        filename = na_filename[i_row]
         dsfn = erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
-            fileName,
+            filename,
         )
 
         # IMPORTANT NOTE: erikpgjohansson.solo.metadata.DatasetFilename
@@ -558,13 +559,13 @@ def _convert_JSON_SDT_to_DST(json_sdt):
             tv1    = list(dsfn.timeVector1)
             tv1[5] = int(tv1[5])
             value  = datetime.datetime(*tv1)
-            beginTimeFnArray[iRow] = np.datetime64(value, 'ms')
+            na_dt64_begin[i_row] = np.datetime64(value, 'ms')
 
             # NOTE: Ex: solo_LL02_eui-fsi174-image_20201021T100259_V01C.fits
             # has begin_time = null, despite having a begin_time_FN.
             # ==> Can therefore not assert that there should be a
             #     begin_time_FN.
-            #     assert not np.isnat(dst['begin_time'][iRow])
+            #     assert not np.isnat(dst['begin_time'][i_row])
             # except Exception as E:
             #     pass   # For setting breakpoints
             #     raise E
@@ -576,13 +577,13 @@ def _convert_JSON_SDT_to_DST(json_sdt):
             # ASSERTION: Assert that file is any of the known cases that
             # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
             # can not handle.
-            fileNameSuffix = pathlib.Path(fileName).suffix
-            assert (fileNameSuffix in const.FILE_SUFFIX_IGNORE_LIST), (
-                f'Can neither parse SOAR file name "{fileName}", nor recognize'
-                f' the file suffix "{fileNameSuffix}" as a file type'
+            filename_suffix = pathlib.Path(filename).suffix
+            assert (filename_suffix in const.FILE_SUFFIX_IGNORE_LIST), (
+                f'Can neither parse SOAR file name "{filename}", nor recognize'
+                f' the file suffix "{filename_suffix}" as a file type'
                 ' that should be ignored.'
             )
 
-    dc_na['begin_time_FN'] = beginTimeFnArray
+    dc_na['begin_time_FN'] = na_dt64_begin
 
     return erikpgjohansson.solo.soar.dst.DatasetsTable(dc_na)
