@@ -116,6 +116,9 @@ Not to be confused with DST.
 
 SOAR : Solar Orbiter ARchive. `https://soar.esac.esa.int/soar/`
 
+SODL : Class `erikpgjohansson.solo.soar.dwld.SoarDownloader` and subclasses
+thereof.
+
 TD = Instance of class `datetime.timedelta`.
 
 TV, Time Vector : Tuple of (year, month, day, hour, minute, second).

@@ -145,7 +145,7 @@ def sync(
     nMaxNetDatasetsToRemove=10,
     tempRemovalDir=None,
     removeRemovalDir=False,
-    downloader: dwld.SoarDownloader = dwld.SoarDownloaderImpl(),
+    sodl: dwld.SoarDownloader = dwld.SoarDownloaderImpl(),
 ):
     '''
     Sync local directory with subset of online SOAR datasets.
@@ -180,7 +180,7 @@ def sync(
     removeRemovalDir
         Bool. If using a removal directory, then whether to actually remove the
         removal directory or keep it.
-    downloader
+    sodl
         erikpgjohansson.solo.soar.dwld object. The default value should be used
         except for automated tests.
 
@@ -279,7 +279,7 @@ def sync(
         # ==========
         # ASSERTIONS
         # ==========
-        assert isinstance(downloader, dwld.SoarDownloader)
+        assert isinstance(sodl, dwld.SoarDownloader)
         erikpgjohansson.solo.asserts.is_dir(syncDir)
         erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
         assert callable(datasetsSubsetFunc)
@@ -307,7 +307,7 @@ def sync(
         # Download SDT
         # ============
         L.info('Downloading SDT (SOAR Datasets Table).')
-        sdtDst = dwld.download_SDT_DST(downloader)
+        sdtDst = dwld.download_SDT_DST(sodl)
         utils.log_DST(
             sdtDst,
             'SDT (SOAR Datasets Table):'
@@ -342,7 +342,7 @@ def sync(
         )
 
         _execute_sync_dir_SOAR_update(
-            downloader=downloader,
+            sodl=sodl,
             soarMissingDst=soarMissingDst,
             localExcessDst=localExcessDst,
             syncDir=syncDir,
@@ -547,7 +547,7 @@ def _calculate_sync_dir_update(
 
 
 def _execute_sync_dir_SOAR_update(
-    downloader: dwld.SoarDownloader,
+    sodl: dwld.SoarDownloader,
     soarMissingDst, localExcessDst, syncDir, tempDownloadDir,
     tempRemovalDir, removeRemovalDir,
 ):
@@ -571,7 +571,7 @@ def _execute_sync_dir_SOAR_update(
         update_sync_dir
         execute_sync
     '''
-    assert isinstance(downloader, dwld.SoarDownloader)
+    assert isinstance(sodl, dwld.SoarDownloader)
 
     L = logging.getLogger(__name__)
 
@@ -586,7 +586,7 @@ def _execute_sync_dir_SOAR_update(
         download_latest_datasets_batch = utils.download_latest_datasets_batch
 
     download_latest_datasets_batch(
-        downloader,
+        sodl,
         soarMissingDst['item_id'],
         soarMissingDst['file_size'],
         tempDownloadDir,

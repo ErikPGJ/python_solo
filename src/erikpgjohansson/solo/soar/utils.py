@@ -96,7 +96,7 @@ def assert_1D_NA(v, dtype=None):
 
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
-    downloader: dwld.SoarDownloader,
+    sodl: dwld.SoarDownloader,
     itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
@@ -135,7 +135,7 @@ def download_latest_datasets_batch(
     '''
 
     # ASSERTIONS
-    assert isinstance(downloader, dwld.SoarDownloader)
+    assert isinstance(sodl, dwld.SoarDownloader)
     assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'
@@ -165,7 +165,7 @@ def download_latest_datasets_batch(
         # Download dataset
         # ================
         L.info(f'Download starting:  {fileSizeMb:.2f} [MiB], {itemId}')
-        downloader.download_latest_dataset(itemId, outputDirPath)
+        sodl.download_latest_dataset(itemId, outputDirPath)
         L.info(f'Download completed: {fileSizeMb:.2f} [MiB], {itemId}')
 
         # ===
@@ -183,7 +183,7 @@ def download_latest_datasets_batch(
 
 @codetiming.Timer('download_latest_datasets_batch2', logger=None)
 def download_latest_datasets_batch2(
-    downloader: dwld.SoarDownloader,
+    sodl: dwld.SoarDownloader,
     itemIdArray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
@@ -240,7 +240,7 @@ def download_latest_datasets_batch2(
                     f'Download starting:  '
                     f'{file_size_mb:.2f} [MiB], {self._item_id}',
                 )
-                downloader.download_latest_dataset(
+                sodl.download_latest_dataset(
                     self._item_id, outputDirPath,
                 )
                 L.info(
@@ -256,7 +256,7 @@ def download_latest_datasets_batch2(
     # ==========
     # ASSERTIONS
     # ==========
-    assert isinstance(downloader, dwld.SoarDownloader)
+    assert isinstance(sodl, dwld.SoarDownloader)
     assert_1D_NA(itemIdArray, np.dtype('O'))
     assert np.unique(itemIdArray).size == itemIdArray.size, \
         'itemIdArray contains duplicates.'

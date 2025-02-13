@@ -23,10 +23,10 @@ def test_download_latest_datasets_batch(tmp_path):
 
     def test0(use_parallel_version):
         test_dir = dp.get_new_dir()
-        dl = tests.SoarDownloaderTest(dc_json_dc={})
+        sodl = tests.SoarDownloaderTest(dc_json_dc={})
         download_latest_datasets_batch(
             use_parallel_version,
-            dl,
+            sodl,
             itemIdArray=np.array([], object),
             fileSizeArray=np.array([], 'int64'),
             outputDirPath=test_dir,
@@ -35,7 +35,7 @@ def test_download_latest_datasets_batch(tmp_path):
 
     def test1(use_parallel_version):
         test_dir = dp.get_new_dir()
-        dl = tests.SoarDownloaderTest(
+        sodl = tests.SoarDownloaderTest(
             dc_json_data_ls={
                 'MAG': [
                     [
@@ -73,7 +73,7 @@ def test_download_latest_datasets_batch(tmp_path):
         )
         download_latest_datasets_batch(
             use_parallel_version,
-            dl,
+            sodl,
             itemIdArray=np.array(
                 [
                     'solo_L2_mag-rtn-normal_20220327',

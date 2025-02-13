@@ -375,7 +375,7 @@ class SoarDownloaderImpl(SoarDownloader):
 
 
 @codetiming.Timer('download_SDT_DST', logger=None)
-def download_SDT_DST(downloader: SoarDownloader):
+def download_SDT_DST(sodl: SoarDownloader):
     '''
     Download table of datasets (+metadata) from SOAR.
 
@@ -397,11 +397,11 @@ def download_SDT_DST(downloader: SoarDownloader):
     NOTE: See notes at top of file.
     NOTE: Same dataset may have multiple versions in list.
     '''
-    assert isinstance(downloader, SoarDownloader)
+    assert isinstance(sodl, SoarDownloader)
 
     ls_dst = []
     for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
-        dc_json = downloader.download_JSON_SDT(instrument)
+        dc_json = sodl.download_JSON_SDT(instrument)
         ls_dst.append(_convert_JSON_SDT_to_DST(dc_json))
 
     all_dst = ls_dst[0]

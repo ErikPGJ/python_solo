@@ -25,10 +25,10 @@ PROPOSAL: Refactor all "mtests" into regular pytest tests, but have switch for
 
 
 def mtest_SoarDownloaderImpl_download_SDT_DST():
-    dwld = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl()
+    sodl = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl()
 
     for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
-        _ = dwld.download_JSON_SDT(instrument)
+        _ = sodl.download_JSON_SDT(instrument)
 
 
 def mtest_SoarDownloaderImpl_download_latest_dataset(tmp_path):
@@ -42,7 +42,7 @@ def mtest_SoarDownloaderImpl_download_latest_dataset(tmp_path):
     # Normalize. Can be string if called from non-pytest.
     tmp_path = pathlib.Path(tmp_path)
 
-    downloader = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl()
+    sodl = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl()
 
     def test(dataItemId):
         '''
@@ -58,7 +58,7 @@ def mtest_SoarDownloaderImpl_download_latest_dataset(tmp_path):
         print(
             f'Downloading online data from SOAR: dataItemId={dataItemId}',
         )
-        actFilePath = downloader.download_latest_dataset(
+        actFilePath = sodl.download_latest_dataset(
             dataItemId, dirPath,
             expectedFileName=None, expectedFileSize=None,
         )

@@ -38,7 +38,7 @@ def test_sync(tmp_path):
             },
         )
 
-        md = tests.SoarDownloaderTest(
+        sodl = tests.SoarDownloaderTest(
             dc_json_data_ls={
                 'EPD':
                     [[
@@ -61,7 +61,7 @@ def test_sync(tmp_path):
             nMaxNetDatasetsToRemove=10,
             tempRemovalDir=None,
             removeRemovalDir=False,
-            downloader=md,
+            sodl=sodl,
         )
 
         tests.assert_FS(
@@ -158,7 +158,7 @@ def test_sync(tmp_path):
         # instruments since download_SDT_DST() iterates over hardcoded
         # instrument list
         # erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS.
-        md = tests.SoarDownloaderTest(
+        sodl = tests.SoarDownloaderTest(
             dc_json_data_ls={
                 'MAG': [L2_MAG_V02, L2_MAG_V03],
                 'EPD': [L1_EUI],
@@ -174,7 +174,7 @@ def test_sync(tmp_path):
             nMaxNetDatasetsToRemove=10,
             tempRemovalDir=None,
             removeRemovalDir=False,
-            downloader=md,
+            sodl=sodl,
         )
 
         tests.assert_FS(
