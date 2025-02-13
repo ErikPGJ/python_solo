@@ -56,10 +56,15 @@ PROPOSAL: download_JSON_SDT() should only return JSON *string*, not string
           converted to json data structure.
     CON: Harder to hard code return values for mock object in test code.
 
-PROPOSAL: Rename Downloader (abstract superclas), SoarDownloader
-          (implementation)
+PROPOSAL: Rename
+        Downloader (abstract superclas)
+        SoarDownloader (implementation)
+        MockDownloader (tests)
+        class abbreviation "dwld"
+        module name "dwld"
     PRO: All subclasses do or emulate downloading from SOAR, not downloading in
          general.
+    --
     ~SOAR
     ~Downloader
         NOTE: Only downloads, never uploads.
@@ -67,8 +72,17 @@ PROPOSAL: Rename Downloader (abstract superclas), SoarDownloader
     ~network, internet
     ~SDT=SOAR Dataset Table
         CON: Downloads both SDT and actual datasets.
-    PROPOSAL: Change abbreviation for class. DWNL-->?
-    PROPOSAL: Change module name.
+    --
+    SoarDownloader
+    SoarDownloaderImpl
+    SoarDownloaderTest/Mock
+    sdl
+        CON: Too similar to SDT, DST
+    srdl = SoaR DownLoader
+    sodl = SOar DownLoader
+    srdw = SoaR DoWnloader
+    sdwl = Soar DoWnLoader
+    --
 
 TODO-DEC: Where document the JSON format returned from SOAR (input to this
           function)?

@@ -5,6 +5,11 @@ import erikpgjohansson.solo.soar.utils as utils
 import numpy as np
 
 
+'''
+Split test_download_latest_datasets_batch() into multiple test functions.
+'''
+
+
 def test_download_latest_datasets_batch(tmp_path):
     dp = tests.DirProducer(tmp_path)
 
