@@ -34,7 +34,6 @@ class DatasetsTable:
             CON: Can be conflated with number of keys/columns.
         n_rows()
             PRO: Can not be conflated with number of keys/columns.
-    PROPOSAL: Convert n() into readonly property.
     PROPOSAL: Use "None"/NaN for unknown values.
     '''
 
@@ -94,10 +93,14 @@ class DatasetsTable:
 
         return DatasetsTable({key: na[bi] for key, na in self._dc_na.items()})
 
+    @property
     def n_rows(self):
         '''
         Return the length of the stored arrays. "None" if
-        there are no entries/arrays yet.'''
+        there are no entries/arrays yet.
+
+        Read-only property.
+        '''
         '''
         PROPOSAL: Raise exception if there are no entries.
         '''

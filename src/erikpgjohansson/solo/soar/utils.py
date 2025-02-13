@@ -612,7 +612,7 @@ def derive_DST_from_dir(rootDir):
 #     '''
 #     assert type(dst) == erikpgjohansson.solo.soar.dst.DatasetsTable
 #
-#     b = np.full(dst.n_rows(), True)
+#     b = np.full(dst.n_rows, True)
 #
 #     if levelsSet:
 #         b = b & np.isin(dst['processing_level'], np.array(list(levelsSet)))
