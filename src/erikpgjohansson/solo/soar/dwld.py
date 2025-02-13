@@ -154,6 +154,19 @@ class SoarDownloaderImpl(SoarDownloader):
         return url
 
     @staticmethod
+    def get_latest_dataset_URL(dataItemId, level):
+        if level in ('LL01', 'LL02'):
+            product_type = 'LOW_LATENCY'
+        else:
+            product_type = 'SCIENCE'
+
+        return (
+            f'{const.SOAR_TAP_URL}/data?'
+            f'data_item_id={dataItemId}'
+            f'&retrieval_type=LAST_PRODUCT&product_type={product_type}'
+        )
+
+    @staticmethod
     def download_JSON_SDT_JSON_string(instrument: str):
         L = logging.getLogger(__name__)
 
@@ -271,19 +284,6 @@ class SoarDownloaderImpl(SoarDownloader):
 
         L = logging.getLogger(__name__)
 
-        # NOTE: Not a real constant since a string is inserted into it.
-        def get_URL(dataItemId, level):
-            if level in ('LL01', 'LL02'):
-                product_type = 'LOW_LATENCY'
-            else:
-                product_type = 'SCIENCE'
-
-            return (
-                f'{const.SOAR_TAP_URL}/data?'
-                f'data_item_id={dataItemId}'
-                f'&retrieval_type=LAST_PRODUCT&product_type={product_type}'
-            )
-
         assert type(dataItemId) is str
 
         # Extract level from item ID.
@@ -294,7 +294,7 @@ class SoarDownloaderImpl(SoarDownloader):
             d1['DSID'],
         )
 
-        url = get_URL(dataItemId, level)
+        url = SoarDownloaderImpl.get_latest_dataset_URL(dataItemId, level)
         L.info(f'Calling URL: {url}')
 
         HttpResponse = urllib.request.urlopen(url)
