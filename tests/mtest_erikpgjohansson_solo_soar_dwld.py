@@ -24,14 +24,14 @@ PROPOSAL: Refactor all "mtests" into regular pytest tests, but have switch for
 '''
 
 
-def mtest_SoarDownloader_download_SDT_DST():
-    dwld = erikpgjohansson.solo.soar.dwld.SoarDownloader()
+def mtest_SoarDownloaderImpl_download_SDT_DST():
+    dwld = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl()
 
     for instrument in erikpgjohansson.solo.soar.const.LS_SOAR_INSTRUMENTS:
         _ = dwld.download_JSON_SDT(instrument)
 
 
-def mtest_SoarDownloader_download_latest_dataset(tmp_path):
+def mtest_SoarDownloaderImpl_download_latest_dataset(tmp_path):
     '''
     NOTE: Downloads from internet. Assumes that certain files are available
           online at SOAR. If these files are missing from SOAR, then the test
@@ -42,7 +42,7 @@ def mtest_SoarDownloader_download_latest_dataset(tmp_path):
     # Normalize. Can be string if called from non-pytest.
     tmp_path = pathlib.Path(tmp_path)
 
-    downloader = erikpgjohansson.solo.soar.dwld.SoarDownloader()
+    downloader = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl()
 
     def test(dataItemId):
         '''
@@ -74,7 +74,7 @@ def mtest_SoarDownloader_download_latest_dataset(tmp_path):
 
 if __name__ == '__main__':
     if 1:
-        mtest_SoarDownloader_download_SDT_DST()
+        mtest_SoarDownloaderImpl_download_SDT_DST()
     if 1:
         t = tempfile.TemporaryDirectory()
-        mtest_SoarDownloader_download_latest_dataset(t.name)
+        mtest_SoarDownloaderImpl_download_latest_dataset(t.name)

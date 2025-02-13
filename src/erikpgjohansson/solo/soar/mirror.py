@@ -145,7 +145,7 @@ def sync(
     nMaxNetDatasetsToRemove=10,
     tempRemovalDir=None,
     removeRemovalDir=False,
-    downloader: dwld.Downloader = dwld.SoarDownloader(),
+    downloader: dwld.Downloader = dwld.SoarDownloaderImpl(),
 ):
     '''
     Sync local directory with subset of online SOAR datasets.

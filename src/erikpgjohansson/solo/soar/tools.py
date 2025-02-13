@@ -99,7 +99,7 @@ def download_zip_JSON_SDTs(output_dir):
                 )
 
             print(f'Downloading SDT for instrument={instrument}.', end='')
-            s = erikpgjohansson.solo.soar.dwld.SoarDownloader.\
+            s = erikpgjohansson.solo.soar.dwld.SoarDownloaderImpl.\
                 download_JSON_SDT_JSON_string(instrument)
             with open(output_file, 'w') as f:
                 f.write(s)

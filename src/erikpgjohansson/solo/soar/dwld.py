@@ -106,7 +106,7 @@ class Downloader:
         raise NotImplementedError()
 
 
-class SoarDownloader(Downloader):
+class SoarDownloaderImpl(Downloader):
     '''Class that handles all actual (i.e. not simulated) communication with
     SOAR.'''
 
@@ -157,7 +157,7 @@ class SoarDownloader(Downloader):
     def download_JSON_SDT_JSON_string(instrument: str):
         L = logging.getLogger(__name__)
 
-        url = SoarDownloader._get_JSON_SDT_URL(instrument)
+        url = SoarDownloaderImpl._get_JSON_SDT_URL(instrument)
 
         L.info(f'Calling URL: {url}')
         HttpResponse = urllib.request.urlopen(url)
