@@ -72,7 +72,7 @@ def _get_SOAR_JSON_metadata_ls_index(json_metadata_ls, name):
     raise AssertionError()
 
 
-class MockDownloader(erikpgjohansson.solo.soar.dwld.SoarDownloader):
+class SoarDownloaderTest(erikpgjohansson.solo.soar.dwld.SoarDownloader):
     '''Class that represents SOAR with a constant pre-defined set of
     datasets.
     '''

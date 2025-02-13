@@ -23,7 +23,7 @@ def test_download_latest_datasets_batch(tmp_path):
 
     def test0(use_parallel_version):
         test_dir = dp.get_new_dir()
-        dl = tests.MockDownloader(dc_json_dc={})
+        dl = tests.SoarDownloaderTest(dc_json_dc={})
         download_latest_datasets_batch(
             use_parallel_version,
             dl,
@@ -35,7 +35,7 @@ def test_download_latest_datasets_batch(tmp_path):
 
     def test1(use_parallel_version):
         test_dir = dp.get_new_dir()
-        dl = tests.MockDownloader(
+        dl = tests.SoarDownloaderTest(
             dc_json_data_ls={
                 'MAG': [
                     [

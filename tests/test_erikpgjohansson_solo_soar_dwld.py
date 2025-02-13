@@ -19,7 +19,7 @@ Archive:  JSON_SDTs_2025-02-12T19.23.58.zip
 '''
 
 
-def _get_MockDownloader(zip_file, tmp_path):
+def _get_SoarDownloaderTest(zip_file, tmp_path):
     with zipfile.ZipFile(zip_file, 'r') as z:
         z.extractall(tmp_path)
 
@@ -31,18 +31,18 @@ def _get_MockDownloader(zip_file, tmp_path):
         with open(path) as f:
             dc_json_dc[instrument] = json.load(f)
 
-    return tests.MockDownloader(dc_json_dc=dc_json_dc)
+    return tests.SoarDownloaderTest(dc_json_dc=dc_json_dc)
 
 
 def test_convert_JSON_SDT_to_DST___actual_saved_SDTs(tmp_path):
     '''Complex test. Unzips JSON files from SOAR and loads the data
-    into MockDownloader.
+    into SoarDownloaderTest.
     '''
     # ----------
     # Setup test
     # ----------
     zip_file = pathlib.Path(__file__).parent / JSON_SDTs_ZIP_FILENAME
-    dwld = _get_MockDownloader(zip_file, tmp_path)
+    dwld = _get_SoarDownloaderTest(zip_file, tmp_path)
 
     # ---------------
     # Test if crashes
@@ -67,7 +67,7 @@ def test_convert_JSON_SDT_to_DST___manual_SDTs(tmp_path):
         "", 2746275, "EPD",
         "solo_L0_epd-step-ll_0680054400-0680140799", "V02", "L0",
     ]]
-    dwld = tests.MockDownloader(dc_json_data_ls={'EPD': json_data_ls})
+    dwld = tests.SoarDownloaderTest(dc_json_data_ls={'EPD': json_data_ls})
     dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwld)
 
     na = dst['begin_time']
@@ -97,7 +97,7 @@ def test_convert_JSON_SDT_to_DST___manual_SDTs(tmp_path):
         "solo_LL02_swa-his-rat_20210421T220208-20210422T215738", "V01",
         "LL02",
     ]]
-    dwld = tests.MockDownloader(dc_json_data_ls={'SWA': json_data_ls})
+    dwld = tests.SoarDownloaderTest(dc_json_data_ls={'SWA': json_data_ls})
     dst = erikpgjohansson.solo.soar.dwld.download_SDT_DST(dwld)
 
     na = dst['begin_time_FN']
