@@ -444,7 +444,9 @@ def _download_latest_datasets_batch_log_progress(
 
 
 @codetiming.Timer('find_latest_versions', logger=None)
-def find_latest_versions(na_item_id: np.ndarray, itemVerNbrArray):
+def find_latest_versions(
+    na_item_id: np.ndarray, na_item_id_version_nbr: np.ndarray,
+):
     '''
     Find boolean indices for datasets which have the latest version (for that
     particular item ID.
@@ -455,13 +457,13 @@ def find_latest_versions(na_item_id: np.ndarray, itemVerNbrArray):
 
     Parameters
     ----------
-    na_item_id      : 1D numpy array of strings.
-    itemVerNbrArray : 1D numpy array of integers.
+    na_item_id             : 1D numpy array of strings.
+    na_item_id_version_nbr : 1D numpy array of integers.
 
 
     Returns
     -------
-    bLvArray : 1D numpy bool array.
+    na_b_latest_version : 1D numpy bool array.
     '''
     '''
     PROPOSAL: Temporary variable for "itemIdArray == uii".
@@ -475,13 +477,13 @@ def find_latest_versions(na_item_id: np.ndarray, itemVerNbrArray):
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
     # import pdb; pdb.set_trace()
-    assert_1D_NA(na_item_id,      np.dtype('O'))
-    assert_1D_NA(itemVerNbrArray, np.dtype('int64'))
-    assert na_item_id.shape == itemVerNbrArray.shape
+    assert_1D_NA(na_item_id,             np.dtype('O'))
+    assert_1D_NA(na_item_id_version_nbr, np.dtype('int64'))
+    assert na_item_id.shape == na_item_id_version_nbr.shape
 
     # Find unique item IDs (to iterate over).
-    # NOTE: na_item_id[iUniques] == uniqItemIdArray
-    uniqItemIdArray, iUniques, jInverse, uniqueCounts = np.unique(
+    # NOTE: na_item_id[iUniques] == na_item_id_unique
+    na_item_id_unique, na_i_unique, _, na_unique_counts = np.unique(
         na_item_id, return_index=1, return_inverse=1, return_counts=1,
     )
 
@@ -489,32 +491,35 @@ def find_latest_versions(na_item_id: np.ndarray, itemVerNbrArray):
     # Iterate over unique item IDs (UII)
     # ==================================
     # Pre-allocated. Datasets that should ultimately be kept.
-    bLvArray = np.full(na_item_id.size, False)   # Create same-sized array.
-    for iUii in range(iUniques.size):
-        uii  = uniqItemIdArray[iUii]
-        nDuplicates = uniqueCounts[iUii]
-        if nDuplicates == 1:
+    na_b_latest_version = np.full(na_item_id.size, False)
+    for i_uii in range(na_i_unique.size):
+        uii  = na_item_id_unique[i_uii]
+        n_duplicates = na_unique_counts[i_uii]
+        if n_duplicates == 1:
             # CASE: There is only one version.
-            bLvArray[iUniques[iUii]] = True
+            na_b_latest_version[na_i_unique[i_uii]] = True
         else:
             # CASE: There are multiple versions.
-            uiiLv = itemVerNbrArray[na_item_id == uii].max()
+            uii_latest_version = \
+                na_item_id_version_nbr[na_item_id == uii].max()
 
-            b = (na_item_id == uii) & (itemVerNbrArray == uiiLv)
+            b = (na_item_id == uii) \
+                & (na_item_id_version_nbr == uii_latest_version)
             (i,) = np.nonzero(b)   # NOTE: Returns tuple or arrays.
 
             assert i.size == 1, (
                 f'Found multiple datasets with item ID={uii}'
-                f' and with the same highest version number V{uiiLv}.'
+                f' and with the same'
+                f' highest version number V{uii_latest_version}.'
             )
 
-            bLvArray[i] = True
+            na_b_latest_version[i] = True
 
     # ASSERTION: All item ID's are unique.
-    na_item_id2 = na_item_id[bLvArray]
+    na_item_id2 = na_item_id[na_b_latest_version]
     assert np.unique(na_item_id2).size == na_item_id2.size
 
-    return bLvArray
+    return na_b_latest_version
 
 
 @codetiming.Timer('derive_DST_from_dir', logger=None)
