@@ -655,7 +655,7 @@ def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
 
 
 def _find_DST_difference(
-    fileNameArray1, fileNameArray2,
+    na_file_name1: np.ndarray, na_file_name2: np.ndarray,
     na_file_size1: np.ndarray, na_file_size2: np.ndarray,
 ):
     '''
@@ -669,8 +669,10 @@ def _find_DST_difference(
 
     Parameters
     ----------
-    fileNameArray1 : 1D numpy.ndarray of strings.
-    fileNameArray2 : 1D numpy.ndarray of strings.
+    na_file_name1 : 1D numpy.ndarray of strings.
+    na_file_name2 : 1D numpy.ndarray of strings.
+    na_file_size1 : 1D numpy.ndarray of int64.
+    na_file_size2 : 1D numpy.ndarray of int64.
     --
     NOTE: Parameter arrays (separately) do not need to contain unique strings,
     though that is the intended use.
@@ -690,8 +692,8 @@ def _find_DST_difference(
     # ==========
     # ASSERTIONS
     # ==========
-    utils.assert_1D_NA(fileNameArray1, np.dtype('O'))
-    utils.assert_1D_NA(fileNameArray2, np.dtype('O'))
+    utils.assert_1D_NA(na_file_name1, np.dtype('O'))
+    utils.assert_1D_NA(na_file_name2, np.dtype('O'))
 
     utils.assert_1D_NA(na_file_size1, np.dtype('int64'))
     utils.assert_1D_NA(na_file_size2, np.dtype('int64'))
@@ -703,17 +705,17 @@ def _find_DST_difference(
     # functionality I have not yet managed to find it.
     # FNS = File Name & Size
     fnsArray1 = np.array(
-        list(zip(fileNameArray1, na_file_size1)),
+        list(zip(na_file_name1, na_file_size1)),
         dtype=[
-            ('fileName', fileNameArray1.dtype),
-            ('fileSize', na_file_size1.dtype),
+            ('file_name', na_file_name1.dtype),
+            ('file_size', na_file_size1.dtype),
         ],
     )
     fnsArray2 = np.array(
-        list(zip(fileNameArray2, na_file_size2)),
+        list(zip(na_file_name2, na_file_size2)),
         dtype=[
-            ('fileName', fileNameArray2.dtype),
-            ('fileSize', na_file_size2.dtype),
+            ('file_name', na_file_name2.dtype),
+            ('file_size', na_file_size2.dtype),
         ],
     )
 
