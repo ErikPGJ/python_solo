@@ -25,6 +25,28 @@ def test_DatasetFilename():
             assert actIiResult['time vector 1'] == actDsfn.timeVector1
 
     test(
+        'solo_L3_epd-ept-1day_2024_V11.cdf',
+        erikpgjohansson.solo.metadata.DatasetFilename(
+            dsid='SOLO_L3_EPD-EPT-1DAY',
+            timeIntervalStr='2024',
+            versionStr='11',
+            timeVector1=(2024, 1, 1, 0, 0, 0.0),
+            itemId='solo_L3_epd-ept-1day_2024',
+        ),
+    )
+
+    test(
+        'solo_L3_epd-ept-1hour_202301_V01.cdf',
+        erikpgjohansson.solo.metadata.DatasetFilename(
+            dsid='SOLO_L3_EPD-EPT-1HOUR',
+            timeIntervalStr='202301',
+            versionStr='01',
+            timeVector1=(2023, 1, 1, 0, 0, 0.0),
+            itemId='solo_L3_epd-ept-1hour_202301',
+        ),
+    )
+
+    test(
         'solo_HK_rpw-bia_20200301_V01.cdf',
         erikpgjohansson.solo.metadata.DatasetFilename(
             dsid='SOLO_HK_RPW-BIA',

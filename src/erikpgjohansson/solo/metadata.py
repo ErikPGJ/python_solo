@@ -23,8 +23,13 @@ PROPOSAL: parse_item_ID() to solo.soar.
 '''
 
 
+# ========================
 # Regular Expressions (RE)
-_RE_TIME_INTERVAL_STR  = '[0-9T-]{8,31}'
+# ========================
+_RE_TIME_INTERVAL_STR  = '[0-9T-]{4,31}'
+'''Matches all time interval strings, on all formats.'''
+_RE_YYYY               = '[0-9]{4,4}'
+_RE_YYYYMM             = '[0-9]{6,6}'
 _RE_YYYYMMDD           = '[0-9]{8,8}'
 _RE_YYYYMMDDThhmmss    = '[0-9]{8,8}T[0-9]{6,6}'
 _RE_YYYYMMDDThhmmssddd = '[0-9]{8,8}T[0-9]{6,9}'
@@ -114,6 +119,8 @@ class DatasetFilename:
 
         Examples of in-flight dataset filenames
         ---------------------------------------
+        solo_L3_epd-ept-1day_2024_V11.cdf
+        solo_L3_epd-ept-1hour_202301_V01.cdf
         solo_HK_rpw-bia_20200301_V01.cdf
         solo_L2_rpw-lfr-surv-cwf-e-cdag_20200213_V01.cdf
         solo_L1_rpw-bia-sweep-cdag_20200307T053018-20200307T053330_V01.cdf
@@ -276,6 +283,22 @@ def _parse_time_interval_str(timeIntervalStr: str):
         None
     '''
 
+    # ====================================================================
+    # "parse functions": Functions for converting time interval string (on
+    #                    known format) to separate field values
+    # ====================================================================
+
+    def parse_YYYY(s):
+        assert len(s) == 4
+        year   = int(s[0:4])
+        return (year,)   # Return size-1 tuple!
+
+    def parse_YYYYMM(s):
+        assert len(s) == 6
+        year   = int(s[0:4])
+        month  = int(s[4:6])
+        return year, month
+
     def parse_YYYYMMDD(s):
         assert len(s) == 8
         year   = int(s[0:4])
@@ -302,6 +325,28 @@ def _parse_time_interval_str(timeIntervalStr: str):
         assert len(s) == 10
         # NOTE: Returns length-1 tuple.
         return (int(s),)   # Return size-1 tuple!
+
+    # ====================================================================
+    # Try parsing time interval string, by trying one format after another
+    # ====================================================================
+
+    _, _, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            timeIntervalStr,
+            [_RE_YYYY],
+            1, 'permit non-match',
+        )
+    if isPerfectMatch:
+        return parse_YYYY(timeIntervalStr) + (1, 1, 0, 0, 0.0)
+
+    _, _, isPerfectMatch = \
+        erikpgjohansson.solo.str.regexp_str_parts(
+            timeIntervalStr,
+            [_RE_YYYYMM],
+            1, 'permit non-match',
+        )
+    if isPerfectMatch:
+        return parse_YYYYMM(timeIntervalStr) + (1, 0, 0, 0.0)
 
     _, _, isPerfectMatch = \
         erikpgjohansson.solo.str.regexp_str_parts(
