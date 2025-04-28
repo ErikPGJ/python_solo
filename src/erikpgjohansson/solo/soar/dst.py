@@ -14,7 +14,7 @@ class DatasetsTable:
     '''
     '''
     PROPOSAL: Change name of class.
-        PRO: Is more generic than for datasets.
+        PRO: Is more generic than for using for datasets only.
         PRO: Avoid e.g. SDT_DST = SOAR Datasets Table DataSets Table
         PROPOSAL: Something more generic.
             ~Table, ~Dictionary, ~Arrays, ~Numpy, ~1D, ~List
@@ -28,7 +28,7 @@ class DatasetsTable:
         get_indices()
         PROPOSAL: Use __getitem__()
             PROPOSAL: Only for ranges.
-    PROPOSAL: Change name "n()".
+    PROPOSAL: Change name "n()". -- DONE
         size()
             PRO: Consistent with NAs.
             CON: Can be conflated with number of keys/columns.

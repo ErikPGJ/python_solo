@@ -2,6 +2,19 @@ import erikpgjohansson.solo.metadata
 import pytest
 
 
+def test_DatasetFilename___repr():
+    dsfn = erikpgjohansson.solo.metadata.DatasetFilename(
+        dsid='SOLO_L3_EPD-EPT-1DAY',
+        timeIntervalStr='2024',
+        versionStr='11',
+        timeVector1=(2024, 1, 1, 0, 0, 0.0),
+        itemId='solo_L3_epd-ept-1day_2024',
+    )
+
+    act_str = dsfn.__repr__()
+    assert type(act_str) is str
+
+
 def test_DatasetFilename():
 
     def test(filename, expDsfn):

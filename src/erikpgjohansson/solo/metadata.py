@@ -54,7 +54,7 @@ class DatasetFilename:
     '''
     '''
     PROPOSAL: Replace versionStr-->versionNbr.
-        PROBLEM: LL "I" and "C" could maybe be considered part of version.
+        PROBLEM: LL "I" and "C" could maybe be considered part of "version".
     '''
 
     def __init__(self, dsid, timeIntervalStr, timeVector1, itemId, versionStr):
@@ -77,6 +77,18 @@ class DatasetFilename:
             return False
         else:
             return self.__dict__ == other.__dict__
+
+    def __repr__(self):
+        s = (
+            f'{type(self).__name__}('
+            f'dsid="{self.dsid}", '
+            f'timeIntervalStr="{self.timeIntervalStr}", '
+            f'timeVector1={self.timeVector1}, '
+            f'itemId="{self.itemId}", '
+            f'versionStr="{self.versionStr}"'
+            ')'
+        )
+        return s
 
     @staticmethod
     def parse_filename(filename):
@@ -260,7 +272,8 @@ def parse_item_ID(itemId: str):
 
 def _parse_time_interval_str(timeIntervalStr: str):
     '''
-    Parse time interval string and return the first timestamp.
+    Parse time interval string. Only return the *FIRST* timestamp if there
+    are two.
 
     Parameters
     ----------

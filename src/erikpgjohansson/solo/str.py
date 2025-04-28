@@ -160,6 +160,10 @@ is_perfect_match : Whether matched all regular expressions to entire
 
 Initially created 2020-10-14 by Erik P G Johansson.
     '''
+    '''
+    PROPOSAL: Rename remaining_str-->remainder_str
+        NOTE: Affects calling code which should use the same naming convention.
+    '''
 
     # Inner function for modifying the return result (multiple locations).
     def create_return_result(substr_list, remaining_str, is_perfect_match):
