@@ -58,7 +58,7 @@ class DatasetFilename:
     '''
 
     def __init__(
-        self, dsid, time_interval_str, tv1, itemId, version_str,
+        self, dsid, time_interval_str, tv1, item_id, version_str,
     ):
         # Always upper case. (Excludes CDAG.)
         self.dsid              = dsid
@@ -67,7 +67,7 @@ class DatasetFilename:
         self.tv1               = tv1
         # String. Ex: 'solo_HK_rpw-bia_20200301'
         # As defined by SDT.
-        self.itemId            = itemId
+        self.item_id           = item_id
         # String. Ex: '02'.
         self.version_str       = version_str
 
@@ -86,7 +86,7 @@ class DatasetFilename:
             f'dsid="{self.dsid}", '
             f'time_interval_str="{self.time_interval_str}", '
             f'tv1={self.tv1}, '
-            f'itemId="{self.itemId}", '
+            f'item_id="{self.item_id}", '
             f'version_str="{self.version_str}"'
             ')'
         )
@@ -215,7 +215,7 @@ class DatasetFilename:
 
         # NOTE: Does not store any separate flag for CDAG/non-CDAG. Only
         #       tolerates it.
-        itemId            = ''.join(ls_str[0:1] + ls_str[2:4])
+        item_id           = ''.join(ls_str[0:1] + ls_str[2:4])
         dsid              = ls_str[0].upper()
         time_interval_str = ls_str[3]
         version_str       = ls_str[5]
@@ -226,12 +226,12 @@ class DatasetFilename:
 
         dsfn = DatasetFilename(
             dsid=dsid, time_interval_str=time_interval_str,
-            version_str=version_str, tv1=tv1, itemId=itemId,
+            version_str=version_str, tv1=tv1, item_id=item_id,
         )
         return dsfn
 
 
-def parse_item_ID(itemId: str):
+def parse_item_ID(item_id: str):
     '''
     Parse an "item ID" as SOAR defines it.
 
@@ -241,7 +241,7 @@ def parse_item_ID(itemId: str):
 
     Parameters
     ----------
-    itemId
+    item_id
 
     Returns
     -------
@@ -253,7 +253,7 @@ def parse_item_ID(itemId: str):
     '''
     ls_str, remaining_str, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            itemId, [
+            item_id, [
                 '.*',                    # 0
                 '_',
                 _RE_TIME_INTERVAL_STR,   # 2

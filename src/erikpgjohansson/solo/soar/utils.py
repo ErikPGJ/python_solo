@@ -156,7 +156,7 @@ def download_latest_datasets_batch(
     n_datasets = itemIdArray.size
 
     for i_dataset in range(n_datasets):
-        itemId   = itemIdArray[i_dataset]
+        item_id  = itemIdArray[i_dataset]
         fileSize = fileSizeArray[i_dataset]
 
         fileSizeMb = fileSize / 2**20
@@ -164,9 +164,9 @@ def download_latest_datasets_batch(
         # ================
         # Download dataset
         # ================
-        L.info(f'Download starting:  {fileSizeMb:.2f} [MiB], {itemId}')
-        sodl.download_latest_dataset(itemId, outputDirPath)
-        L.info(f'Download completed: {fileSizeMb:.2f} [MiB], {itemId}')
+        L.info(f'Download starting:  {fileSizeMb:.2f} [MiB], {item_id}')
+        sodl.download_latest_dataset(item_id, outputDirPath)
+        L.info(f'Download completed: {fileSizeMb:.2f} [MiB], {item_id}')
 
         # ===
         # Log
@@ -562,7 +562,7 @@ def derive_DST_from_dir(rootDir):
                 filePathList   += [filePath]
                 fileNameList   += [fileName]
                 fileVerList    += [int(dsfn.version_str)]
-                itemIdList     += [dsfn.itemId]
+                itemIdList     += [dsfn.item_id]
                 fileSizeList   += [os.stat(filePath).st_size]
                 instrumentList += [instrument]
                 levelList      += [level]

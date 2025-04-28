@@ -8,7 +8,7 @@ def test_DatasetFilename___repr():
         time_interval_str='2024',
         version_str='11',
         tv1=(2024, 1, 1, 0, 0, 0.0),
-        itemId='solo_L3_epd-ept-1day_2024',
+        item_id='solo_L3_epd-ept-1day_2024',
     )
 
     act_str = dsfn.__repr__()
@@ -32,7 +32,7 @@ def test_DatasetFilename():
             # ==============================================================
             # II = Item ID
             actIiResult = erikpgjohansson.solo.metadata.parse_item_ID(
-                act_dsfn.itemId,
+                act_dsfn.item_id,
             )
             assert actIiResult['DSID']          == act_dsfn.dsid
             assert actIiResult['time vector 1'] == act_dsfn.tv1
@@ -44,7 +44,7 @@ def test_DatasetFilename():
             time_interval_str='2024',
             version_str='11',
             tv1=(2024, 1, 1, 0, 0, 0.0),
-            itemId='solo_L3_epd-ept-1day_2024',
+            item_id='solo_L3_epd-ept-1day_2024',
         ),
     )
 
@@ -55,7 +55,7 @@ def test_DatasetFilename():
             time_interval_str='202301',
             version_str='01',
             tv1=(2023, 1, 1, 0, 0, 0.0),
-            itemId='solo_L3_epd-ept-1hour_202301',
+            item_id='solo_L3_epd-ept-1hour_202301',
         ),
     )
 
@@ -66,7 +66,7 @@ def test_DatasetFilename():
             time_interval_str='20200301',
             version_str='01',
             tv1=(2020, 3, 1, 0, 0, 0.0),
-            itemId='solo_HK_rpw-bia_20200301',
+            item_id='solo_HK_rpw-bia_20200301',
         ),
     )
 
@@ -77,7 +77,7 @@ def test_DatasetFilename():
             time_interval_str='20200213',
             version_str='02',
             tv1=(2020, 2, 13, 0, 0, 0.0),
-            itemId='solo_L2_rpw-lfr-surv-cwf-e_20200213',
+            item_id='solo_L2_rpw-lfr-surv-cwf-e_20200213',
         ),
     )   # CDAG
 
@@ -88,7 +88,7 @@ def test_DatasetFilename():
             time_interval_str='20200307T053018-20200307T053330',
             version_str='01',
             tv1=(2020, 3, 7, 5, 30, 18.0),
-            itemId='solo_L1_rpw-bia-sweep_20200307T053018-20200307T053330',
+            item_id='solo_L1_rpw-bia-sweep_20200307T053018-20200307T053330',
         ),
     )
 
@@ -99,7 +99,7 @@ def test_DatasetFilename():
             time_interval_str='20200301-20200331',
             version_str='01',
             tv1=(2020, 3, 1, 0, 0, 0.0),
-            itemId='solo_L1_rpw-bia-current_20200301-20200331',
+            item_id='solo_L1_rpw-bia-current_20200301-20200331',
         ),
     )
 
@@ -110,7 +110,7 @@ def test_DatasetFilename():
             time_interval_str='0699408000-0699494399',
             version_str='02',
             tv1=(699408000,),
-            itemId='solo_L0_epd-epthet2-ll_0699408000-0699494399',
+            item_id='solo_L0_epd-epthet2-ll_0699408000-0699494399',
         ),
     )
 
@@ -123,7 +123,7 @@ def test_DatasetFilename():
             time_interval_str='20200813T000026-20200814T000025',
             version_str='03',
             tv1=(2020, 8, 13, 0, 0, 26.0),
-            itemId='solo_LL02_epd-het-south-rates_20200813T000026'
+            item_id='solo_LL02_epd-het-south-rates_20200813T000026'
             '-20200814T000025',
         ),
     )
@@ -139,7 +139,7 @@ def test_DatasetFilename():
             time_interval_str='20200806T083130185',
             version_str='01',
             tv1=(2020, 8, 6, 8, 31, 30.185),
-            itemId='solo_L1_eui-fsi174-image_20200806T083130185',
+            item_id='solo_L1_eui-fsi174-image_20200806T083130185',
         ),
     )
 

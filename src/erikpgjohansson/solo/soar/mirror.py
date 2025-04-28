@@ -757,8 +757,8 @@ def _find_DST_subset(
 
     dsidArray = np.array(
         tuple(
-            erikpgjohansson.solo.metadata.parse_item_ID(itemId)['DSID']
-            for itemId in dst['item_id']
+            erikpgjohansson.solo.metadata.parse_item_ID(item_id)['DSID']
+            for item_id in dst['item_id']
         ),
     )
 
