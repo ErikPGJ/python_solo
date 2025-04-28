@@ -3,11 +3,9 @@
 This directory constitutes a git repo and Python distribution package for
 miscellaneous Solar Orbiter (SolO) code written and used by
 Erik P G Johansson, IRF Uppsala (Swedish Institute of Space Physics;
-`https://www.irf.se`), Sweden
-
-In particular, it contains code for mirroring CDF datasets from SOAR (Solar
-Orbiter Archive; `http://soar.esac.esa.int/soar/`). See
-`src/erikpgjohansson/solo/soar/README_SOAR_MIRROR.md`.
+`https://www.irf.se`), Sweden. In particular, it contains code for mirroring CDF
+datasets from SOAR (Solar Orbiter Archive; `http://soar.esac.esa.int/soar/`).
+See `src/erikpgjohansson/solo/soar/README_SOAR_MIRROR.md`.
 
 ## Important notes
 
@@ -23,5 +21,5 @@ and is not very well tested as a distribution package. Still, it is reasonably
 well-structured and might be useful, in part or in full. It has been partially
 cleaned up afterwards.
 
-Source code comment sections labelled "BOGIQ" refers to the author's thoughts
-on future changes. These can be ignored.
+The source code comments sometimes contain large sections with the author's
+thoughts on potential future changes. These can be ignored.

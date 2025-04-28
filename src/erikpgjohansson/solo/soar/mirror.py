@@ -22,8 +22,6 @@ import sys
 
 
 '''
-BOGIQ
-=====
 NOTE: SOAR may remove datasets, i.e. state that a previously latest dataset
       version is no longer the latest dataset without supplying a later
       version.
@@ -83,7 +81,11 @@ PROPOSAL: Use timestamped directory under download directory.
 PROPOSAL: erikpgjohansson.solo.soar.dst.log_DST() returns string that can be
           indented by caller.
 
-PROPOSAL: Abbreviations for specific subsets.
+PROPOSAL: Better naming for specifid dataset subsets.
+    Reference DST : Appears to be subset+LV of SOAR datasets.
+    SOAR missing  : Reference datasets not found locally.
+        PROPOSAL: Rename ~local_missing.
+PROPOSAL: Abbreviations/names for specific dataset subsets.
     PROPOSAL: Something for online SOAR datasets
         PROPOSAL: Include "online" since "SOAR dataset" could imply a
                   local dataset from SOAR.
@@ -135,6 +137,7 @@ PROPOSAL: Replace datasetsSubsetFunc with class.
     PRO: Can potentially configure (set values) in constructor.
     PRO: Better documentation of method/function signature.
     PRO: Can verify that class has expected superclass.
+    PRO: Can implement class which takes behaviour from configuration file.
     PROPOSAL: Use class for returning other configuration values.
 '''
 
@@ -159,7 +162,7 @@ def sync(
     syncDir : String. Path.
     tempDownloadDir : String. Path.
         Must be empty on datasets. Otherwise those will be moved too.
-    datasetsSubsetFunc : Function (instrument=str, level=str) --> bool
+    datasetsSubsetFunc : Function (instrument=str, level=str, ...) --> bool
         Function which determines whether a specific dataset should be included
         in the sync.
     deleteOutsideSubset : Boolean
@@ -493,7 +496,7 @@ def _calculate_sync_dir_update(
     # ==============================================================#
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
-    na_b_soar_missing, na_b_local_excess = _find_DST_difference(
+    na_b_soar_missing, na_b_local_excess = _find_file_name_size_difference(
         dst_ref['file_name'], dst_local['file_name'],
         dst_ref['file_size'], dst_local['file_size'],
     )
@@ -645,7 +648,7 @@ def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
     return str(stdoutBytes, 'utf-8')
 
 
-def _find_DST_difference(
+def _find_file_name_size_difference(
     na_file_name1: np.ndarray, na_file_name2: np.ndarray,
     na_file_size1: np.ndarray, na_file_size2: np.ndarray,
 ):
@@ -675,10 +678,8 @@ def _find_DST_difference(
     '''
     '''
     PROPOSAL: Move to utils.
-    PROPOSAL: Use DSTs.
-        CON: Bad for testing.
-            PRO: Supplies too much information.
-        CON: Must rely on standard DST field names (keys).
+        CON: Not generic enough.
+    PROPOSAL: Test code.
     '''
     # ==========
     # ASSERTIONS
@@ -743,7 +744,12 @@ def _find_DST_subset(
     na_b_subset : numpy array
     '''
     '''
-    PROPOSAL: Move to utils.
+    PROPOSAL: Move to erikpgjohansson.solo.soar.dst.
+        CON: Does not work for generic DST since assumes the existence of
+             specifiec fields.
+            CON: erikpgjohansson.solo.soar.dst already contains code for
+                 non-generic DSTs.
+        CON: Only used in this module.
     '''
     na_instrument = dst['instrument']
     na_level      = dst['processing_level']

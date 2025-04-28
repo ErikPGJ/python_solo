@@ -54,7 +54,6 @@ class DatasetsTable:
             dc = {}
 
         assert isinstance(dc, dict)
-
         for key, na in dc.items():
             assert type(key) is str
             erikpgjohansson.solo.soar.utils.assert_1D_NA(na)

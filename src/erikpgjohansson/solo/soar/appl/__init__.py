@@ -3,17 +3,14 @@ Import package containing code for explicit applications of
 the SOAR mirror code, e.g. domain-specific non-generic mirrors.
 '''
 '''
+PROPOSAL: Rename package/directory to imply non-generic code.
+    Ex: Download specific datasets.
+    PROPOSAL: ~usage
+
 PROPOSAL: Should (ideally) be separate from erikpgjohansson.solo.soar.
     PRO: Consists of domain-specific applications of generic code.
     TODO-DEC: Where? Different distribution package?
               Outside of distribution packages?
-
-PROPOSAL: Rename package/directory to imply non-generic code.
-    Ex: Download specific datasets.
-    PROPOSAL: ~usage
-    PROPOSAL: ~applications/appl -- IMPLEMENTED
-        PRO: More general.
-        PRO: Implies more clearly that code is application-specific.
 
 PROPOSAL: Move code outside of package.
     PRO: Is non-generic code for concrete configurations.

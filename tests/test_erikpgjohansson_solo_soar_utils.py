@@ -105,32 +105,32 @@ def test_download_latest_datasets_batch_log_progress():
     # _download_latest_datasets_batch_log_progress() uses the current time
     # to estimate remaining time.
     dt_begin = datetime.datetime.now() - datetime.timedelta(seconds=10)
-    MB = 2**20
+    MIBIBYTE = 2**20
 
     # Generic call.
     utils._download_latest_datasets_batch_log_progress(
-        10, 1, MB, 0.1*MB, dt_begin,
+        10, 1, MIBIBYTE, 0.1*MIBIBYTE, dt_begin,
     )
 
     # Zero progress. Leads to divide-by-zero internally.
     utils._download_latest_datasets_batch_log_progress(
-        10, 0, MB, 0*MB, dt_begin,
+        10, 0, MIBIBYTE, 0*MIBIBYTE, dt_begin,
     )
 
 
 def test_find_latest_versions():
 
-    def test(ls_item_id, itemVerNbrArray, exp_bLvArray):
-        expResult = np.array(exp_bLvArray, dtype=bool)
+    def test(ls_item_id, ls_item_version_nbr, exp_bLvArray):
+        exp_na = np.array(exp_bLvArray, dtype=bool)
 
-        actResult = utils.find_latest_versions(
-            np.array(ls_item_id,      dtype=object),
-            np.array(itemVerNbrArray, dtype=int),
+        act_na = utils.find_latest_versions(
+            np.array(ls_item_id,          dtype=object),
+            np.array(ls_item_version_nbr, dtype=int),
         )
-        assert expResult.dtype == actResult.dtype
-        assert expResult.shape == actResult.shape
-        assert (expResult == actResult).all()
-        np.testing.assert_array_equal(expResult, actResult)
+        assert exp_na.dtype == act_na.dtype
+        assert exp_na.shape == act_na.shape
+        assert (exp_na == act_na).all()
+        np.testing.assert_array_equal(exp_na, act_na)
 
     test([], [], [])
     test(['A'], [1], [1])

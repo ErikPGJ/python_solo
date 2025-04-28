@@ -1,15 +1,8 @@
 '''
-==============================================================================
-Initially created by Erik P G Johansson 2020-10-13.
-
-
 Module for generic string functions. Not for printing.
 NOTE: Copy of subset of other module outside distribution package.
 
-
-BOGIQ:
-------
-==============================================================================
+Initially created by Erik P G Johansson 2020-10-13.
 '''
 
 

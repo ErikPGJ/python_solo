@@ -18,8 +18,6 @@ import shutil
 
 
 '''
-BOGIQ
-=====
 PROPOSAL: Better module name (so.*) and shortening for IDDT.
     ~IRFU
     ~directory tree

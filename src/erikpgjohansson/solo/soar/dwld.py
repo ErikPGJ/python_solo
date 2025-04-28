@@ -28,6 +28,8 @@ item_version
 
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 '''
+
+
 import abc
 import codetiming
 import datetime
@@ -50,6 +52,9 @@ PROPOSAL: Rename module to imply that this module handles the interface to
         ~SOAR
         ~download
         ~interface, int, intf, itfc
+    NOTE: Compare functions in erikpgjohansson.solo.soar.utils (!):
+        download_latest_datasets_batch_nonparallel()
+        download_latest_datasets_batch_parallel()
     PROPOSAL: soardwld
     PROPOSAL: soarintf
 

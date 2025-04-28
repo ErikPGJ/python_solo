@@ -5,9 +5,9 @@ In practice constants used by erikpgjohansson.solo.soar.mirror.sync().
 
 In practice also a module for configuration w.r.t. some debugging.
 '''
+
+
 '''
-BOGIQ
------
 PROPOSAL: Move constants to "settings" dictionary.
     PROPOSAL: Custom dictionary with hardcoded set of permitted keys.
 PROPOSAL: Move constants to erikpgjohansson.solo.soar.mirror.sync() keyword

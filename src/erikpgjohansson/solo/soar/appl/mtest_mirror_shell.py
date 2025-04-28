@@ -16,6 +16,7 @@ import sys
 
 
 '''
+PROPOSAL: Move to outside of git repo (together with mtest_mirror.py).
 '''
 
 

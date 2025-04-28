@@ -23,17 +23,9 @@ PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
         PROPOSAL: so.soar + so.soar_mirror
             PRO: so.soar_mirror USES so.soar, but is not PART of
                  SOAR functionality.
-    PROPOSAL: so.filter, so.filterdst
     PROPOSAL: so.soar.download/connect/network/access or so.soar (only)
     PROPOSAL: so.soar.mirror
     PROPOSAL: so.soar.misc, so.soar.other, so.soar.utils
-
-NOTE: download_latest_dataset() downloads latest dataset
-          version, not specified dataset version?
-    PROPOSAL: Compare downloaded datasets with online list.
-        PROPOSAL: Assertion.
-        PROPOSAL: If disagreeing, re-download online list and compare again
-                  (once).
 
 PROPOSAL: Function: Difference between DSTs.
     Find differences between datasets in in two DSTs.
@@ -55,28 +47,22 @@ PROPOSAL: Function: Difference between DSTs.
              sizes, item IDs)
     PROPOSAL: Difference between DSTs for selected columns.
         In practice: item ID, item ID+version, item ID+version+file size (?)
-
-PROPOSAL: DST filtering functions should accept arrays (not DST) and return
-          logical index array (not DST).
-    PRO: Can handle different column names.
-PROPOSAL: DST filtering functions should accept DST+relevant column names.
-    PRO: Can handle different column names.
 '''
 
 
-def assert_1D_NA(v, dtype=None):
+def assert_1D_NA(na, dtype=None):
     '''
     PROPOSAL: Use numpy.issubdtype()
       PRO: Useful for categories of types.
           Ex: Variants of datetime64, strings?
-          Ex: np.issubdtype(beginTimeArray.dtype, np.dtype('<M8[ms]'))
+          Ex: np.issubdtype(na_begin_time.dtype, np.dtype('<M8[ms]'))
     '''
 
     # IMPLEMENTATION NOTE: Some automatic tests have historically mistakenly
     # used 0-dim arrays which causes hard-to-understand errors.
     # ==> Want assertion against this.
-    assert type(v) is np.ndarray
-    assert v.ndim == 1
+    assert type(na) is np.ndarray
+    assert na.ndim == 1
 
     if dtype:
         # ASSERTION: Correct ARGUMENT type: dtype (not the array)
@@ -85,9 +71,9 @@ def assert_1D_NA(v, dtype=None):
             'Argument dtype has the wrong type.'
 
         # ASSERTION: Array type
-        assert v.dtype == dtype
+        assert na.dtype == dtype
 
-    # return v.size   # Exclude?
+    # return na.size   # Exclude?
 
 
 @codetiming.Timer('download_latest_datasets_batch_nonparallel', logger=None)

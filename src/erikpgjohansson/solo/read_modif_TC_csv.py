@@ -25,8 +25,6 @@ import re
 
 
 '''
-BOGIQ
-=====
 TODO-DEC: Name?
     PROPOSAL: ~read, ~filter, ~modif, ~interpret
     PROPOSAL: ~TC, ~csv

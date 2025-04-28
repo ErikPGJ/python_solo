@@ -16,6 +16,12 @@ import os
 
 
 '''
+PROPOSAL: Move to outside of git repo (together with mtest_mirror_shell.py).
+PROPOSAL: Partially replace with a permanent and automated "mtest" in
+          the git repo which actually downloads from SOAR but which is still
+          unsuitable as a conventional "automated test" since it contacts an
+          external server via the internet. It should therefore only be
+          triggered manually.
 '''
 
 
