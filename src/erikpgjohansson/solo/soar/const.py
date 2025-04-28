@@ -74,4 +74,5 @@ log messages from different threads. Not tested "in production" but is ready
 to be.
 
 2024-08-15: Seems to work well "in production".
+2025-04-28: Still seems to work well "in production".
 '''

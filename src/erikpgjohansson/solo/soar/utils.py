@@ -29,7 +29,7 @@ PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
                  SOAR functionality.
     PROPOSAL: so.filter, so.filterdst
     PROPOSAL: so.soar.download/connect/network/access or so.soar (only)
-    PROPOSAL: so.soar.mirror, so.soar_mirror, so.soar_utils
+    PROPOSAL: so.soar.mirror
     PROPOSAL: so.soar.misc, so.soar.other, so.soar.utils
     PROPOSAL: Move dependence on erikpgjohansson.solo.soar.dst to
               erikpgjohansson.solo.soar.dst.
@@ -99,14 +99,14 @@ def assert_1D_NA(v, dtype=None):
     # return v.size   # Exclude?
 
 
-@codetiming.Timer('download_latest_datasets_batch', logger=None)
-def download_latest_datasets_batch(
+@codetiming.Timer('download_latest_datasets_batch_nonparallel', logger=None)
+def download_latest_datasets_batch_nonparallel(
     sodl: dwld.SoarDownloader,
     na_item_id: np.ndarray, na_file_size: np.ndarray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
-    Download latest versions of datasets (multiple ones), for selected item
+    Download the latest version of datasets (multiple ones), for selected item
     ID's. Will likely overwrite pre-existing files (not checked). Will log
     progress, speed, predicted remainder & completion to stdout.
 
@@ -136,6 +136,10 @@ def download_latest_datasets_batch(
         PRO: Faster.
         CON: More complicated error handling?
 
+    PROPOSAL: Delete function.
+        PRO: download_latest_datasets_batch_parallel() is well tested in
+             production.
+        PRO: There is test code.
     PROPOSAL: Abolish downloadByIncrFileSize.
     '''
 
@@ -147,6 +151,7 @@ def download_latest_datasets_batch(
     assert_1D_NA(na_file_size, np.dtype('int64'))
     assert na_item_id.size == na_file_size.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
+    assert type(downloadByIncrFileSize) is bool
 
     L = logging.getLogger(__name__)
 
@@ -233,7 +238,7 @@ def download_latest_datasets_batch_parallel(
                     # library code. Can be detected by the future.
                     raise e
 
-    class Task:
+    class DownloadDatasetTask:
         def __init__(self, item_id, file_size):
             self._item_id = item_id
             self._file_size = file_size
@@ -268,6 +273,7 @@ def download_latest_datasets_batch_parallel(
     assert_1D_NA(na_file_size, np.dtype('int64'))
     assert na_item_id.size == na_file_size.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
+    assert type(downloadByIncrFileSize) is bool
 
     # =============
     # Miscellaneous
@@ -296,7 +302,7 @@ def download_latest_datasets_batch_parallel(
             item_id   = na_item_id[i_task]
             file_size = na_file_size[i_task]
 
-            task = Task(item_id, file_size)
+            task = DownloadDatasetTask(item_id, file_size)
             # =============================================================
             # IMPLEMENTATION NOTE: Must use lambda function default values
             # to "bind" the VALUES cts and file_size (not the variables) to
@@ -594,46 +600,6 @@ def derive_DST_from_dir(rootDir):
     # NOTE: Key name "processing_level" chosen to be in agreement with
     # erikpgjohansson.solo.soar.dwld.SoarDownloader.download_SDT_DST().
     return dst
-
-
-# def filter_DST(
-#     dst, levelsSet=None, instrumentsSet=None,
-#     intervalTimeStrs=None,
-# ):
-#     '''
-# General-purpose customizable DST filter. In particular for manually selecting
-# which subset of datasets that should be downloaded or synced. Datasets in DST
-# that match all arguments will be kept. All other datasets will be removed.
-#
-# Parameters
-# ----------
-# dst :
-# levelsSet : Set of strings
-# instrumentsSet : Set of instruments
-# intervalTimeStrs : Two UTC strings, start & stop.
-#     Approximate time interval to keep. Applies to column begin_time.
-#
-# Returns
-# -------
-# dict
-#     '''
-#     assert type(dst) == erikpgjohansson.solo.soar.dst.DatasetsTable
-#
-#     b = np.full(dst.n_rows, True)
-#
-#     if levelsSet:
-#         b = b & np.isin(dst['processing_level'], np.array(list(levelsSet)))
-#     if instrumentsSet:
-#         b = b & np.isin(dst['instrument'], np.array(list(instrumentsSet)))
-#
-#     if intervalTimeStrs:
-#         assert len(intervalTimeStrs) == 2
-#         DtMin = np.datetime64(intervalTimeStrs[0])
-#         DtMax = np.datetime64(intervalTimeStrs[1])
-#         bta = dst['begin_time']   # BTA = Begin Time Array
-#         b = b & (DtMin <= bta) & (bta <= DtMax)
-#
-#     return dst.index(b)
 
 
 def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):

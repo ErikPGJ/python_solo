@@ -1,5 +1,7 @@
 '''
-Code directly related to downloading from SOAR (Solar Orbiter ARchive).
+Code directly related to downloading from SOAR (Solar Orbiter ARchive) using
+SOAR's technical interface and converting it to data structures which other
+code uses.
 
 dwld=download
 
@@ -26,8 +28,7 @@ item_version
 
 Created by Erik P G Johansson 2020-10-12, IRF Uppsala, Sweden.
 '''
-
-
+import abc
 import codetiming
 import datetime
 import erikpgjohansson.solo.asserts
@@ -44,8 +45,14 @@ import urllib.request
 
 
 '''
-BOGIQ
-=====
+PROPOSAL: Rename module to imply that this module handles the interface to
+          SOAR?
+        ~SOAR
+        ~download
+        ~interface, int, intf, itfc
+    PROPOSAL: soardwld
+    PROPOSAL: soarintf
+
 PROPOSAL: Remove dependence on erikpgjohansson.solo, dataset filenaming
           conventions, and FILE_SUFFIX_IGNORE_LIST.
     PRO: Makes module handle ONLY communication with SOAR. More pure.
@@ -60,34 +67,6 @@ PROPOSAL: download_SDT_JSON() should only return JSON *string*, not string
           converted to json data structure.
     CON: Harder to hard code return values for mock object in test code.
 
-PROPOSAL: Rename -- DONE
-        Downloader (abstract superclas)
-        SoarDownloader (implementation)
-        MockDownloader (tests)
-        class abbreviation "dwld"
-        module name "dwld"
-    PRO: All subclasses do or emulate downloading from SOAR, not downloading in
-         general.
-    --
-    ~SOAR
-    ~Downloader
-        NOTE: Only downloads, never uploads.
-    ~communication
-    ~network, internet
-    ~SDT=SOAR Dataset Table
-        CON: Downloads both SDT and actual datasets.
-    --
-    SoarDownloader
-    SoarDownloaderImpl
-    SoarDownloaderTest/Mock
-    sdl
-        CON: Too similar to SDT, DST
-    srdl = SoaR DownLoader
-    sodl = SOar DownLoader
-    srdw = SoaR DoWnloader
-    sdwl = Soar DoWnLoader
-    --
-
 TODO-DEC: Where document the JSON format returned from SOAR (input to this
           function)?
 '''
@@ -96,13 +75,16 @@ TODO-DEC: Where document the JSON format returned from SOAR (input to this
 NO_PROCESSING_LEVEL_NAME = 'n/a'
 
 
-class SoarDownloader:
+class SoarDownloader(abc.ABC):
     '''Abstract class for class that handles all communication with SOAR.
     This is to permit the use of "mock object" for automated testing.
     '''
+
+    @abc.abstractmethod
     def download_SDT_JSON(self, instrument: str):
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def download_latest_dataset(
         self, dataItemId, dirPath,
         expectedFileName=None, expectedFileSize=None,
@@ -113,6 +95,10 @@ class SoarDownloader:
 class SoarDownloaderImpl(SoarDownloader):
     '''Class that handles all actual (i.e. not simulated) communication with
     SOAR.'''
+
+    # ##############
+    # STATIC METHODS
+    # ##############
 
     @staticmethod
     def _get_SDT_JSON_URL(instrument: str):
@@ -182,6 +168,51 @@ class SoarDownloaderImpl(SoarDownloader):
 
         s = HttpResponse.read().decode()
         return s
+
+    @staticmethod
+    def _extract_HTTP_response_filename(HttpResponse):
+        '''
+        Extract filename of a to-be-downloaded file from an HttpResponse.
+
+        Asserts that response contains a filename. Likely not a perfect
+        parsing given a limited understanding of HTTP, but likely good enough.
+        '''
+        # Example: response
+        # -----------------
+        # response.getheaders()
+        # [('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'),
+        #  ('Pragma', 'no-cache'),
+        #  ('Expires', '0'),
+        #  ('X-XSS-Protection', '1; mode=block'),
+        #  ('X-Frame-Options', 'SAMEORIGIN'),
+        #  ('X-Content-Type-Options', 'nosniff'),
+        #  ('Set-Cookie',
+        #   'JSESSIONID=6156F42C0A6DFF76D0E80EAB71146709;'
+        #   ' Path=/soar-sl-tap; HttpOnly'),
+        #  ('Content-Disposition',
+        #   'attachment;filename="solo_L2_mag-rtn-normal-1-minute_20200603_V02.cdf"'),
+        #  ('Content-Type', 'application/octet-stream'),
+        #  ('Content-Length', '28981'),
+        #  ('Date', 'Mon, 12 Oct 2020 14:33:03 GMT'),
+        #  ('Connection', 'close')]
+
+        FILENAME_PREFIX = 'filename='
+
+        header_value = HttpResponse.getheader('Content-Disposition')
+        assert header_value is not None
+
+        for sv in header_value.split(';'):
+            if str.startswith(sv, FILENAME_PREFIX):
+                fileName = sv[len(FILENAME_PREFIX):]
+                # Remove surrounding quotes.
+                fileName = fileName.strip('"')
+                return fileName
+
+        raise Exception('Failed to derive filename from HTTP response.')
+
+    # #######################################
+    # OVERRIDDEN/IMPLEMENTED INSTANCE METHODS
+    # #######################################
 
     # OVERRIDE
     @codetiming.Timer('download_SDT_JSON', logger=None)
@@ -342,47 +373,6 @@ class SoarDownloaderImpl(SoarDownloader):
                 )
 
         return filePath
-
-    @staticmethod
-    def _extract_HTTP_response_filename(HttpResponse):
-        '''
-        Extract filename of a to-be-downloaded file from an HttpResponse.
-
-        Asserts that response contains a filename. Likely not a perfect
-        parsing given a limited understanding of HTTP, but likely good enough.
-        '''
-        # Example: response
-        # -----------------
-        # response.getheaders()
-        # [('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'),
-        #  ('Pragma', 'no-cache'),
-        #  ('Expires', '0'),
-        #  ('X-XSS-Protection', '1; mode=block'),
-        #  ('X-Frame-Options', 'SAMEORIGIN'),
-        #  ('X-Content-Type-Options', 'nosniff'),
-        #  ('Set-Cookie',
-        #   'JSESSIONID=6156F42C0A6DFF76D0E80EAB71146709;'
-        #   ' Path=/soar-sl-tap; HttpOnly'),
-        #  ('Content-Disposition',
-        #   'attachment;filename="solo_L2_mag-rtn-normal-1-minute_20200603_V02.cdf"'),
-        #  ('Content-Type', 'application/octet-stream'),
-        #  ('Content-Length', '28981'),
-        #  ('Date', 'Mon, 12 Oct 2020 14:33:03 GMT'),
-        #  ('Connection', 'close')]
-
-        FILENAME_PREFIX = 'filename='
-
-        header_value = HttpResponse.getheader('Content-Disposition')
-        assert header_value is not None
-
-        for sv in header_value.split(';'):
-            if str.startswith(sv, FILENAME_PREFIX):
-                fileName = sv[len(FILENAME_PREFIX):]
-                # Remove surrounding quotes.
-                fileName = fileName.strip('"')
-                return fileName
-
-        raise Exception('Failed to derive filename from HTTP response.')
 
 
 @codetiming.Timer('download_SDT_DST', logger=None)
@@ -587,7 +577,7 @@ def _convert_JSON_SDT_to_DST(json_sdt):
         assert sdt_column_name not in dc_na
         dc_na[sdt_column_name] = jsd.get_column_NA(sdt_column_name, object)
 
-    # Modify "processing_level" to handle special case.
+    # Modify "processing_level" to handle a special case.
     na_b = dc_na['processing_level'] == None   # noqa: E711
     dc_na['processing_level'][na_b] = NO_PROCESSING_LEVEL_NAME
 
