@@ -561,7 +561,7 @@ def derive_DST_from_dir(rootDir):
                 filePath = os.path.join(dirPath, fileName)
                 filePathList   += [filePath]
                 fileNameList   += [fileName]
-                fileVerList    += [int(dsfn.versionStr)]
+                fileVerList    += [int(dsfn.version_str)]
                 itemIdList     += [dsfn.itemId]
                 fileSizeList   += [os.stat(filePath).st_size]
                 instrumentList += [instrument]

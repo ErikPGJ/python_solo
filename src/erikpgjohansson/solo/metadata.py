@@ -53,11 +53,13 @@ class DatasetFilename:
     filename code should (probably) follow that design.
     '''
     '''
-    PROPOSAL: Replace versionStr-->versionNbr.
+    PROPOSAL: Replace version_str-->version_nbr.
         PROBLEM: LL "I" and "C" could maybe be considered part of "version".
     '''
 
-    def __init__(self, dsid, timeIntervalStr, timeVector1, itemId, versionStr):
+    def __init__(
+        self, dsid, timeIntervalStr, timeVector1, itemId, version_str,
+    ):
         # Always upper case. (Excludes CDAG.)
         self.dsid            = dsid
         self.timeIntervalStr = timeIntervalStr
@@ -67,7 +69,7 @@ class DatasetFilename:
         # As defined by SDT.
         self.itemId          = itemId
         # String. Ex: '02'.
-        self.versionStr      = versionStr
+        self.version_str     = version_str
 
     def __eq__(self, other):
         '''Useful for tests.
@@ -85,7 +87,7 @@ class DatasetFilename:
             f'timeIntervalStr="{self.timeIntervalStr}", '
             f'timeVector1={self.timeVector1}, '
             f'itemId="{self.itemId}", '
-            f'versionStr="{self.versionStr}"'
+            f'version_str="{self.version_str}"'
             ')'
         )
         return s
@@ -216,7 +218,7 @@ class DatasetFilename:
         itemId            = ''.join(ls_str[0:1] + ls_str[2:4])
         dsid              = ls_str[0].upper()
         time_interval_str = ls_str[3]
-        versionStr        = ls_str[5]
+        version_str       = ls_str[5]
 
         tv1 = _parse_time_interval_str(time_interval_str)
         if tv1 is None:
@@ -224,7 +226,7 @@ class DatasetFilename:
 
         dsfn = DatasetFilename(
             dsid=dsid, timeIntervalStr=time_interval_str,
-            versionStr=versionStr, timeVector1=tv1, itemId=itemId,
+            version_str=version_str, timeVector1=tv1, itemId=itemId,
         )
         return dsfn
 
