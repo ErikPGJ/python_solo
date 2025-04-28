@@ -193,7 +193,7 @@ class DatasetFilename:
         /SOL-SGS-ICD-0005, "Solar Orbiter Interface Control Document for Low
         Latency Data FITS Files", 1/5, SOL-SGS-ICD-0005-LLFITSICD-1.5draft.pdf
         '''
-        substrList, remainingStr, isPerfectMatch = \
+        ls_str, remaining_str, b_perfect_match = \
             erikpgjohansson.solo.str.regexp_str_parts(
                 filename, [
                     '.*',                    # 0
@@ -208,23 +208,23 @@ class DatasetFilename:
                 -1, 'permit non-match',
             )
 
-        if not isPerfectMatch:
+        if not b_perfect_match:
             return None
 
         # NOTE: Does not store any separate flag for CDAG/non-CDAG. Only
         #       tolerates it.
-        itemId          = ''.join(substrList[0:1] + substrList[2:4])
-        dsid            = substrList[0].upper()
-        timeIntervalStr = substrList[3]
-        versionStr      = substrList[5]
+        itemId            = ''.join(ls_str[0:1] + ls_str[2:4])
+        dsid              = ls_str[0].upper()
+        time_interval_str = ls_str[3]
+        versionStr        = ls_str[5]
 
-        tv1 = _parse_time_interval_str(timeIntervalStr)
+        tv1 = _parse_time_interval_str(time_interval_str)
         if tv1 is None:
             return None
 
         dsfn = DatasetFilename(
-            dsid=dsid, timeIntervalStr=timeIntervalStr, versionStr=versionStr,
-            timeVector1=tv1, itemId=itemId,
+            dsid=dsid, timeIntervalStr=time_interval_str,
+            versionStr=versionStr, timeVector1=tv1, itemId=itemId,
         )
         return dsfn
 
@@ -249,7 +249,7 @@ def parse_item_ID(itemId: str):
     '''
     PROPOSAL: Class/namedtuple for return value.
     '''
-    substrList, remainingStr, isPerfectMatch = \
+    ls_str, remaining_str, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
             itemId, [
                 '.*',                    # 0
@@ -258,26 +258,26 @@ def parse_item_ID(itemId: str):
             ],
             -1, 'permit non-match',
         )
-    if not isPerfectMatch:
+    if not b_perfect_match:
         return None
 
-    dsid            = substrList[0].upper()
-    timeIntervalStr = substrList[2]
-    tv1 = _parse_time_interval_str(timeIntervalStr)
+    dsid              = ls_str[0].upper()
+    time_interval_str = ls_str[2]
+    tv1 = _parse_time_interval_str(time_interval_str)
     if tv1 is None:
         return None
 
     return {'DSID': dsid, 'time vector 1': tv1}
 
 
-def _parse_time_interval_str(timeIntervalStr: str):
+def _parse_time_interval_str(time_interval_str: str):
     '''
     Parse time interval string. Only return the *FIRST* timestamp if there
     are two.
 
     Parameters
     ----------
-    timeIntervalStr:
+    time_interval_str:
         String on any one of the formats
             YYYYMMDD
             YYYYMMDD-YYYYMMDD
@@ -330,8 +330,8 @@ def _parse_time_interval_str(timeIntervalStr: str):
         minute = int(s[11:13])
         # IMPLEMENTATION NOTE: Substring representing seconds does not contain
         # any period. Can therefore not apply float() on it directly.
-        secondsStr = s[13:]
-        second = int(secondsStr) / 10**(len(secondsStr)-2)   # Always float
+        seconds_str = s[13:]
+        second = int(seconds_str) / 10**(len(seconds_str)-2)   # Always float
         return year, month, day, hour, minute, second
 
     def parse_OBT(s):
@@ -343,69 +343,69 @@ def _parse_time_interval_str(timeIntervalStr: str):
     # Try parsing time interval string, by trying one format after another
     # ====================================================================
 
-    _, _, isPerfectMatch = \
+    _, _, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
+            time_interval_str,
             [_RE_YYYY],
             1, 'permit non-match',
         )
-    if isPerfectMatch:
-        return parse_YYYY(timeIntervalStr) + (1, 1, 0, 0, 0.0)
+    if b_perfect_match:
+        return parse_YYYY(time_interval_str) + (1, 1, 0, 0, 0.0)
 
-    _, _, isPerfectMatch = \
+    _, _, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
+            time_interval_str,
             [_RE_YYYYMM],
             1, 'permit non-match',
         )
-    if isPerfectMatch:
-        return parse_YYYYMM(timeIntervalStr) + (1, 0, 0, 0.0)
+    if b_perfect_match:
+        return parse_YYYYMM(time_interval_str) + (1, 0, 0, 0.0)
 
-    _, _, isPerfectMatch = \
+    _, _, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
+            time_interval_str,
             [_RE_YYYYMMDD],
             1, 'permit non-match',
         )
-    if isPerfectMatch:
-        return parse_YYYYMMDD(timeIntervalStr) + (0, 0, 0.0)
+    if b_perfect_match:
+        return parse_YYYYMMDD(time_interval_str) + (0, 0, 0.0)
 
-    substrList, _, isPerfectMatch = \
+    ls_str, _, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
+            time_interval_str,
             [_RE_YYYYMMDD, '-', _RE_YYYYMMDD],
             1, 'permit non-match',
         )
-    if isPerfectMatch:
-        return parse_YYYYMMDD(substrList[0]) + (0, 0, 0.0)
+    if b_perfect_match:
+        return parse_YYYYMMDD(ls_str[0]) + (0, 0, 0.0)
 
-    substrList, _, isPerfectMatch = \
+    ls_str, _, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
+            time_interval_str,
             [_RE_YYYYMMDDThhmmssddd],
             1, 'permit non-match',
         )
-    if isPerfectMatch:
-        return parse_YYYYMMDDThhmmssddd(substrList[0])
+    if b_perfect_match:
+        return parse_YYYYMMDDThhmmssddd(ls_str[0])
 
-    substrList, _, isPerfectMatch = \
+    ls_str, _, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
+            time_interval_str,
             [_RE_YYYYMMDDThhmmss, '-', _RE_YYYYMMDDThhmmss],
             1, 'permit non-match',
         )
-    if isPerfectMatch:
-        return parse_YYYYMMDDThhmmssddd(substrList[0])
+    if b_perfect_match:
+        return parse_YYYYMMDDThhmmssddd(ls_str[0])
 
     # LL01 filenames contain OBT, not UTC.
-    substrList, _, isPerfectMatch = \
+    ls_str, _, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
-            timeIntervalStr,
+            time_interval_str,
             [_RE_OBT, '-', _RE_OBT],
             1, 'permit non-match',
         )
-    if isPerfectMatch:
-        return parse_OBT(substrList[0])
+    if b_perfect_match:
+        return parse_OBT(ls_str[0])
 
     return None
 
@@ -431,7 +431,7 @@ def parse_DSID(dsid):
 
     Returns
     -------
-    dataSrc : String.
+    data_source : String.
         Ex: 'SOLO', 'RGTS'
     level : String
         Ex: 'L2'
@@ -453,7 +453,7 @@ def parse_DSID(dsid):
     #   Ex: SOLO_LL02_MAG
     # NOTE: Only identifies -CDAG to giver custom error message.
     # NOTE: Have not seen any LL01 datasets. Not sure if such exist.
-    substrList, remainingStr, isPerfectMatch = \
+    ls_str, remaining_str, b_perfect_match = \
         erikpgjohansson.solo.str.regexp_str_parts(
             dsid,
             [
@@ -469,18 +469,18 @@ def parse_DSID(dsid):
         )
 
     # ASSERTIONS
-    if not isPerfectMatch:
+    if not b_perfect_match:
         raise Exception(f'Can not parse dsid="{dsid}".')
-    cdagStr = substrList[-1]
-    if cdagStr:
+    cdag_str = ls_str[-1]
+    if cdag_str:
         raise Exception(
             f'Illegal dsid="{dsid}" that contains "-CDAG".',
         )
 
-    dataSrc    = substrList[0]
-    level      = substrList[2]
-    instrument = substrList[4]
-    descriptor = ''.join(substrList[4:6])
+    data_source = ls_str[0]
+    level       = ls_str[2]
+    instrument  = ls_str[4]
+    descriptor  = ''.join(ls_str[4:6])
     # NOTE: Descriptor INCLUDES instrument.
 
-    return dataSrc, level, instrument, descriptor
+    return data_source, level, instrument, descriptor
