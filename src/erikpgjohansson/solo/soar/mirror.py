@@ -317,7 +317,7 @@ def sync(
             dst_ref=dst_ref,
             dst_local=dst_local,
             datasetsSubsetFunc=datasetsSubsetFunc,
-            deleteOutsideSubset=deleteOutsideSubset,
+            b_delete_outside_subset=deleteOutsideSubset,
             nMaxNetDatasetsToRemove=nMaxNetDatasetsToRemove,
         )
 
@@ -340,7 +340,7 @@ def sync(
 
 def offline_cleanup(
     syncDir, tempDownloadDir, datasetsSubsetFunc,
-    deleteOutsideSubset=False,
+    b_delete_outside_subset=False,
     tempRemovalDir=None,
     removeRemovalDir=False,
 ):
@@ -383,7 +383,7 @@ def offline_cleanup(
         dst_ref=dst_ref,
         dst_local=dst_local,
         datasetsSubsetFunc=datasetsSubsetFunc,
-        deleteOutsideSubset=deleteOutsideSubset,
+        b_delete_outside_subset=b_delete_outside_subset,
         nMaxNetDatasetsToRemove=float("Inf"),
     )
     assert dst_ref_missing.n_rows == 0
@@ -397,11 +397,11 @@ def offline_cleanup(
     # are hard/slow to replace.
     n_datasets = dst_local_excess.n_rows
     L.info(f'Removing {n_datasets} local datasets')
-    pathsToRemoveList = dst_local_excess['file_path'].tolist()
-    stdoutStr = _remove_files(
-        pathsToRemoveList, tempRemovalDir, removeRemovalDir,
+    ls_files_remove = dst_local_excess['file_path'].tolist()
+    stdout_str = _remove_files(
+        ls_files_remove, tempRemovalDir, removeRemovalDir,
     )
-    L.info(stdoutStr)
+    L.info(stdout_str)
 
 
 @codetiming.Timer('_calculate_reference_DST', logger=None)
@@ -413,8 +413,8 @@ def _calculate_reference_DST(dst, datasetsSubsetFunc):
     # =====================================================================
     # Select subset of SOAR datasets (item IDs) to be synced (all versions)
     # =====================================================================
-    bSubset = _find_DST_subset(datasetsSubsetFunc, dst)
-    dst_subset = dst.index(bSubset)
+    na_b_subset = _find_DST_subset(datasetsSubsetFunc, dst)
+    dst_subset = dst.index(na_b_subset)
 
     # =========================================================================
     # Only keep latest version of each dataset in table
@@ -422,18 +422,19 @@ def _calculate_reference_DST(dst, datasetsSubsetFunc):
     # IMPLEMENTATION NOTE: This can be slow. Therefore doing this first AFTER
     # selecting subset of item IDs. Particularly useful for small test subsets.
     # =========================================================================
-    bLv = utils.find_latest_versions(
+    na_b_latest_version = utils.find_latest_versions(
         dst_subset['item_id'],
         dst_subset['item_version'],
     )
-    dst_subset_latest_version = dst_subset.index(bLv)
+    dst_subset_latest_version = dst_subset.index(na_b_latest_version)
     return dst_subset_latest_version
 
 
 @codetiming.Timer('_calculate_sync_dir_update', logger=None)
 def _calculate_sync_dir_update(
     dst_ref, dst_local, datasetsSubsetFunc,
-    deleteOutsideSubset, nMaxNetDatasetsToRemove,
+    b_delete_outside_subset: bool,
+    nMaxNetDatasetsToRemove: typing.Union[int, float],
 ):
     '''Given reference datasets and local datasets, calculate which files
     should be removed or downloaded.
@@ -454,6 +455,9 @@ def _calculate_sync_dir_update(
     '''
     assert isinstance(dst_ref, erikpgjohansson.solo.soar.dst.DatasetsTable)
     assert isinstance(dst_local, erikpgjohansson.solo.soar.dst.DatasetsTable)
+    assert type(b_delete_outside_subset) is bool
+    assert (type(nMaxNetDatasetsToRemove) is int) \
+           or (nMaxNetDatasetsToRemove == float('inf'))
 
     # ASSERT: The list of reference datasets is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
@@ -470,7 +474,7 @@ def _calculate_sync_dir_update(
     # Whether to hide local datasets outside of subset
     # = whether to prevent local datasets outside of subset from being
     #   potentially deleted later.
-    if deleteOutsideSubset:
+    if b_delete_outside_subset:
         L.info(
             'NOTE: Syncing against all local datasets'
             ' (in specified directory).'
@@ -479,8 +483,8 @@ def _calculate_sync_dir_update(
     else:
         # "Hide"/ignore local datasets which are not recognized by
         # "datasetsSubsetFunc".
-        bLocalSubset = _find_DST_subset(datasetsSubsetFunc, dst_local)
-        dst_local = dst_local.index(bLocalSubset)
+        na_b_local_subset = _find_DST_subset(datasetsSubsetFunc, dst_local)
+        dst_local = dst_local.index(na_b_local_subset)
         L.info(
             'NOTE: Only syncing against subset of local datasets.'
             ' Will NOT delete datasets outside the specified subset.',
@@ -489,13 +493,13 @@ def _calculate_sync_dir_update(
     # ==============================================================#
     # Find (1) datasets to download, and (2) local datasets to delete
     # ==============================================================#
-    bSoarMissing, bLocalExcess = _find_DST_difference(
+    na_b_soar_missing, na_b_local_excess = _find_DST_difference(
         dst_ref['file_name'], dst_local['file_name'],
         dst_ref['file_size'], dst_local['file_size'],
     )
 
-    dst_soar_missing = dst_ref.index(bSoarMissing)
-    dst_local_excess = dst_local.index(bLocalExcess)
+    dst_soar_missing = dst_ref.index(na_b_soar_missing)
+    dst_local_excess = dst_local.index(na_b_local_excess)
 
     erikpgjohansson.solo.soar.dst.log_DST(
         dst_soar_missing, 'Online SOAR datasets that need to be downloaded',
@@ -507,10 +511,10 @@ def _calculate_sync_dir_update(
     # ASSERTION
     # NOTE: Deliberately doing this first after logging which datasets to
     # download and delete.
-    nNetDatasetsToRemove = dst_local_excess.n_rows - dst_soar_missing.n_rows
-    if nNetDatasetsToRemove > nMaxNetDatasetsToRemove:
+    n_files_net_remove = dst_local_excess.n_rows - dst_soar_missing.n_rows
+    if n_files_net_remove > nMaxNetDatasetsToRemove:
         msg = (
-            f'Net number of datasets to remove ({nNetDatasetsToRemove})'
+            f'Net number of datasets to remove ({n_files_net_remove})'
             f' is larger than the permitted ({nMaxNetDatasetsToRemove}).'
             ' This might indicate a bug or configuration error.'
             ' This assertion is a failsafe to prevent deleting too many'
@@ -521,10 +525,10 @@ def _calculate_sync_dir_update(
             f'First {const.N_EXCESS_DATASETS_PRINT} dataset that would have'
             f' been deleted:',
         )
-        for fileName in dst_local_excess['file_name'][
+        for file_name in dst_local_excess['file_name'][
                 0:const.N_EXCESS_DATASETS_PRINT
         ]:
-            L.error(f'    {fileName}')
+            L.error(f'    {file_name}')
 
         raise AssertionError(msg)
 
@@ -588,11 +592,11 @@ def _execute_sync_dir_SOAR_update(
     # are hard/slow to replace.
     n_datasets = dst_local_excess.n_rows
     L.info(f'Removing {n_datasets} local datasets')
-    pathsToRemoveList = dst_local_excess['file_path'].tolist()
-    stdoutStr = _remove_files(
-        pathsToRemoveList, tempRemovalDir, removeRemovalDir,
+    ls_files_remove = dst_local_excess['file_path'].tolist()
+    stdout_str = _remove_files(
+        ls_files_remove, tempRemovalDir, removeRemovalDir,
     )
-    L.info(stdoutStr)
+    L.info(stdout_str)
 
     # =================================================
     # Move downloaded datasets into sync directory tree
@@ -736,7 +740,7 @@ def _find_DST_subset(
 
     Returns
     -------
-    bSubset : numpy array
+    na_b_subset : numpy array
     '''
     '''
     PROPOSAL: Move to utils.
@@ -752,13 +756,13 @@ def _find_DST_subset(
         ),
     )
 
-    bSubset = np.zeros(na_instrument.shape, dtype=bool)
+    na_b_subset = np.zeros(na_instrument.shape, dtype=bool)
     for i in range(na_instrument.size):
-        bSubset[i] = datasetIncludeFunc(
+        na_b_subset[i] = datasetIncludeFunc(
             instrument=na_instrument[i],
             level     =na_level[i],
             beginTime =na_begin_time[i],
             dsid      =na_dsid[i],
         )
 
-    return bSubset
+    return na_b_subset
