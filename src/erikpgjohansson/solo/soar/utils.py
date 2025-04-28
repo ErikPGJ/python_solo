@@ -479,15 +479,17 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
     assert_1D_NA(itemVerNbrArray, np.dtype('int64'))
     assert itemIdArray.shape == itemVerNbrArray.shape
 
+    # Find unique item IDs (to iterate over).
     # NOTE: itemIdArray[iUniques] == uniqItemIdArray
     uniqItemIdArray, iUniques, jInverse, uniqueCounts = np.unique(
         itemIdArray, return_index=1, return_inverse=1, return_counts=1,
     )
 
-    # Datasets that should ultimately be kept.
+    # ==================================
+    # Iterate over unique item IDs (UII)
+    # ==================================
+    # Pre-allocated. Datasets that should ultimately be kept.
     bLvArray = np.full(itemIdArray.size, False)   # Create same-sized array.
-
-    # Iterate over unique item IDs.
     for iUii in range(iUniques.size):
         uii  = uniqItemIdArray[iUii]
         nDuplicates = uniqueCounts[iUii]
@@ -502,10 +504,8 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
             (i,) = np.nonzero(b)   # NOTE: Returns tuple or arrays.
 
             assert i.size == 1, (
-                'Found multiple datasets with itemId = {}'
-                ' with the same highest version number V{:d}.'
-            ).format(
-                uii, uiiLv,
+                f'Found multiple datasets with item ID={uii}'
+                f' and with the same highest version number V{uiiLv}.'
             )
 
             bLvArray[i] = True

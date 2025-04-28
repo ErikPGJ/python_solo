@@ -17,11 +17,12 @@ Note: The naming convention for variables is inconsistent but follows either:
 (1) camelCase for variables: uppercase initial for class variables(?);
 otherwise lowercase initial, or
 (2) snake_case.
-The long term goal is to only use convention (2) (?).
+The long term goal is to only use convention (2).
 
-Use of "ls"/"dc" (standard abbreviations) implies that what comes to the
-left (if anything) refers to the entire ls/dc, and what comes to the right
-refers to the content of each component in the ls/dc.
+Use of standard abbreviations for data types ("ls", "dc", "na" etc.)
+implies that what comes to the left (if anything) refers to the entire
+ls/dc, and what comes to the right refers to the content of each component
+in the ls/dc.
 
 Ex: dc_ls_x = dictionary of lists/tuples of "x".
 
@@ -134,6 +135,8 @@ Orbiter Science Data", 2/6.
 L : `logging.Logger` object.
 
 LS : Python list/tuple.
+
+LV : Latest Version.
 
 NA : Numpy Array.
 
