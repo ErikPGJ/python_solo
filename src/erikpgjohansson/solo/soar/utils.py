@@ -186,14 +186,14 @@ def download_latest_datasets_batch(
         )
 
 
-@codetiming.Timer('download_latest_datasets_batch2', logger=None)
-def download_latest_datasets_batch2(
+@codetiming.Timer('download_latest_datasets_batch_parallel', logger=None)
+def download_latest_datasets_batch_parallel(
     sodl: dwld.SoarDownloader,
     na_item_id: np.ndarray, na_file_size, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
-    Parallelized version of download_latest_datasets_batch().
+    Parallelized version of download_latest_datasets_batch_nonparallel().
     '''
     '''
     PROPOSAL: Somehow return results (nbr of exceptions).

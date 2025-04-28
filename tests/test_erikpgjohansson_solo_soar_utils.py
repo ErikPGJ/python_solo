@@ -6,7 +6,8 @@ import numpy as np
 
 
 '''
-Split test_download_latest_datasets_batch() into multiple test functions.
+PROPOSAL: Split test_download_latest_datasets_batch_nonparallel() into multiple
+          test functions.
 '''
 
 
@@ -17,9 +18,9 @@ def test_download_latest_datasets_batch(tmp_path):
         use_parallel_version, *args, **kwargs,
     ):
         if use_parallel_version:
-            utils.download_latest_datasets_batch(*args, **kwargs)
+            utils.download_latest_datasets_batch_nonparallel(*args, **kwargs)
         else:
-            utils.download_latest_datasets_batch2(*args, **kwargs)
+            utils.download_latest_datasets_batch_parallel(*args, **kwargs)
 
     def test0(use_parallel_version):
         test_dir = dp.get_new_dir()
