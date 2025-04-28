@@ -97,7 +97,7 @@ def assert_1D_NA(v, dtype=None):
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
     sodl: dwld.SoarDownloader,
-    na_item_id: np.ndarray, fileSizeArray, outputDirPath,
+    na_item_id: np.ndarray, na_file_size: np.ndarray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
@@ -108,7 +108,7 @@ def download_latest_datasets_batch(
 
     Parameters
     ----------
-    fileSizeArray : 1D numpy.ndarray of integers.
+    na_file_size : 1D numpy.ndarray of integers.
         NOTE: Needed for logging the predicted remaining wall time needed for
         the download.
     downloadByIncrFileSize : bool
@@ -139,25 +139,25 @@ def download_latest_datasets_batch(
     assert_1D_NA(na_item_id, np.dtype('O'))
     assert np.unique(na_item_id).size == na_item_id.size, \
         'na_item_id contains duplicates.'
-    assert_1D_NA(fileSizeArray, np.dtype('int64'))
-    assert na_item_id.size == fileSizeArray.size
+    assert_1D_NA(na_file_size, np.dtype('int64'))
+    assert na_item_id.size == na_file_size.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
     L = logging.getLogger(__name__)
 
     if downloadByIncrFileSize:
-        iSort         = np.argsort(fileSizeArray)
-        na_item_id    = na_item_id[iSort]
-        fileSizeArray = fileSizeArray[iSort]
+        iSort        = np.argsort(na_file_size)
+        na_item_id   = na_item_id[iSort]
+        na_file_size = na_file_size[iSort]
 
     complBytes = 0
-    totalBytes = fileSizeArray.sum()
+    totalBytes = na_file_size.sum()
     startDt    = datetime.datetime.now()
     n_datasets = na_item_id.size
 
     for i_dataset in range(n_datasets):
         item_id  = na_item_id[i_dataset]
-        fileSize = fileSizeArray[i_dataset]
+        fileSize = na_file_size[i_dataset]
 
         fileSizeMb = fileSize / 2**20
 
@@ -184,7 +184,7 @@ def download_latest_datasets_batch(
 @codetiming.Timer('download_latest_datasets_batch2', logger=None)
 def download_latest_datasets_batch2(
     sodl: dwld.SoarDownloader,
-    na_item_id: np.ndarray, fileSizeArray, outputDirPath,
+    na_item_id: np.ndarray, na_file_size, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
@@ -260,8 +260,8 @@ def download_latest_datasets_batch2(
     assert_1D_NA(na_item_id, np.dtype('O'))
     assert np.unique(na_item_id).size == na_item_id.size, \
         'na_item_id contains duplicates.'
-    assert_1D_NA(fileSizeArray, np.dtype('int64'))
-    assert na_item_id.size == fileSizeArray.size
+    assert_1D_NA(na_file_size, np.dtype('int64'))
+    assert na_item_id.size == na_file_size.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
     # =============
@@ -269,9 +269,9 @@ def download_latest_datasets_batch2(
     # =============
     L = logging.getLogger(__name__)
     if downloadByIncrFileSize:
-        i_sort        = np.argsort(fileSizeArray)
-        na_item_id    = na_item_id[i_sort]
-        fileSizeArray = fileSizeArray[i_sort]
+        i_sort       = np.argsort(na_file_size)
+        na_item_id   = na_item_id[i_sort]
+        na_file_size = na_file_size[i_sort]
 
     # =====================
     # Run tasks / downloads
@@ -279,7 +279,7 @@ def download_latest_datasets_batch2(
     ls_future = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         cts         = CollectiveTaskState()
-        total_bytes = fileSizeArray.sum()
+        total_bytes = na_file_size.sum()
         start_dt    = datetime.datetime.now()
         n_datasets  = na_item_id.size
 
@@ -289,7 +289,7 @@ def download_latest_datasets_batch2(
 
         for i_task in range(n_datasets):
             item_id   = na_item_id[i_task]
-            file_size = fileSizeArray[i_task]
+            file_size = na_file_size[i_task]
 
             task = Task(item_id, file_size)
             # =============================================================

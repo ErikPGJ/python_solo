@@ -28,7 +28,7 @@ def test_download_latest_datasets_batch(tmp_path):
             use_parallel_version,
             sodl,
             na_item_id=np.array([], object),
-            fileSizeArray=np.array([], 'int64'),
+            na_file_size=np.array([], 'int64'),
             outputDirPath=test_dir,
         )
         tests.assert_FS(test_dir, {})
@@ -80,7 +80,7 @@ def test_download_latest_datasets_batch(tmp_path):
                     'solo_LL02_mag_20200804T000025-20200805T000024',
                 ], object,
             ),
-            fileSizeArray=np.array([100000, 200000], 'int64'),
+            na_file_size=np.array([100000, 200000], 'int64'),
             outputDirPath=test_dir,
         )
         tests.assert_FS(

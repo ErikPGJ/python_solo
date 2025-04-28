@@ -656,7 +656,7 @@ def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
 
 def _find_DST_difference(
     fileNameArray1, fileNameArray2,
-    fileSizeArray1, fileSizeArray2,
+    na_file_size1: np.ndarray, na_file_size2: np.ndarray,
 ):
     '''
     Find both set differences between lists of strings as boolean index
@@ -693,8 +693,8 @@ def _find_DST_difference(
     utils.assert_1D_NA(fileNameArray1, np.dtype('O'))
     utils.assert_1D_NA(fileNameArray2, np.dtype('O'))
 
-    utils.assert_1D_NA(fileSizeArray1, np.dtype('int64'))
-    utils.assert_1D_NA(fileSizeArray2, np.dtype('int64'))
+    utils.assert_1D_NA(na_file_size1, np.dtype('int64'))
+    utils.assert_1D_NA(na_file_size2, np.dtype('int64'))
 
     # =========
     # ALGORITHM
@@ -703,17 +703,17 @@ def _find_DST_difference(
     # functionality I have not yet managed to find it.
     # FNS = File Name & Size
     fnsArray1 = np.array(
-        list(zip(fileNameArray1, fileSizeArray1)),
+        list(zip(fileNameArray1, na_file_size1)),
         dtype=[
             ('fileName', fileNameArray1.dtype),
-            ('fileSize', fileSizeArray1.dtype),
+            ('fileSize', na_file_size1.dtype),
         ],
     )
     fnsArray2 = np.array(
-        list(zip(fileNameArray2, fileSizeArray2)),
+        list(zip(fileNameArray2, na_file_size2)),
         dtype=[
             ('fileName', fileNameArray2.dtype),
-            ('fileSize', fileSizeArray2.dtype),
+            ('fileSize', na_file_size2.dtype),
         ],
     )
 
