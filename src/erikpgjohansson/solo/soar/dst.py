@@ -132,7 +132,7 @@ class DatasetsTable:
 
 
 @codetiming.Timer('derive_DST_from_dir', logger=None)
-def derive_DST_from_dir(rootDir):
+def derive_DST_from_dir(root_dir):
     '''
     Derive a DST from a directory tree datasets. Searches directory
     recursively.
@@ -142,23 +142,23 @@ def derive_DST_from_dir(rootDir):
 
     Parameters
     ----------
-    rootDir : String
+    root_dir : String. Path to pre-existing directory.
 
     Returns
     -------
     dst
     '''
-    erikpgjohansson.solo.asserts.is_dir(rootDir)
+    erikpgjohansson.solo.asserts.is_dir(root_dir)
 
-    fileNameList    = []
-    filePathList    = []
-    fileVerList     = []
-    itemIdList      = []
-    fileSizeList    = []
-    instrumentList  = []
-    levelList       = []
-    beginTimeFnList = []    # FN = File Name. Time derived from filename.
-    for (dirPath, _subDirNameList, dirFileNamesList) in os.walk(rootDir):
+    ls_file_name            = []
+    ls_file_path            = []
+    ls_file_version_nbr     = []
+    ls_item_id              = []
+    ls_file_size            = []
+    ls_instrument           = []
+    ls_level                = []
+    ls_begin_time_file_name = []    # Time derived from filename.
+    for (dirPath, _subDirNameList, dirFileNamesList) in os.walk(root_dir):
         for fileName in dirFileNamesList:
 
             dsfn = \
@@ -173,30 +173,32 @@ def derive_DST_from_dir(rootDir):
                     erikpgjohansson.solo.metadata.parse_DSID(dsfn.dsid)
 
                 filePath = os.path.join(dirPath, fileName)
-                filePathList   += [filePath]
-                fileNameList   += [fileName]
-                fileVerList    += [int(dsfn.version_str)]
-                itemIdList     += [dsfn.item_id]
-                fileSizeList   += [os.stat(filePath).st_size]
-                instrumentList += [instrument]
-                levelList      += [level]
+                ls_file_path        += [filePath]
+                ls_file_name        += [fileName]
+                ls_file_version_nbr += [int(dsfn.version_str)]
+                ls_item_id          += [dsfn.item_id]
+                ls_file_size        += [os.stat(filePath).st_size]
+                ls_instrument       += [instrument]
+                ls_level            += [level]
 
                 # NOTE: datetime.datetime requires integer seconds+microseconds
                 # in separate arguments (as integers). Filenames should only
                 # contain time with microseconds=0 so we ignore them.
                 tv1    = list(dsfn.tv1)
                 tv1[5] = int(tv1[5])
-                beginTimeFnList += [datetime.datetime(*tv1)]
+                ls_begin_time_file_name += [datetime.datetime(*tv1)]
 
     dst = DatasetsTable({
-        'file_name':        np.array(fileNameList,    dtype=object),
-        'file_path':        np.array(filePathList,    dtype=object),
-        'item_version':     np.array(fileVerList,     dtype='int64'),
-        'item_id':          np.array(itemIdList,      dtype=object),
-        'file_size':        np.array(fileSizeList,    dtype='int64'),
-        'begin_time_FN':    np.array(beginTimeFnList, dtype='datetime64[ms]'),
-        'instrument':       np.array(instrumentList,  dtype=object),
-        'processing_level': np.array(levelList,       dtype=object),
+        'file_name':        np.array(ls_file_name,        dtype=object),
+        'file_path':        np.array(ls_file_path,        dtype=object),
+        'item_version':     np.array(ls_file_version_nbr, dtype='int64'),
+        'item_id':          np.array(ls_item_id,          dtype=object),
+        'file_size':        np.array(ls_file_size,        dtype='int64'),
+        'begin_time_FN':    np.array(
+            ls_begin_time_file_name, dtype='datetime64[ms]',
+        ),
+        'instrument':       np.array(ls_instrument,       dtype=object),
+        'processing_level': np.array(ls_level,            dtype=object),
     })
     # NOTE: Key name "processing_level" chosen to be in agreement with
     # erikpgjohansson.solo.soar.dwld.SoarDownloader.download_SDT_DST().
