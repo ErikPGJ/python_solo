@@ -27,7 +27,7 @@ def test_download_latest_datasets_batch(tmp_path):
         download_latest_datasets_batch(
             use_parallel_version,
             sodl,
-            itemIdArray=np.array([], object),
+            na_item_id=np.array([], object),
             fileSizeArray=np.array([], 'int64'),
             outputDirPath=test_dir,
         )
@@ -74,7 +74,7 @@ def test_download_latest_datasets_batch(tmp_path):
         download_latest_datasets_batch(
             use_parallel_version,
             sodl,
-            itemIdArray=np.array(
+            na_item_id=np.array(
                 [
                     'solo_L2_mag-rtn-normal_20220327',
                     'solo_LL02_mag_20200804T000025-20200805T000024',
@@ -120,11 +120,11 @@ def test_download_latest_datasets_batch_log_progress():
 
 def test_find_latest_versions():
 
-    def test(itemIdArray, itemVerNbrArray, exp_bLvArray):
+    def test(ls_item_id, itemVerNbrArray, exp_bLvArray):
         expResult = np.array(exp_bLvArray, dtype=bool)
 
         actResult = utils.find_latest_versions(
-            np.array(itemIdArray,     dtype=object),
+            np.array(ls_item_id,      dtype=object),
             np.array(itemVerNbrArray, dtype=int),
         )
         assert expResult.dtype == actResult.dtype

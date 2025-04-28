@@ -97,7 +97,7 @@ def assert_1D_NA(v, dtype=None):
 @codetiming.Timer('download_latest_datasets_batch', logger=None)
 def download_latest_datasets_batch(
     sodl: dwld.SoarDownloader,
-    itemIdArray, fileSizeArray, outputDirPath,
+    na_item_id: np.ndarray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
@@ -136,27 +136,27 @@ def download_latest_datasets_batch(
 
     # ASSERTIONS
     assert isinstance(sodl, dwld.SoarDownloader)
-    assert_1D_NA(itemIdArray, np.dtype('O'))
-    assert np.unique(itemIdArray).size == itemIdArray.size, \
-        'itemIdArray contains duplicates.'
+    assert_1D_NA(na_item_id, np.dtype('O'))
+    assert np.unique(na_item_id).size == na_item_id.size, \
+        'na_item_id contains duplicates.'
     assert_1D_NA(fileSizeArray, np.dtype('int64'))
-    assert itemIdArray.size == fileSizeArray.size
+    assert na_item_id.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
     L = logging.getLogger(__name__)
 
     if downloadByIncrFileSize:
         iSort         = np.argsort(fileSizeArray)
-        itemIdArray   = itemIdArray[iSort]
+        na_item_id    = na_item_id[iSort]
         fileSizeArray = fileSizeArray[iSort]
 
     complBytes = 0
     totalBytes = fileSizeArray.sum()
     startDt    = datetime.datetime.now()
-    n_datasets = itemIdArray.size
+    n_datasets = na_item_id.size
 
     for i_dataset in range(n_datasets):
-        item_id  = itemIdArray[i_dataset]
+        item_id  = na_item_id[i_dataset]
         fileSize = fileSizeArray[i_dataset]
 
         fileSizeMb = fileSize / 2**20
@@ -184,7 +184,7 @@ def download_latest_datasets_batch(
 @codetiming.Timer('download_latest_datasets_batch2', logger=None)
 def download_latest_datasets_batch2(
     sodl: dwld.SoarDownloader,
-    itemIdArray, fileSizeArray, outputDirPath,
+    na_item_id: np.ndarray, fileSizeArray, outputDirPath,
     downloadByIncrFileSize=False,
 ):
     '''
@@ -257,11 +257,11 @@ def download_latest_datasets_batch2(
     # ASSERTIONS
     # ==========
     assert isinstance(sodl, dwld.SoarDownloader)
-    assert_1D_NA(itemIdArray, np.dtype('O'))
-    assert np.unique(itemIdArray).size == itemIdArray.size, \
-        'itemIdArray contains duplicates.'
+    assert_1D_NA(na_item_id, np.dtype('O'))
+    assert np.unique(na_item_id).size == na_item_id.size, \
+        'na_item_id contains duplicates.'
     assert_1D_NA(fileSizeArray, np.dtype('int64'))
-    assert itemIdArray.size == fileSizeArray.size
+    assert na_item_id.size == fileSizeArray.size
     erikpgjohansson.solo.asserts.is_dir(outputDirPath)
 
     # =============
@@ -270,7 +270,7 @@ def download_latest_datasets_batch2(
     L = logging.getLogger(__name__)
     if downloadByIncrFileSize:
         i_sort        = np.argsort(fileSizeArray)
-        itemIdArray   = itemIdArray[i_sort]
+        na_item_id    = na_item_id[i_sort]
         fileSizeArray = fileSizeArray[i_sort]
 
     # =====================
@@ -278,17 +278,17 @@ def download_latest_datasets_batch2(
     # =====================
     ls_future = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        cts = CollectiveTaskState()
+        cts         = CollectiveTaskState()
         total_bytes = fileSizeArray.sum()
-        start_dt = datetime.datetime.now()
-        n_datasets = itemIdArray.size
+        start_dt    = datetime.datetime.now()
+        n_datasets  = na_item_id.size
 
         _download_latest_datasets_batch_log_progress(
             n_datasets, 0, total_bytes, 0, start_dt,
         )
 
         for i_task in range(n_datasets):
-            item_id = itemIdArray[i_task]
+            item_id   = na_item_id[i_task]
             file_size = fileSizeArray[i_task]
 
             task = Task(item_id, file_size)
@@ -444,7 +444,7 @@ def _download_latest_datasets_batch_log_progress(
 
 
 @codetiming.Timer('find_latest_versions', logger=None)
-def find_latest_versions(itemIdArray, itemVerNbrArray):
+def find_latest_versions(na_item_id: np.ndarray, itemVerNbrArray):
     '''
     Find boolean indices for datasets which have the latest version (for that
     particular item ID.
@@ -455,7 +455,7 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
 
     Parameters
     ----------
-    itemIdArray     : 1D numpy array of strings.
+    na_item_id      : 1D numpy array of strings.
     itemVerNbrArray : 1D numpy array of integers.
 
 
@@ -475,21 +475,21 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
     # 0-dim arrays which causes hard-to-understand errors.
     # ==> Want to assert for this.
     # import pdb; pdb.set_trace()
-    assert_1D_NA(itemIdArray,     np.dtype('O'))
+    assert_1D_NA(na_item_id,      np.dtype('O'))
     assert_1D_NA(itemVerNbrArray, np.dtype('int64'))
-    assert itemIdArray.shape == itemVerNbrArray.shape
+    assert na_item_id.shape == itemVerNbrArray.shape
 
     # Find unique item IDs (to iterate over).
-    # NOTE: itemIdArray[iUniques] == uniqItemIdArray
+    # NOTE: na_item_id[iUniques] == uniqItemIdArray
     uniqItemIdArray, iUniques, jInverse, uniqueCounts = np.unique(
-        itemIdArray, return_index=1, return_inverse=1, return_counts=1,
+        na_item_id, return_index=1, return_inverse=1, return_counts=1,
     )
 
     # ==================================
     # Iterate over unique item IDs (UII)
     # ==================================
     # Pre-allocated. Datasets that should ultimately be kept.
-    bLvArray = np.full(itemIdArray.size, False)   # Create same-sized array.
+    bLvArray = np.full(na_item_id.size, False)   # Create same-sized array.
     for iUii in range(iUniques.size):
         uii  = uniqItemIdArray[iUii]
         nDuplicates = uniqueCounts[iUii]
@@ -498,9 +498,9 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
             bLvArray[iUniques[iUii]] = True
         else:
             # CASE: There are multiple versions.
-            uiiLv = itemVerNbrArray[itemIdArray == uii].max()
+            uiiLv = itemVerNbrArray[na_item_id == uii].max()
 
-            b = (itemIdArray == uii) & (itemVerNbrArray == uiiLv)
+            b = (na_item_id == uii) & (itemVerNbrArray == uiiLv)
             (i,) = np.nonzero(b)   # NOTE: Returns tuple or arrays.
 
             assert i.size == 1, (
@@ -511,8 +511,8 @@ def find_latest_versions(itemIdArray, itemVerNbrArray):
             bLvArray[i] = True
 
     # ASSERTION: All item ID's are unique.
-    itemIdArray2 = itemIdArray[bLvArray]
-    assert np.unique(itemIdArray2).size == itemIdArray2.size
+    na_item_id2 = na_item_id[bLvArray]
+    assert np.unique(na_item_id2).size == na_item_id2.size
 
     return bLvArray
 
