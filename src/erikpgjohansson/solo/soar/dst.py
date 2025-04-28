@@ -91,14 +91,16 @@ class DatasetsTable:
         # Set self._dc_na
         self._dc_na[key] = na
 
-    def index(self, bi: np.ndarray):
+    def index(self, na_bi: np.ndarray):
         '''
         Create new DST using the same keys and subset of arrays, defined by
         one shared set of indices.
         '''
-        assert type(bi) is np.ndarray
+        assert type(na_bi) is np.ndarray
 
-        return DatasetsTable({key: na[bi] for key, na in self._dc_na.items()})
+        return DatasetsTable(
+            {key: na[na_bi] for key, na in self._dc_na.items()},
+        )
 
     @property
     def n_rows(self):

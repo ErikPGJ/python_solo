@@ -681,7 +681,7 @@ def _find_DST_difference(
 
     Returns
     -------
-    (bDiff1, bDiff2)
+    (na_b_diff1, na_b_diff2)
     '''
     '''
     PROPOSAL: Move to utils.
@@ -706,15 +706,14 @@ def _find_DST_difference(
     # numpy functionality, but I have not yet found any numpy functionality
     # for doing this in a better way.
 
-    # FNS = File Name & Size
-    fnsArray1 = np.array(
+    na_file_name_size1 = np.array(
         list(zip(na_file_name1, na_file_size1)),
         dtype=[
             ('file_name', na_file_name1.dtype),
             ('file_size', na_file_size1.dtype),
         ],
     )
-    fnsArray2 = np.array(
+    na_file_name_size2 = np.array(
         list(zip(na_file_name2, na_file_size2)),
         dtype=[
             ('file_name', na_file_name2.dtype),
@@ -722,15 +721,15 @@ def _find_DST_difference(
         ],
     )
 
-    bDiff12 = ~np.isin(fnsArray1, fnsArray2)
-    bDiff21 = ~np.isin(fnsArray2, fnsArray1)
+    na_b_diff12 = ~np.isin(na_file_name_size1, na_file_name_size2)
+    na_b_diff21 = ~np.isin(na_file_name_size2, na_file_name_size1)
 
     # ASSERTIONS
     # NOTE: Many re-implementations have failed this assertion.
-    assert type(bDiff12) is np.ndarray
-    assert type(bDiff21) is np.ndarray
+    assert type(na_b_diff12) is np.ndarray
+    assert type(na_b_diff21) is np.ndarray
 
-    return bDiff12, bDiff21
+    return na_b_diff12, na_b_diff21
 
 
 @codetiming.Timer('_find_DST_subset', logger=None)
@@ -756,24 +755,24 @@ def _find_DST_subset(
     '''
     PROPOSAL: Move to utils.
     '''
-    instrumentArray = dst['instrument']
-    levelArray      = dst['processing_level']
-    beginTimeArray  = dst['begin_time_FN']
+    na_instrument = dst['instrument']
+    na_level      = dst['processing_level']
+    na_begin_time = dst['begin_time_FN']
 
-    dsidArray = np.array(
+    na_dsid = np.array(
         tuple(
             erikpgjohansson.solo.metadata.parse_item_ID(item_id)['DSID']
             for item_id in dst['item_id']
         ),
     )
 
-    bSubset = np.zeros(instrumentArray.shape, dtype=bool)
-    for i in range(instrumentArray.size):
+    bSubset = np.zeros(na_instrument.shape, dtype=bool)
+    for i in range(na_instrument.size):
         bSubset[i] = datasetIncludeFunc(
-            instrument=instrumentArray[i],
-            level     =levelArray[i],
-            beginTime =beginTimeArray[i],
-            dsid      =dsidArray[i],
+            instrument=na_instrument[i],
+            level     =na_level[i],
+            beginTime =na_begin_time[i],
+            dsid      =na_dsid[i],
         )
 
     return bSubset
