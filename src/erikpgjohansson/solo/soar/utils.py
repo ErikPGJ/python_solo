@@ -570,7 +570,7 @@ def derive_DST_from_dir(rootDir):
                 # NOTE: datetime.datetime requires integer seconds+microseconds
                 # in separate arguments (as integers). Filenames should only
                 # contain time with microseconds=0 so we ignore them.
-                tv1    = list(dsfn.timeVector1)
+                tv1    = list(dsfn.tv1)
                 tv1[5] = int(tv1[5])
                 beginTimeFnList += [datetime.datetime(*tv1)]
 

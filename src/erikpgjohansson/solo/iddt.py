@@ -209,7 +209,7 @@ def get_IDDT_subdir(filename, dtdnInclInstrument=True, instrDirCase='lower'):
         return None
 
     dsid = dsfn.dsid
-    tv1  = dsfn.timeVector1
+    tv1  = dsfn.tv1
 
     _, level, instrument, descriptor = \
         erikpgjohansson.solo.metadata.parse_DSID(dsid)

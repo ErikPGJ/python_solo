@@ -488,7 +488,7 @@ def _filename_NA_to_begin_time_NA(na_filename):
         # begin_time. Is therefore dependent on how well-implemented
         # that function is.
 
-        if dsfn and len(dsfn.timeVector1) == 6:
+        if dsfn and len(dsfn.tv1) == 6:
             # =========================================================
             # CASE: Can parse dataset filename and time interval string
             # =========================================================
@@ -496,7 +496,7 @@ def _filename_NA_to_begin_time_NA(na_filename):
             # NOTE: datetime.datetime requires integer seconds+microseconds
             # in separate arguments (as integers). Filenames should only
             # contain time with microseconds=0 so we ignore them.
-            tv1    = list(dsfn.timeVector1)
+            tv1    = list(dsfn.tv1)
             tv1[5] = int(tv1[5])
             value  = datetime.datetime(*tv1)
             na_dt64_begin[i_row] = np.datetime64(value, 'ms')
