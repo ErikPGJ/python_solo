@@ -10,6 +10,7 @@ import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.iddt
 import erikpgjohansson.solo.metadata
 import erikpgjohansson.solo.soar.const as const
+import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.dwld as dwld
 import erikpgjohansson.solo.soar.utils as utils
 import logging
@@ -701,8 +702,10 @@ def _find_DST_difference(
     # =========
     # ALGORITHM
     # =========
-    # NOTE: It is suspect that there is not some way of doing this using numpy
-    # functionality I have not yet managed to find it.
+    # NOTE: It is suspect that there is not some way of doing this using
+    # numpy functionality, but I have not yet found any numpy functionality
+    # for doing this in a better way.
+
     # FNS = File Name & Size
     fnsArray1 = np.array(
         list(zip(na_file_name1, na_file_size1)),

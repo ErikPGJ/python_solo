@@ -6,6 +6,13 @@ Module for the DST class.
 import numpy as np
 
 
+'''
+
+PROBLEM: Can not use erikpgjohansson.solo.soar.utils.assert_1D_NA() due to
+         circular imports.
+'''
+
+
 class DatasetsTable:
     '''Immutable "datasets table". Stores table of datasets.
 
@@ -107,6 +114,7 @@ class DatasetsTable:
         return self._n
 
     def __add__(self, dst2):
+        '''Add (concatenate) other DST with this DST.'''
         assert isinstance(dst2, DatasetsTable)
         assert self._dc_na.keys() == dst2._dc_na.keys()
 

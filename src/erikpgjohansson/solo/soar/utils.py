@@ -31,6 +31,11 @@ PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
     PROPOSAL: so.soar.download/connect/network/access or so.soar (only)
     PROPOSAL: so.soar.mirror, so.soar_mirror, so.soar_utils
     PROPOSAL: so.soar.misc, so.soar.other, so.soar.utils
+    PROPOSAL: Move dependence on erikpgjohansson.solo.soar.dst to
+              erikpgjohansson.solo.soar.dst.
+        PRO:: erikpgjohansson.solo.soar.dst is used by this module but can not
+              use erikpgjohansson.solo.soar.utils.assert_1D_NA() due to
+              circular imports.
 
 NOTE: download_latest_dataset() downloads latest dataset
           version, not specified dataset version?
@@ -464,9 +469,6 @@ def find_latest_versions(
     Returns
     -------
     na_b_latest_version : 1D numpy bool array.
-    '''
-    '''
-    PROPOSAL: Temporary variable for "itemIdArray == uii".
     '''
     # LV = Latest Version
     # UII = Unique Item ID
