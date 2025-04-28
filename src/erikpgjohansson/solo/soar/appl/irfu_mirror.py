@@ -48,6 +48,11 @@ include: bool
         return True
     elif instrument == 'SWA' and level in ['L1', 'L2']:
         return True
+    elif dsid == 'SOLO_L3_SWA-EAS-NMPAD-PSD':
+        # NOTE: One can falsely be led to believe that this is the only L3
+        # SWA DSID, but that is wrong. There is at least also
+        # "solo_L3_swa-his-comp-10min".
+        return True
     else:
         return False
 
