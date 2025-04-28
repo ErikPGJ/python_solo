@@ -58,18 +58,18 @@ class DatasetFilename:
     '''
 
     def __init__(
-        self, dsid, timeIntervalStr, timeVector1, itemId, version_str,
+        self, dsid, time_interval_str, timeVector1, itemId, version_str,
     ):
         # Always upper case. (Excludes CDAG.)
-        self.dsid            = dsid
-        self.timeIntervalStr = timeIntervalStr
+        self.dsid              = dsid
+        self.time_interval_str = time_interval_str
         # Tuple.(year, month, day, hour, minute, second)
-        self.timeVector1     = timeVector1
+        self.timeVector1       = timeVector1
         # String. Ex: 'solo_HK_rpw-bia_20200301'
         # As defined by SDT.
-        self.itemId          = itemId
+        self.itemId            = itemId
         # String. Ex: '02'.
-        self.version_str     = version_str
+        self.version_str       = version_str
 
     def __eq__(self, other):
         '''Useful for tests.
@@ -84,7 +84,7 @@ class DatasetFilename:
         s = (
             f'{type(self).__name__}('
             f'dsid="{self.dsid}", '
-            f'timeIntervalStr="{self.timeIntervalStr}", '
+            f'time_interval_str="{self.time_interval_str}", '
             f'timeVector1={self.timeVector1}, '
             f'itemId="{self.itemId}", '
             f'version_str="{self.version_str}"'
@@ -225,7 +225,7 @@ class DatasetFilename:
             return None
 
         dsfn = DatasetFilename(
-            dsid=dsid, timeIntervalStr=time_interval_str,
+            dsid=dsid, time_interval_str=time_interval_str,
             version_str=version_str, timeVector1=tv1, itemId=itemId,
         )
         return dsfn
