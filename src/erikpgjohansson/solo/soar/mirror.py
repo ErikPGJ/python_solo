@@ -80,7 +80,7 @@ PROPOSAL: Use timestamped directory under download directory.
              If there are remaining datasets there, then they will be
              identified as being local datasets that are part of the mirror.
 
-PROPOSAL: erikpgjohansson.solo.soar.utils.log_DST() returns string that can be
+PROPOSAL: erikpgjohansson.solo.soar.dst.log_DST() returns string that can be
           indented by caller.
 
 PROPOSAL: Abbreviations for specific subsets.
@@ -209,29 +209,8 @@ def sync(
             NOTE: Should only happen if datasetsSubsetFunc() uses time.
 
     BUG: Gets frequent error messages when calling from bash/python wrapper
-    script so_irfu_soar_sync.py on brain. Works better on spis(?). /2021-01-19
-    """""""
-    Traceback (most recent call last):
-      File "/amd/hem/export/home/erjo/bin/global/so_irfu_soar_sync.py",
-      line 60, in <module>
-        main(sys.argv[1:])   # # NOTE: sys.argv[0] är inget CLI-argument.
-        ==> Ignorera
-      File "/amd/hem/export/home/erjo/bin/global/so_irfu_soar_sync.py",
-      line 56, in main
-        erikpgjohansson.so.irfu_soar_mirror.sync()
-      File "/home/erjo/python_copy/erikpgjohansson/so/irfu_soar_mirror.py",
-      line 33, in sync
-        nMaxNetDatasetsToRemove = 20)
-      File "/home/erjo/python_copy/erikpgjohansson/so/soar_mirror.py",
-      line 172, in sync
-        localDst = erikpgjohansson.so.soar_utils.derive_DST_from_dir(syncDir)
-      File "/home/erjo/python_copy/erikpgjohansson/so/soar_utils.py",
-      line 383, in derive_DST_from_dir
-        fileSizeList    += [os.stat(filePath).st_size]
-    PermissionError: [Errno 13] Permission denied:
-    '/data/solo/soar/swa/L2/swa-eas1-nm3d-psd/2020/10/
-    solo_L2_swa-eas1-nm3d-psd_20201011T000035-20201011T235715_V01.cdf'
-    """""""
+         script so_irfu_soar_sync.py on brain. Works better on spis(?).
+         /2021-01-19
     PROPOSAL: Try to trigger automount.
         NOTE: create_pull_push_sync_cmd: ls "$local_path" >> /dev/null
         PROPOSAL: Change current directory.
@@ -299,8 +278,8 @@ def sync(
         # included so that they can be removed (or kept in the rare but
         # possible case of SOAR down-versioning datasets).
         L.info('Producing table of pre-existing local datasets.')
-        localDst = utils.derive_DST_from_dir(syncDir)
-        utils.log_DST(
+        localDst = erikpgjohansson.solo.soar.dst.derive_DST_from_dir(syncDir)
+        erikpgjohansson.solo.soar.dst.log_DST(
             localDst, 'Pre-existing local datasets that should be synced',
         )
 
@@ -309,7 +288,7 @@ def sync(
         # ============
         L.info('Downloading SDT (SOAR Datasets Table).')
         sdtDst = dwld.download_SDT_DST(sodl)
-        utils.log_DST(
+        erikpgjohansson.solo.soar.dst.log_DST(
             sdtDst,
             'SDT (SOAR Datasets Table):'
             ' Synced and non-synced, all dataset versions,'
@@ -329,7 +308,7 @@ def sync(
         )
 
         refDst = _calculate_reference_DST(sdtDst, datasetsSubsetFunc)
-        utils.log_DST(
+        erikpgjohansson.solo.soar.dst.log_DST(
             refDst,
             'Reference datasets that should be synced with local datasets',
         )
@@ -397,7 +376,7 @@ def offline_cleanup(
     )
 
     L.info('Producing table of pre-existing local datasets.')
-    localDst = utils.derive_DST_from_dir(syncDir)
+    localDst = erikpgjohansson.solo.soar.dst.derive_DST_from_dir(syncDir)
 
     refDst = _calculate_reference_DST(localDst, datasetsSubsetFunc)
     refMissingDst, localExcessDst = _calculate_sync_dir_update(
@@ -513,10 +492,10 @@ def _calculate_sync_dir_update(
     refMissingDst = refDst.index(bSoarMissing)
     localExcessDst = localDst.index(bLocalExcess)
 
-    utils.log_DST(
+    erikpgjohansson.solo.soar.dst.log_DST(
         refMissingDst, 'Online SOAR datasets that need to be downloaded',
     )
-    utils.log_DST(
+    erikpgjohansson.solo.soar.dst.log_DST(
         localExcessDst, 'Local datasets that need to be removed',
     )
 

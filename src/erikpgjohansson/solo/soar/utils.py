@@ -7,16 +7,12 @@ Initially created 2020-12-17 by Erik P G Johansson, IRF Uppsala, Sweden.
 
 
 import codetiming
-import collections
 import concurrent.futures
 import datetime
 import erikpgjohansson.solo.asserts
-import erikpgjohansson.solo.metadata
-import erikpgjohansson.solo.soar.dst
 import erikpgjohansson.solo.soar.dwld as dwld
 import logging
 import numpy as np
-import os
 import threading
 
 
@@ -31,11 +27,6 @@ PROPOSAL: Split up ~SOAR-related functionality into multiple modules.
     PROPOSAL: so.soar.download/connect/network/access or so.soar (only)
     PROPOSAL: so.soar.mirror
     PROPOSAL: so.soar.misc, so.soar.other, so.soar.utils
-    PROPOSAL: Move dependence on erikpgjohansson.solo.soar.dst to
-              erikpgjohansson.solo.soar.dst.
-        PRO:: erikpgjohansson.solo.soar.dst is used by this module but can not
-              use erikpgjohansson.solo.soar.utils.assert_1D_NA() due to
-              circular imports.
 
 NOTE: download_latest_dataset() downloads latest dataset
           version, not specified dataset version?
@@ -528,145 +519,6 @@ def find_latest_versions(
     assert np.unique(na_item_id2).size == na_item_id2.size
 
     return na_b_latest_version
-
-
-@codetiming.Timer('derive_DST_from_dir', logger=None)
-def derive_DST_from_dir(rootDir):
-    '''
-    Derive a DST from a directory tree datasets. Searches directory
-    recursively.
-
-    NOTE: Ignores filenames that can not be parsed as datasets.
-
-
-    Parameters
-    ----------
-    rootDir : String
-
-    Returns
-    -------
-    dst
-    '''
-    erikpgjohansson.solo.asserts.is_dir(rootDir)
-
-    fileNameList    = []
-    filePathList    = []
-    fileVerList     = []
-    itemIdList      = []
-    fileSizeList    = []
-    instrumentList  = []
-    levelList       = []
-    beginTimeFnList = []    # FN = File Name. Time derived from filename.
-    for (dirPath, _subDirNameList, dirFileNamesList) in os.walk(rootDir):
-        for fileName in dirFileNamesList:
-
-            dsfn = \
-                erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
-                    fileName,
-                )
-            # IMPLEMENTATION NOTE:
-            # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
-            # returns None for non-parsable filenames.
-            if dsfn:
-                _dataSrc, level, instrument, _descriptor = \
-                    erikpgjohansson.solo.metadata.parse_DSID(dsfn.dsid)
-
-                filePath = os.path.join(dirPath, fileName)
-                filePathList   += [filePath]
-                fileNameList   += [fileName]
-                fileVerList    += [int(dsfn.version_str)]
-                itemIdList     += [dsfn.item_id]
-                fileSizeList   += [os.stat(filePath).st_size]
-                instrumentList += [instrument]
-                levelList      += [level]
-
-                # NOTE: datetime.datetime requires integer seconds+microseconds
-                # in separate arguments (as integers). Filenames should only
-                # contain time with microseconds=0 so we ignore them.
-                tv1    = list(dsfn.tv1)
-                tv1[5] = int(tv1[5])
-                beginTimeFnList += [datetime.datetime(*tv1)]
-
-    dst = erikpgjohansson.solo.soar.dst.DatasetsTable({
-        'file_name':        np.array(fileNameList,    dtype=object),
-        'file_path':        np.array(filePathList,    dtype=object),
-        'item_version':     np.array(fileVerList,     dtype='int64'),
-        'item_id':          np.array(itemIdList,      dtype=object),
-        'file_size':        np.array(fileSizeList,    dtype='int64'),
-        'begin_time_FN':    np.array(beginTimeFnList, dtype='datetime64[ms]'),
-        'instrument':       np.array(instrumentList,  dtype=object),
-        'processing_level': np.array(levelList,       dtype=object),
-    })
-    # NOTE: Key name "processing_level" chosen to be in agreement with
-    # erikpgjohansson.solo.soar.dwld.SoarDownloader.download_SDT_DST().
-    return dst
-
-
-def log_DST(dst: erikpgjohansson.solo.soar.dst.DatasetsTable, title: str):
-    '''
-    Log the content of a table of datasets. Assumes that it contains certain
-    fields.
-    '''
-    '''
-    PROPOSAL: Log amount of data per combination of level and instrument.
-    PROPOSAL: Log amount of data per DSID.
-    PROPOSAL: Log number of datasets per DSID.
-    '''
-    assert isinstance(dst, erikpgjohansson.solo.soar.dst.DatasetsTable)
-
-    SEPARATOR_LENGTH = 80
-
-    def sep():
-        L.info('=' * SEPARATOR_LENGTH)
-
-    def ssl(set_ls):
-        '''Convert set or list/tuple to string for logging.'''
-        # IMPLEMENTATION NOTE: Should not sort since that might not always
-        # be desirable (e.g. logging combinations of level and instrument).
-        # Caller should sort the argument first if needed.
-        if set_ls:
-            return ', '.join(set_ls)
-        else:
-            return '(none)'
-
-    L = logging.getLogger(__name__)
-
-    bytes_tot = dst['file_size'].sum()
-    n_datasets = dst['file_size'].size
-    gb_tot = bytes_tot / 2**30
-
-    set_instr = set(dst['instrument'])
-    set_level = set(dst['processing_level'])
-    cnt_level_instr = collections.Counter(
-        zip(dst['processing_level'], dst['instrument']),
-    )
-
-    # BTF = begin_time_FN
-    na_btf = dst['begin_time_FN']
-    assert na_btf.dtype == np.dtype('datetime64[ms]')
-    na_btf_nonnull = na_btf[~np.isnat(na_btf)]
-    n_btf_null = na_btf[np.isnat(na_btf)].size
-
-    sep()
-    L.info(title)
-    L.info('-'*len(title))
-    L.info(f'Number of datasets:       {n_datasets:d} datasets')
-    L.info(f'Total amount of data:     {gb_tot:.2f} [GiB]')
-    L.info(f'Unique instruments:       {ssl(sorted(set_instr))}')
-    L.info(f'Unique processing levels: {ssl(sorted(set_level))}')
-    L.info('begin_time_FN:')
-    L.info(f'    #NaT: {n_btf_null} datasets')
-    if na_btf_nonnull.size > 0:
-        # NOTE: na_btf_nonnull.min() crashes if empty array.
-        L.info(f'    Min: {na_btf_nonnull.min()}')
-        L.info(f'    Max: {na_btf_nonnull.max()}')
-    else:
-        L.info('    (No datasets without NaT)')
-    L.info('Unique combinations of instrument and processing level:')
-    for (level, instr) in sorted(cnt_level_instr):
-        n = cnt_level_instr[(level, instr)]
-        L.info(f'    {level:4} {instr:3}: {n:5} datasets')
-    sep()
 
 
 def log_codetiming():

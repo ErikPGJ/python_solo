@@ -87,3 +87,34 @@ def test_DatasetsTable():
     test2()
     test_index()
     test_add()
+
+
+def test_log_DST():
+    '''Test if crashes, and for manually inspecting the log output.'''
+    def test(ls_file_size, ls_begin_time_fn, ls_instrument, processing_level):
+        dc = {
+            'file_size':
+                np.array(ls_file_size, dtype='int64'),
+            'begin_time_FN':
+                np.array(ls_begin_time_fn, dtype='datetime64[ms]'),
+            'instrument':
+                np.array(ls_instrument, dtype=object),
+            'processing_level':
+                np.array(processing_level, dtype=object),
+        }
+        dst = erikpgjohansson.solo.soar.dst.DatasetsTable(dc)
+        erikpgjohansson.solo.soar.dst.log_DST(dst, '<title string>')
+
+    DT64_NAT = np.datetime64('NaT')
+    DT64_1 = np.datetime64('2020-01-01T00:00:00')
+    DT64_2 = np.datetime64('2021-01-01T00:00:00')
+
+    test([], [], [], [])
+    test([1e6], [DT64_1], ['MAG'], ['L1'])
+    test([1e6], [DT64_NAT], ['MAG'], ['L1'])
+    test(
+        [1e6, 10e6, 100e6, 1000e9],
+        [DT64_1, DT64_1, DT64_2, DT64_NAT],
+        ['MAG', 'EPD', 'EPD', 'EPD'],
+        ['L1', 'L2', 'L2', 'L2'],
+    )
