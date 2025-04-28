@@ -17,14 +17,14 @@ def test_DatasetFilename___repr():
 
 def test_DatasetFilename():
 
-    def test(filename, expDsfn):
-        actDsfn = \
+    def test(filename, exp_dsfn):
+        act_dsfn = \
             erikpgjohansson.solo.metadata.DatasetFilename.parse_filename(
                 filename,
             )
-        assert actDsfn == expDsfn
+        assert act_dsfn == exp_dsfn
 
-        if actDsfn is not None:
+        if act_dsfn is not None:
             # ==============================================================
             # Assert consistency between
             # erikpgjohansson.solo.metadata.DatasetFilename.parse_filename()
@@ -32,10 +32,10 @@ def test_DatasetFilename():
             # ==============================================================
             # II = Item ID
             actIiResult = erikpgjohansson.solo.metadata.parse_item_ID(
-                actDsfn.itemId,
+                act_dsfn.itemId,
             )
-            assert actIiResult['DSID']          == actDsfn.dsid
-            assert actIiResult['time vector 1'] == actDsfn.timeVector1
+            assert actIiResult['DSID']          == act_dsfn.dsid
+            assert actIiResult['time vector 1'] == act_dsfn.timeVector1
 
     test(
         'solo_L3_epd-ept-1day_2024_V11.cdf',
@@ -148,9 +148,9 @@ def test_DatasetFilename():
 
 
 def test_parse_item_ID():
-    def test(itemId, expResult):
-        actResult = erikpgjohansson.solo.metadata.parse_item_ID(itemId)
-        assert actResult == expResult
+    def test(item_id, exp_rv):
+        act_rv = erikpgjohansson.solo.metadata.parse_item_ID(item_id)
+        assert act_rv == exp_rv
 
     test(
         'solo_HK_rpw-bia_20200301', {
@@ -191,16 +191,16 @@ def test_parse_item_ID():
 
 
 def test_parse_time_interval_str():
-    def test(s, expTv):
-        if type(expTv) is tuple and len(expTv) == 6:
-            assert all(type(x) is int for x in expTv[0:5])
-            assert type(expTv[5]) is float
-        if type(expTv) is tuple and len(expTv) == 1:
-            assert type(expTv[0]) is int
+    def test(s, exp_tv):
+        if type(exp_tv) is tuple and len(exp_tv) == 6:
+            assert all(type(x) is int for x in exp_tv[0:5])
+            assert type(exp_tv[5]) is float
+        if type(exp_tv) is tuple and len(exp_tv) == 1:
+            assert type(exp_tv[0]) is int
 
-        actTv = erikpgjohansson.solo.metadata._parse_time_interval_str(s)
+        act_tv = erikpgjohansson.solo.metadata._parse_time_interval_str(s)
 
-        assert actTv == expTv
+        assert act_tv == exp_tv
 
     test('20200623',                          (2020, 6, 23,  0,  0,  0.0))
     test('20200623T112233',                   (2020, 6, 23, 11, 22, 33.0))
@@ -217,9 +217,9 @@ def test_parse_time_interval_str():
 
 def test_parse_DSID():
 
-    def test(dsid, expResult):
-        actResult = erikpgjohansson.solo.metadata.parse_DSID(dsid)
-        assert actResult == expResult
+    def test(dsid, exp_rv):
+        act_rv = erikpgjohansson.solo.metadata.parse_DSID(dsid)
+        assert act_rv == exp_rv
 
     test(
         'SOLO_L2_RPW-LFR-SBM2-CWF-E',
