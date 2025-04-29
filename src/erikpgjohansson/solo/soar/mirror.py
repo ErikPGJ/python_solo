@@ -5,6 +5,7 @@ Initially created 2020-12-21 by Erik P G Johansson, IRF Uppsala, Sweden.
 '''
 
 
+import abc
 import codetiming
 import erikpgjohansson.solo.asserts
 import erikpgjohansson.solo.iddt
@@ -112,19 +113,50 @@ PROPOSAL: Download exact version of dataset, not the latest version.
 
 PROPOSAL: Make code robust w.r.t. network error, file not present at SOAR.
 
-PROPOSAL: Replace datasetsSubsetFunc with class.
-    CON: Only one function replaced by one method.
-    PRO: Can potentially configure (set values) in constructor.
-    PRO: Better documentation of method/function signature.
-    PRO: Can verify that class has expected superclass.
-    PRO: Can implement class which takes behaviour from configuration file.
-    PROPOSAL: Use class for returning other configuration values.
+PROPOSAL: Move DSSS definition to other module.
+    NOTE: Affects interface.
+    TODO-DEC: Which module?!
+        ~data
 '''
+
+
+class DatasetsSubset(abc.ABC):
+    '''Class for specifying a subset of datasets via a method.'''
+    '''
+    TODO-DEC: Name?
+        ~Datasets
+        ~Include
+        ~Subset
+        DSSS = DataSets SubSet
+    '''
+
+    @abc.abstractmethod
+    def dataset_in_subset(
+        self, instrument: str, level: str, begin_dt64: np.ndarray, dsid: str,
+    ) -> bool:
+        '''
+        Function which determines whether a specific dataset should be included
+        in the sync.
+
+        Parameters
+        ----------
+        instrument
+        level
+        begin_dt64 : The beginning timestamp of the dataset.
+        dsid
+
+        Returns
+        -------
+        Whether a dataset with the specified characteristics should be included
+        in the sync. Note that this may, depending on syncing settings, mean
+        that a dataset should also be excluded in the local mirror.
+        '''
+        raise NotImplementedError()
 
 
 @codetiming.Timer('sync', logger=None)
 def sync(
-    sync_dir, temp_download_dir, datasetsSubsetFunc: typing.Callable,
+    sync_dir, temp_download_dir, dsss: DatasetsSubset,
     delete_outside_subset=False,
     n_max_datasets_net_remove=10,
     removal_dir=None,
@@ -142,20 +174,19 @@ def sync(
     sync_dir : String. Path.
     temp_download_dir : String. Path.
         Must be empty on datasets. Otherwise those will be moved too.
-    datasetsSubsetFunc : Function (instrument=str, level=str, ...) --> bool
-        Function which determines whether a specific dataset should be included
-        in the sync.
+    dsss : Object which determines whether a specific dataset should be
+        included in the sync.
     delete_outside_subset : Boolean
-        Whether local datasets for which datasetsSubsetFunc returns false
+        Whether local datasets for which "dsss" returns false
         should be deleted or not, even if there is no newer version.
         NOTE: This distinction is important when one wants to
         update only some of the local datasets but not other (e.g. for speed)
-        by temporarily using another function datasetsSubsetFunc.
+        by temporarily using another function "dsss".
     n_max_datasets_net_remove : int
         Maximum permitted net number of deleted datasets ("n_deleted_datasets
         minus n_added_datasets"). This is a failsafe (assertion), to protect
         against deleting too many slow-to-redownload datasets due to bugs or
-        misconfiguration (e.g. "datasetsSubsetFunc").
+        misconfiguration (e.g. "dsss").
     removal_dir
         None or path to "removal directory" to which datasets are moved before
         the directory itself is itself optionally removed (depends on argument
@@ -190,7 +221,7 @@ def sync(
         recognized by
         erikpgjohansson.solo.metadata.DatasetFilename.parse_filename() among
         the SOAR datasets.
-            NOTE: Should only happen if datasetsSubsetFunc() uses time.
+            NOTE: Should only happen if DSSS uses time.
 
     BUG: Gets frequent error messages when calling from bash/python wrapper
          script so_irfu_soar_sync.py on brain. Works better on spis(?).
@@ -199,7 +230,7 @@ def sync(
         NOTE: create_pull_push_sync_cmd: ls "$local_path" >> /dev/null
         PROPOSAL: Change current directory.
         PROPOSAL: List files in directory.
-    PROPOSAL: Assertion for datasetsSubsetFunc never return True
+    PROPOSAL: Assertion for dsss never returning True
         (for any of the calls made).
 
     PROPOSAL: Do not download all missing datasets at once.
@@ -246,7 +277,7 @@ def sync(
         assert isinstance(sodl, dwld.SoarDownloader)
         erikpgjohansson.solo.asserts.is_dir(sync_dir)
         erikpgjohansson.solo.asserts.is_dir(temp_download_dir)
-        assert callable(datasetsSubsetFunc)
+        assert isinstance(dsss, DatasetsSubset)
         assert type(n_max_datasets_net_remove) in [int, float]
 
         # IMPLEMENTATION NOTE: Useful to print Python executable to verify that
@@ -291,7 +322,7 @@ def sync(
             ' (1) SOAR, or (2) this software.'
         )
 
-        dst_ref = _calculate_reference_DST(dst_sdt, datasetsSubsetFunc)
+        dst_ref = _calculate_reference_DST(dst_sdt, dsss)
         erikpgjohansson.solo.soar.dst.log_DST(
             dst_ref,
             'Reference datasets that should be synced with local datasets',
@@ -300,7 +331,7 @@ def sync(
         dst_soar_missing, dst_local_excess = _calculate_sync_dir_update(
             dst_ref=dst_ref,
             dst_local=dst_local,
-            datasetsSubsetFunc=datasetsSubsetFunc,
+            dsss=dsss,
             b_delete_outside_subset=delete_outside_subset,
             n_max_datasets_net_remove=n_max_datasets_net_remove,
         )
@@ -323,7 +354,7 @@ def sync(
 
 
 def offline_cleanup(
-    sync_dir, temp_download_dir, datasetsSubsetFunc,
+    sync_dir, temp_download_dir, dsss: DatasetsSubset,
     b_delete_outside_subset=False,
     removal_dir=None,
     remove_removal_dir=False,
@@ -341,6 +372,7 @@ def offline_cleanup(
         after having killed the process, or after a bug), and
     (2) inserting manually downloaded datasets.
     '''
+    assert isinstance(dsss, DatasetsSubset)
 
     L = logging.getLogger(__name__)
 
@@ -362,11 +394,11 @@ def offline_cleanup(
     L.info('Producing table of pre-existing local datasets.')
     dst_local = erikpgjohansson.solo.soar.dst.derive_DST_from_dir(sync_dir)
 
-    dst_ref = _calculate_reference_DST(dst_local, datasetsSubsetFunc)
+    dst_ref = _calculate_reference_DST(dst_local, dsss)
     dst_ref_missing, dst_local_excess = _calculate_sync_dir_update(
         dst_ref=dst_ref,
         dst_local=dst_local,
-        datasetsSubsetFunc=datasetsSubsetFunc,
+        dsss=dsss,
         b_delete_outside_subset=b_delete_outside_subset,
         n_max_datasets_net_remove=float("Inf"),
     )
@@ -389,7 +421,7 @@ def offline_cleanup(
 
 
 @codetiming.Timer('_calculate_reference_DST', logger=None)
-def _calculate_reference_DST(dst, datasetsSubsetFunc: typing.Callable):
+def _calculate_reference_DST(dst, dsss: DatasetsSubset):
     ''''''
     '''
     PROPOSAL: Return logical indices, not DST.
@@ -397,7 +429,7 @@ def _calculate_reference_DST(dst, datasetsSubsetFunc: typing.Callable):
     # =====================================================================
     # Select subset of SOAR datasets (item IDs) to be synced (all versions)
     # =====================================================================
-    na_b_subset = _find_DST_subset(datasetsSubsetFunc, dst)
+    na_b_subset = _find_DST_subset(dsss, dst)
     dst_subset = dst.index(na_b_subset)
 
     # =========================================================================
@@ -416,7 +448,7 @@ def _calculate_reference_DST(dst, datasetsSubsetFunc: typing.Callable):
 
 @codetiming.Timer('_calculate_sync_dir_update', logger=None)
 def _calculate_sync_dir_update(
-    dst_ref, dst_local, datasetsSubsetFunc: typing.Callable,
+    dst_ref, dst_local, dsss: DatasetsSubset,
     b_delete_outside_subset: bool,
     n_max_datasets_net_remove: typing.Union[int, float],
 ):
@@ -439,16 +471,17 @@ def _calculate_sync_dir_update(
     '''
     assert isinstance(dst_ref, erikpgjohansson.solo.soar.dst.DatasetsTable)
     assert isinstance(dst_local, erikpgjohansson.solo.soar.dst.DatasetsTable)
+    assert isinstance(dsss, DatasetsSubset)
     assert type(b_delete_outside_subset) is bool
     assert (type(n_max_datasets_net_remove) is int) \
            or (n_max_datasets_net_remove == float('inf'))
 
     # ASSERT: The list of reference datasets is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
-    # files due to e.g. a faulty datasetsSubsetFunc.
+    # files due to e.g. a faulty DSSS.
     assert dst_ref.n_rows > 0, (
         'Trying to sync with empty subset of reference datasets.'
-        ' Argument "datasetsSubsetFunc" could be faulty.'
+        ' Argument "dsss" could be faulty.'
     )
 
     L = logging.getLogger(__name__)
@@ -466,8 +499,8 @@ def _calculate_sync_dir_update(
         )
     else:
         # "Hide"/ignore local datasets which are not recognized by
-        # "datasetsSubsetFunc".
-        na_b_local_subset = _find_DST_subset(datasetsSubsetFunc, dst_local)
+        # DSSS.
+        na_b_local_subset = _find_DST_subset(dsss, dst_local)
         dst_local = dst_local.index(na_b_local_subset)
         L.info(
             'NOTE: Only syncing against subset of local datasets.'
@@ -706,19 +739,10 @@ def _find_file_name_size_difference(
 
 @codetiming.Timer('_find_DST_subset', logger=None)
 def _find_DST_subset(
-    datasetsSubsetFunc: typing.Callable,
-    dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
+    dsss: DatasetsSubset, dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
 ):
     '''
-    Returns indices to datasets that are permitted by datasetsSubsetFunc.
-    Basically just iterates over datasetsSubsetFunc.
-
-
-    Parameters
-    ----------
-    datasetsSubsetFunc : Function handle.
-        Checks whether a given dataset should be included.
-
+    Returns logical indices to datasets that are permitted by a DSSS.
 
     Returns
     -------
@@ -731,6 +755,7 @@ def _find_DST_subset(
             CON: erikpgjohansson.solo.soar.dst already contains code for
                  non-generic DSTs.
         CON: Only used in this module.
+        CON: Needs to recognize DSSS (uses definition; risk of cyclic imports).
     '''
     na_instrument = dst['instrument']
     na_level      = dst['processing_level']
@@ -745,7 +770,7 @@ def _find_DST_subset(
 
     na_b_subset = np.zeros(na_instrument.shape, dtype=bool)
     for i in range(na_instrument.size):
-        na_b_subset[i] = datasetsSubsetFunc(
+        na_b_subset[i] = dsss.dataset_in_subset(
             instrument=na_instrument[i],
             level     =na_level[i],
             begin_dt64=na_dt64_begin[i],

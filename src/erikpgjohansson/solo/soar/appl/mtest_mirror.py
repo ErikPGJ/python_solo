@@ -11,7 +11,7 @@ Initially created 2021-04-23 by Erik P G Johansson, IRF Uppsala, Sweden.
 import datetime
 import erikpgjohansson.solo.soar.mirror
 import logging
-import numpy
+import numpy as np
 import os
 
 
@@ -31,43 +31,34 @@ NOTE: Hard-coded local directory.
 '''
 
 
-def datasets_subset_func(instrument, level, begin_dt64, dsid):
-    '''
-Function which determines whether a specific dataset is included/excluded in
-the sync.
+class DatasetsSubset(erikpgjohansson.solo.soar.mirror.DatasetsSubset):
 
+    def dataset_in_subset(self, instrument, level, begin_dt64, dsid):
+        assert type(instrument) is str
+        assert type(level) is str
+        assert isinstance(begin_dt64, np.datetime64)
+        assert type(dsid) is str
 
-Parameters
-----------
-instrument : String
-level      : String
+        # NOTE: const.LS_SOAR_INSTRUMENTS determines which instruments can be
+        # downloaded.
+        # solo_L2_mag-rtn-burst_20220311_V01.cdf
 
+        # NOTE: Should be configured to match only a small non-zero number of
+        # datasets.
+        START_TIME_DT64 = np.datetime64('2020-08-13T00:00:00.000')
+        STOP_TIME_DT64  = np.datetime64('2020-08-14T00:00:00.000')
 
-Returns
--------
-include: bool
-    Whether datasets should be included or not.
-'''
-    # NOTE: const.LS_SOAR_INSTRUMENTS determines which instruments can be
-    # downloaded.
-    # solo_L2_mag-rtn-burst_20220311_V01.cdf
+        # LS_LEVELS = ['LL02', 'L1', 'L2']
+        LS_LEVELS = ['L1']
+        if START_TIME_DT64 <= begin_dt64 < STOP_TIME_DT64:
+            if (instrument == 'EPD') and (level in LS_LEVELS):
+                return True
+            # if (instrument == 'MAG') and (level in LS_LEVELS):
+            #     return True
+            if dsid == 'SOLO_LL02_EPD-EPT-ASUN-RATES':
+                return True
 
-    # NOTE: Should be configured to match only a small non-zero number of
-    # datasets.
-    START_TIME_DT64 = numpy.datetime64('2020-08-13T00:00:00.000')
-    STOP_TIME_DT64  = numpy.datetime64('2020-08-14T00:00:00.000')
-
-    # LS_LEVELS = ['LL02', 'L1', 'L2']
-    LS_LEVELS = ['L1']
-    if START_TIME_DT64 <= begin_dt64 < STOP_TIME_DT64:
-        if (instrument == 'EPD') and (level in LS_LEVELS):
-            return True
-        # if (instrument == 'MAG') and (level in LS_LEVELS):
-        #     return True
-        if dsid == 'SOLO_LL02_EPD-EPT-ASUN-RATES':
-            return True
-
-    return False
+        return False
 
 
 def sync():
@@ -92,7 +83,7 @@ def sync():
     erikpgjohansson.solo.soar.mirror.sync(
         sync_dir                  = os.path.join(ROOT_DIR, 'mirror'),
         temp_download_dir         = os.path.join(ROOT_DIR, 'download'),
-        datasetsSubsetFunc        = datasets_subset_func,
+        dsss                      = DatasetsSubset(),
         delete_outside_subset     = True,
         n_max_datasets_net_remove = 25,
         removal_dir               = removal_dir,

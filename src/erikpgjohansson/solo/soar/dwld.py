@@ -124,8 +124,7 @@ class SoarDownloaderImpl(SoarDownloader):
         # URL to a smaller table, covering only multiple specified
         # instruments, in order to avoid SOAR bug that truncates the
         # datasets list. These instruments must thus be consistent with (a
-        # superset of) the instruments for which "datasetsSubsetFunc" can
-        # ever return true.
+        # superset of) the instruments for which DSSS can ever return true.
         # url = (
         #     f'{const.SOAR_TAP_URL}/tap/sync?REQUEST=doQuery'
         #     '&LANG=ADQL&FORMAT=json&QUERY=SELECT+*+FROM+v_public_files+WHERE+'

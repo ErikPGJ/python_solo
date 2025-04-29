@@ -17,14 +17,22 @@ import os
 PROPOSAL: Include optional (manually triggered) test which actually mirrors
           and downloads data from SOAR.
     CON: Can not assume exactly which datasets are available at SOAR.
+
+PROPOSAL: Split up test functions.
+PROPOSAL: Split up into multiple modules.
+    NOTE: _DatasetsSubsetEverything needed by multiple modules.
 '''
+
+
+class _DatasetsSubsetEverything(
+    erikpgjohansson.solo.soar.mirror.DatasetsSubset,
+):
+    def dataset_in_subset(self, instrument, level, begin_dt64, dsid):
+        return True
 
 
 def test_sync(tmp_path):
     dp = tests.DirProducer(tmp_path)
-
-    def DIF_everything(instrument, level, begin_dt64, dsid):
-        return True
 
     def test0():
         root_dir = dp.get_new_dir()
@@ -56,7 +64,7 @@ def test_sync(tmp_path):
         erikpgjohansson.solo.soar.mirror.sync(
             sync_dir=sync_dir,
             temp_download_dir=download_dir,
-            datasetsSubsetFunc=DIF_everything,
+            dsss=_DatasetsSubsetEverything(),
             delete_outside_subset=False,
             n_max_datasets_net_remove=10,
             removal_dir=None,
@@ -87,8 +95,11 @@ def test_sync(tmp_path):
         )
 
     def test1():
-        def DIF(instrument, level, begin_dt64, dsid):
-            return instrument != 'EUI'
+        class DatasetsSubsetNotEui(
+            erikpgjohansson.solo.soar.mirror.DatasetsSubset,
+        ):
+            def dataset_in_subset(self, instrument, level, begin_dt64, dsid):
+                return instrument != 'EUI'
 
         L2_MAG_V02 = [
             "2022-04-12T16:39:03.935", "2020-07-20T00:00:00.0", "SCI",
@@ -169,7 +180,7 @@ def test_sync(tmp_path):
         erikpgjohansson.solo.soar.mirror.sync(
             sync_dir=sync_dir,
             temp_download_dir=download_dir,
-            datasetsSubsetFunc=DIF,
+            dsss=DatasetsSubsetNotEui(),
             delete_outside_subset=False,
             n_max_datasets_net_remove=10,
             removal_dir=None,
@@ -220,9 +231,6 @@ def test_sync(tmp_path):
 def test_offline_cleanup(tmp_path):
     dp = tests.DirProducer(tmp_path)
     # TODO: Check misplaced files.
-
-    def DIF(instrument, level, begin_dt64, dsid):
-        return True
 
     def test0():
 
@@ -279,7 +287,7 @@ def test_offline_cleanup(tmp_path):
         )
 
         erikpgjohansson.solo.soar.mirror.offline_cleanup(
-            sync_dir, download_dir, DIF,
+            sync_dir, download_dir, _DatasetsSubsetEverything(),
             removal_dir=removal_dir, remove_removal_dir=True,
         )
 
@@ -337,8 +345,8 @@ def test_offline_cleanup(tmp_path):
             },
         )
         erikpgjohansson.solo.soar.mirror.offline_cleanup(
-            sync_dir, download_dir, DIF, removal_dir=removal_dir,
-            remove_removal_dir=True,
+            sync_dir, download_dir, _DatasetsSubsetEverything(),
+            removal_dir=removal_dir, remove_removal_dir=True,
         )
         tests.assert_FS(
             root_dir, {

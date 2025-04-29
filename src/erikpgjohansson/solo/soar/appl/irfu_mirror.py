@@ -11,50 +11,42 @@ Initially created 2021-01-18 by Erik P G Johansson, IRF Uppsala, Sweden.
 import datetime
 import erikpgjohansson.solo.soar.mirror
 import logging
+import numpy as np
 import os
 
 
 '''
-PROPOSAL: sync() arguments for paths.'''
-
-
-def datasets_subset_func(instrument, level, begin_dt64, dsid):
-    '''
-Function that determines whether a specific dataset is included/excluded in
-the sync.
-
-Defines the subset of SOAR datasets that should be "officially" synced for
-IRFU staff (nas24:/data/solo/soar/).
-
-
-Parameters
-----------
-instrument : String
-level      : String
-
-
-Returns
--------
-include: bool
-    Whether datasets should be included or not.
 '''
-    # NOTE: Include all time periods. ==> Do not check begin_dt64 (for now).
 
-    if dsid in ('SOLO_LL02_SWA-PAS-MOM', 'SOLO_LL02_MAG'):
-        return True
-    elif instrument == 'EPD' and level in ['L1', 'L2']:
-        return True
-    elif instrument == 'MAG' and level in ['L2']:
-        return True
-    elif instrument == 'SWA' and level in ['L1', 'L2']:
-        return True
-    elif dsid == 'SOLO_L3_SWA-EAS-NMPAD-PSD':
-        # NOTE: One can falsely be led to believe that this is the only L3
-        # SWA DSID, but that is wrong. There is at least also
-        # "solo_L3_swa-his-comp-10min".
-        return True
-    else:
-        return False
+
+class DatasetsSubset(erikpgjohansson.solo.soar.mirror.DatasetsSubset):
+
+    def dataset_in_subset(self, instrument, level, begin_dt64, dsid):
+        # IMPLEMENTATION NOTE: Assertions to ensure that a bad interface
+        # (e.g. interface changes, bad calls) does not accidentally lead to
+        # returning False, leading to deleting many datasets.
+        assert type(instrument) is str
+        assert type(level) is str
+        assert isinstance(begin_dt64, np.datetime64)
+        assert type(dsid) is str
+
+        # NOTE: Include all time periods. ==> Do not check begin_dt64.
+
+        if dsid in ('SOLO_LL02_SWA-PAS-MOM', 'SOLO_LL02_MAG'):
+            return True
+        elif instrument == 'EPD' and level in ['L1', 'L2']:
+            return True
+        elif instrument == 'MAG' and level in ['L2']:
+            return True
+        elif instrument == 'SWA' and level in ['L1', 'L2']:
+            return True
+        elif dsid == 'SOLO_L3_SWA-EAS-NMPAD-PSD':
+            # NOTE: One can falsely be led to believe that this is the only L3
+            # SWA DSID, but that is wrong. There is at least also
+            # "solo_L3_swa-his-comp-10min".
+            return True
+        else:
+            return False
 
 
 def sync():
@@ -94,7 +86,7 @@ def sync():
         temp_download_dir         = TEMP_DOWNLOAD_DIR,
         removal_dir               = removal_dir,
         remove_removal_dir        = False,   # TEMP?
-        datasetsSubsetFunc        = datasets_subset_func,
+        dsss                      = DatasetsSubset(),
         delete_outside_subset     = True,
         n_max_datasets_net_remove = 25,
     )

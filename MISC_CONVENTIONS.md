@@ -63,6 +63,9 @@ In this code, DSID is defined to always:
 Ex: `solo_L2_rpw-lfr-surv-cwf-e_20221006_V01.cdf` is a dataset (file) with
 DSID = `SOLO_L2_RPW-LFR-SURV-CWF-E`.
 
+DSSS : (1) Instance of class `erikpgjohansson.solo.soar.mirror.
+DatasetsSubset`, or (2) the one method in that class.
+
 DST : Instance of class `erikpgjohansson.solo.soar.dst.DatasetsTable`. Not to
 be confused with SDT.
 
