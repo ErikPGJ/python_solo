@@ -67,18 +67,18 @@ def sync():
 
     # NOTE: const.LS_SOAR_INSTRUMENTS determines which instruments can at
     # all be downloaded.
-    MIRROR_ADMIN = '/data/solo/soar_mirror_admin/'
-    TEMP_DOWNLOAD_DIR = os.path.join(MIRROR_ADMIN, 'download')
-    TEMP_REMOVAL_PARENT_DIR = os.path.join(MIRROR_ADMIN, 'removal')
+    MIRROR_ADMIN_DIR = '/data/solo/soar_mirror_admin/'
+    TEMP_DOWNLOAD_DIR = os.path.join(MIRROR_ADMIN_DIR, 'download')
+    TEMP_REMOVAL_PARENT_DIR = os.path.join(MIRROR_ADMIN_DIR, 'removal')
     SYNC_DIR = '/data/solo/soar'
 
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
+    timestamp_str = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
 
     log_file = os.path.join(
         f'/home/erjo/logs/'
-        f'so_soar_irfu_mirror_sync.{os.uname().nodename}.{timestamp}.log',
+        f'so_soar_irfu_mirror_sync.{os.uname().nodename}.{timestamp_str}.log',
     )
-    removal_dir = os.path.join(TEMP_REMOVAL_PARENT_DIR, timestamp)
+    removal_dir = os.path.join(TEMP_REMOVAL_PARENT_DIR, timestamp_str)
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).

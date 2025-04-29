@@ -48,12 +48,12 @@ include: bool
 
     # NOTE: Should be configured to match only a small non-zero number of
     # datasets.
-    START_TIME = numpy.datetime64('2020-08-13T00:00:00.000')
-    STOP_TIME  = numpy.datetime64('2020-08-14T00:00:00.000')
+    START_TIME_DT64 = numpy.datetime64('2020-08-13T00:00:00.000')
+    STOP_TIME_DT64  = numpy.datetime64('2020-08-14T00:00:00.000')
 
     # LS_LEVELS = ['LL02', 'L1', 'L2']
     LS_LEVELS = ['L1']
-    if START_TIME <= beginTime < STOP_TIME:
+    if START_TIME_DT64 <= beginTime < STOP_TIME_DT64:
         if (instrument == 'EPD') and (level in LS_LEVELS):
             return True
         # if (instrument == 'MAG') and (level in LS_LEVELS):
@@ -68,15 +68,15 @@ def sync():
     assert os.uname().nodename in ['brain', 'spis', 'irony'], \
         'This code is not designed to run on this machine.'
 
-    s_timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
-    removal_dir = os.path.join(ROOT_DIR, f'removal_{s_timestamp}')
+    timestamp_str = datetime.datetime.now().strftime("%Y-%m-%dT%H.%M.%S")
+    removal_dir = os.path.join(ROOT_DIR, f'removal_{timestamp_str}')
 
     # Configuring the logger appears necessary to get all the logging output.
     # stream = sys.stdout : Log to stdout (instead of stderr).
     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.basicConfig(
         filename=os.path.join(
-            ROOT_DIR, f'mtest_mirror_sync.{s_timestamp}.log',
+            ROOT_DIR, f'mtest_mirror_sync.{timestamp_str}.log',
         ),
         level=logging.INFO,
         format='{asctime} {levelname:<8} {message}',
