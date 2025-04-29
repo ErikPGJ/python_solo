@@ -144,7 +144,7 @@ PROPOSAL: Replace datasetsSubsetFunc with class.
 
 @codetiming.Timer('sync', logger=None)
 def sync(
-    sync_dir, tempDownloadDir, datasetsSubsetFunc: typing.Callable,
+    sync_dir, temp_download_dir, datasetsSubsetFunc: typing.Callable,
     deleteOutsideSubset=False,
     nMaxNetDatasetsToRemove=10,
     tempRemovalDir=None,
@@ -160,7 +160,7 @@ def sync(
     Parameters
     ----------
     sync_dir : String. Path.
-    tempDownloadDir : String. Path.
+    temp_download_dir : String. Path.
         Must be empty on datasets. Otherwise those will be moved too.
     datasetsSubsetFunc : Function (instrument=str, level=str, ...) --> bool
         Function which determines whether a specific dataset should be included
@@ -264,7 +264,7 @@ def sync(
         # ==========
         assert isinstance(sodl, dwld.SoarDownloader)
         erikpgjohansson.solo.asserts.is_dir(sync_dir)
-        erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
+        erikpgjohansson.solo.asserts.is_dir(temp_download_dir)
         assert callable(datasetsSubsetFunc)
         assert type(nMaxNetDatasetsToRemove) in [int, float]
 
@@ -329,7 +329,7 @@ def sync(
             dst_soar_missing=dst_soar_missing,
             dst_local_excess=dst_local_excess,
             sync_dir=sync_dir,
-            tempDownloadDir=tempDownloadDir,
+            temp_download_dir=temp_download_dir,
             tempRemovalDir=tempRemovalDir,
             removeRemovalDir=removeRemovalDir,
         )
@@ -342,7 +342,7 @@ def sync(
 
 
 def offline_cleanup(
-    sync_dir, tempDownloadDir, datasetsSubsetFunc,
+    sync_dir, temp_download_dir, datasetsSubsetFunc,
     b_delete_outside_subset=False,
     tempRemovalDir=None,
     removeRemovalDir=False,
@@ -374,7 +374,7 @@ def offline_cleanup(
 
     L.info('Moving datasets from download directory to sync directory.')
     erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
-        'move', tempDownloadDir, sync_dir,
+        'move', temp_download_dir, sync_dir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
 
@@ -540,7 +540,7 @@ def _calculate_sync_dir_update(
 
 def _execute_sync_dir_SOAR_update(
     sodl: dwld.SoarDownloader,
-    dst_soar_missing, dst_local_excess, sync_dir, tempDownloadDir,
+    dst_soar_missing, dst_local_excess, sync_dir, temp_download_dir,
     tempRemovalDir, removeRemovalDir,
 ):
     '''Execute a pre-calculated syncing of local directory by downloading
@@ -583,7 +583,7 @@ def _execute_sync_dir_SOAR_update(
         sodl,
         dst_soar_missing['item_id'],
         dst_soar_missing['file_size'],
-        tempDownloadDir,
+        temp_download_dir,
     )
 
     # =====================
@@ -609,7 +609,7 @@ def _execute_sync_dir_SOAR_update(
         ' selected directory structure (if there are any).',
     )
     erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
-        'move', tempDownloadDir, sync_dir,
+        'move', temp_download_dir, sync_dir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
 

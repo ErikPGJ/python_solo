@@ -55,7 +55,7 @@ def test_sync(tmp_path):
 
         erikpgjohansson.solo.soar.mirror.sync(
             sync_dir=sync_dir,
-            tempDownloadDir=download_dir,
+            temp_download_dir=download_dir,
             datasetsSubsetFunc=DIF_everything,
             deleteOutsideSubset=False,
             nMaxNetDatasetsToRemove=10,
@@ -168,7 +168,7 @@ def test_sync(tmp_path):
 
         erikpgjohansson.solo.soar.mirror.sync(
             sync_dir=sync_dir,
-            tempDownloadDir=download_dir,
+            temp_download_dir=download_dir,
             datasetsSubsetFunc=DIF,
             deleteOutsideSubset=False,
             nMaxNetDatasetsToRemove=10,
