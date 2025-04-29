@@ -146,7 +146,7 @@ PROPOSAL: Replace datasetsSubsetFunc with class.
 def sync(
     sync_dir, temp_download_dir, datasetsSubsetFunc: typing.Callable,
     delete_outside_subset=False,
-    nMaxNetDatasetsToRemove=10,
+    n_max_datasets_net_remove=10,
     removal_dir=None,
     remove_removal_dir=False,
     sodl: dwld.SoarDownloader = dwld.SoarDownloaderImpl(),
@@ -171,9 +171,9 @@ def sync(
         NOTE: This distinction is important when one wants to
         update only some of the local datasets but not other (e.g. for speed)
         by temporarily using another function datasetsSubsetFunc.
-    nMaxNetDatasetsToRemove : int
-        Maximum permitted net number of deleted datasets ("nDeletedDatasets
-        minus nNewDatasets"). This is a failsafe (assertion), to protect
+    n_max_datasets_net_remove : int
+        Maximum permitted net number of deleted datasets ("n_deleted_datasets
+        minus n_added_datasets"). This is a failsafe (assertion), to protect
         against deleting too many slow-to-redownload datasets due to bugs or
         misconfiguration (e.g. "datasetsSubsetFunc").
     removal_dir
@@ -266,7 +266,7 @@ def sync(
         erikpgjohansson.solo.asserts.is_dir(sync_dir)
         erikpgjohansson.solo.asserts.is_dir(temp_download_dir)
         assert callable(datasetsSubsetFunc)
-        assert type(nMaxNetDatasetsToRemove) in [int, float]
+        assert type(n_max_datasets_net_remove) in [int, float]
 
         # IMPLEMENTATION NOTE: Useful to print Python executable to verify that
         # the correct Python environment is used.
@@ -321,7 +321,7 @@ def sync(
             dst_local=dst_local,
             datasetsSubsetFunc=datasetsSubsetFunc,
             b_delete_outside_subset=delete_outside_subset,
-            nMaxNetDatasetsToRemove=nMaxNetDatasetsToRemove,
+            n_max_datasets_net_remove=n_max_datasets_net_remove,
         )
 
         _execute_sync_dir_SOAR_update(
@@ -387,7 +387,7 @@ def offline_cleanup(
         dst_local=dst_local,
         datasetsSubsetFunc=datasetsSubsetFunc,
         b_delete_outside_subset=b_delete_outside_subset,
-        nMaxNetDatasetsToRemove=float("Inf"),
+        n_max_datasets_net_remove=float("Inf"),
     )
     assert dst_ref_missing.n_rows == 0
 
@@ -437,7 +437,7 @@ def _calculate_reference_DST(dst, datasetsSubsetFunc: typing.Callable):
 def _calculate_sync_dir_update(
     dst_ref, dst_local, datasetsSubsetFunc: typing.Callable,
     b_delete_outside_subset: bool,
-    nMaxNetDatasetsToRemove: typing.Union[int, float],
+    n_max_datasets_net_remove: typing.Union[int, float],
 ):
     '''Given reference datasets and local datasets, calculate which files
     should be removed or downloaded.
@@ -459,8 +459,8 @@ def _calculate_sync_dir_update(
     assert isinstance(dst_ref, erikpgjohansson.solo.soar.dst.DatasetsTable)
     assert isinstance(dst_local, erikpgjohansson.solo.soar.dst.DatasetsTable)
     assert type(b_delete_outside_subset) is bool
-    assert (type(nMaxNetDatasetsToRemove) is int) \
-           or (nMaxNetDatasetsToRemove == float('inf'))
+    assert (type(n_max_datasets_net_remove) is int) \
+           or (n_max_datasets_net_remove == float('inf'))
 
     # ASSERT: The list of reference datasets is non-empty.
     # IMPLEMENTATION NOTE: This is to prevent mistakenly deleting all local
@@ -515,10 +515,10 @@ def _calculate_sync_dir_update(
     # NOTE: Deliberately doing this first after logging which datasets to
     # download and delete.
     n_files_net_remove = dst_local_excess.n_rows - dst_soar_missing.n_rows
-    if n_files_net_remove > nMaxNetDatasetsToRemove:
+    if n_files_net_remove > n_max_datasets_net_remove:
         msg = (
             f'Net number of datasets to remove ({n_files_net_remove})'
-            f' is larger than the permitted ({nMaxNetDatasetsToRemove}).'
+            f' is larger than the permitted ({n_max_datasets_net_remove}).'
             ' This might indicate a bug or configuration error.'
             ' This assertion is a failsafe to prevent deleting too many'
             ' datasets by mistake.'

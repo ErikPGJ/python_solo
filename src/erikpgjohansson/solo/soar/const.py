@@ -45,7 +45,7 @@ CREATE_DIR_PERMISSIONS = 0o755
 
 N_EXCESS_DATASETS_PRINT = 25
 '''Number of local datasets to log, and that would be removed if it were not
-for the triggering of the nMaxNetDatasetsToRemove failsafe.'''
+for the triggering of the n_max_datasets_net_remove failsafe.'''
 
 
 SOAR_TAP_URL = 'http://soar.esac.esa.int/soar-sl-tap'

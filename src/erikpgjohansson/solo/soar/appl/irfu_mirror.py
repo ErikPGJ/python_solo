@@ -96,7 +96,7 @@ def sync():
         remove_removal_dir        = False,   # TEMP?
         datasetsSubsetFunc        = datasets_subset_func,
         delete_outside_subset     = True,
-        nMaxNetDatasetsToRemove   = 25,
+        n_max_datasets_net_remove = 25,
     )
 
 
