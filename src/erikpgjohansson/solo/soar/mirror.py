@@ -145,7 +145,7 @@ PROPOSAL: Replace datasetsSubsetFunc with class.
 @codetiming.Timer('sync', logger=None)
 def sync(
     sync_dir, temp_download_dir, datasetsSubsetFunc: typing.Callable,
-    deleteOutsideSubset=False,
+    delete_outside_subset=False,
     nMaxNetDatasetsToRemove=10,
     removal_dir=None,
     remove_removal_dir=False,
@@ -165,7 +165,7 @@ def sync(
     datasetsSubsetFunc : Function (instrument=str, level=str, ...) --> bool
         Function which determines whether a specific dataset should be included
         in the sync.
-    deleteOutsideSubset : Boolean
+    delete_outside_subset : Boolean
         Whether local datasets for which datasetsSubsetFunc returns false
         should be deleted or not, even if there is no newer version.
         NOTE: This distinction is important when one wants to
@@ -320,7 +320,7 @@ def sync(
             dst_ref=dst_ref,
             dst_local=dst_local,
             datasetsSubsetFunc=datasetsSubsetFunc,
-            b_delete_outside_subset=deleteOutsideSubset,
+            b_delete_outside_subset=delete_outside_subset,
             nMaxNetDatasetsToRemove=nMaxNetDatasetsToRemove,
         )
 
