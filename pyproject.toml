@@ -1,6 +1,45 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+requires = ['setuptools']
+build-backend = 'setuptools.build_meta'
+
+
+
+[project.urls]
+Repository = 'https://github.com/ErikPGJ/python_solo'
+'Bug Tracker' = 'https://github.com/ErikPGJ/python_solo/issues'
+
+
+
+[project]
+name = 'irfu-erikpgjohansson-solo'
+description = 'Miscellaneous Solar Orbiter code, mostly for mirroring Solar Orbiter ARchive (SOAR) data'
+version = '1.0.0'
+readme = {file = 'README.md', content-type = 'text/markdown'}
+license = {file = 'LICENSE.md', content-type = 'text/markdown'}
+authors = [
+    {name = 'Erik P G Johansson', email = 'erik.johansson@irf.se'},
 ]
-build-backend = "setuptools.build_meta"
+maintainers = [
+    {name = 'Erik P G Johansson', email = 'erik.johansson@irf.se'},
+]
+keywords = [
+  'Solar Orbiter', 'SolO',
+  'Solar Orbiter Archive', 'SOAR',
+  'ESA',
+]
+classifiers = [
+    'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
+    'Operating System :: OS Independent',
+    'Development Status :: 4 - Beta',
+    'Programming Language :: Python :: 3',
+]
+dependencies = [
+    'codetiming',
+# SOAR mirroring should work with at least
+# numpy v1.18.5 and v1.19.5. /<=2022-01-04
+# SOAR mirroring runs with numpy v2.1.3 on brain. /2025-04-29
+    'numpy',
+ ]
+# SOAR mirroring runs with Python 3.12.4 on brain. /2025-04-29
+# Runs on irony with Python 3.9.2.  /2025-04-29
+requires-python = '>=3.9'
