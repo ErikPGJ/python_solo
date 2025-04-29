@@ -147,7 +147,7 @@ def sync(
     sync_dir, temp_download_dir, datasetsSubsetFunc: typing.Callable,
     deleteOutsideSubset=False,
     nMaxNetDatasetsToRemove=10,
-    tempRemovalDir=None,
+    removal_dir=None,
     removeRemovalDir=False,
     sodl: dwld.SoarDownloader = dwld.SoarDownloaderImpl(),
 ):
@@ -176,7 +176,7 @@ def sync(
         minus nNewDatasets"). This is a failsafe (assertion), to protect
         against deleting too many slow-to-redownload datasets due to bugs or
         misconfiguration (e.g. "datasetsSubsetFunc").
-    tempRemovalDir
+    removal_dir
         None or path to "removal directory" to which datasets are moved before
         the directory itself is itself optionally removed (depends on argument
         "removeRemovalDir").
@@ -330,7 +330,7 @@ def sync(
             dst_local_excess=dst_local_excess,
             sync_dir=sync_dir,
             temp_download_dir=temp_download_dir,
-            tempRemovalDir=tempRemovalDir,
+            removal_dir=removal_dir,
             removeRemovalDir=removeRemovalDir,
         )
 
@@ -344,7 +344,7 @@ def sync(
 def offline_cleanup(
     sync_dir, temp_download_dir, datasetsSubsetFunc,
     b_delete_outside_subset=False,
-    tempRemovalDir=None,
+    removal_dir=None,
     removeRemovalDir=False,
 ):
     '''
@@ -402,7 +402,7 @@ def offline_cleanup(
     L.info(f'Removing {n_datasets} local datasets')
     ls_files_remove = dst_local_excess['file_path'].tolist()
     stdout_str = _remove_files(
-        ls_files_remove, tempRemovalDir, removeRemovalDir,
+        ls_files_remove, removal_dir, removeRemovalDir,
     )
     L.info(stdout_str)
 
@@ -541,7 +541,7 @@ def _calculate_sync_dir_update(
 def _execute_sync_dir_SOAR_update(
     sodl: dwld.SoarDownloader,
     dst_soar_missing, dst_local_excess, sync_dir, temp_download_dir,
-    tempRemovalDir, removeRemovalDir,
+    removal_dir, removeRemovalDir,
 ):
     '''Execute a pre-calculated syncing of local directory by downloading
     specified datasets and removing specified local datasets.
@@ -597,7 +597,7 @@ def _execute_sync_dir_SOAR_update(
     L.info(f'Removing {n_datasets} local datasets')
     ls_files_remove = dst_local_excess['file_path'].tolist()
     stdout_str = _remove_files(
-        ls_files_remove, tempRemovalDir, removeRemovalDir,
+        ls_files_remove, removal_dir, removeRemovalDir,
     )
     L.info(stdout_str)
 
@@ -614,7 +614,7 @@ def _execute_sync_dir_SOAR_update(
     )
 
 
-def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
+def _remove_files(ls_paths_remove, removal_dir, remove_removal_dir):
     assert type(ls_paths_remove) in (list, tuple)
     assert type(remove_removal_dir) is bool
     L = logging.getLogger(__name__)
@@ -624,20 +624,20 @@ def _remove_files(ls_paths_remove, temp_removal_dir, remove_removal_dir):
         # const.FILE_REMOVAL_COMMAND_LIST also logs/prints.
         L.info(f'Dataset selected for removal: {path_remove}')
 
-    if temp_removal_dir is not None:
-        L.info(f'Using removal directory "{temp_removal_dir}"')
+    if removal_dir is not None:
+        L.info(f'Using removal directory "{removal_dir}"')
         # NOTE: Permit pre-existing removal directory.
         # NOTE: os.makedirs() can create directory recursively.
         os.makedirs(
-            temp_removal_dir, mode=const.CREATE_DIR_PERMISSIONS, exist_ok=True,
+            removal_dir, mode=const.CREATE_DIR_PERMISSIONS, exist_ok=True,
         )
         for path_remove in ls_paths_remove:
             file_name = os.path.basename(path_remove)
-            final_path = os.path.join(temp_removal_dir, file_name)
+            final_path = os.path.join(removal_dir, file_name)
             os.replace(path_remove, final_path)
 
         # NOTE: Replaces value of "ls_paths_remove".
-        ls_paths_remove = [temp_removal_dir]
+        ls_paths_remove = [removal_dir]
 
         if not remove_removal_dir:
             return ''

@@ -59,7 +59,7 @@ def test_sync(tmp_path):
             datasetsSubsetFunc=DIF_everything,
             deleteOutsideSubset=False,
             nMaxNetDatasetsToRemove=10,
-            tempRemovalDir=None,
+            removal_dir=None,
             removeRemovalDir=False,
             sodl=sodl,
         )
@@ -172,7 +172,7 @@ def test_sync(tmp_path):
             datasetsSubsetFunc=DIF,
             deleteOutsideSubset=False,
             nMaxNetDatasetsToRemove=10,
-            tempRemovalDir=None,
+            removal_dir=None,
             removeRemovalDir=False,
             sodl=sodl,
         )
@@ -280,7 +280,7 @@ def test_offline_cleanup(tmp_path):
 
         erikpgjohansson.solo.soar.mirror.offline_cleanup(
             sync_dir, download_dir, DIF,
-            tempRemovalDir=removal_dir, removeRemovalDir=True,
+            removal_dir=removal_dir, removeRemovalDir=True,
         )
 
         tests.assert_FS(
@@ -337,7 +337,7 @@ def test_offline_cleanup(tmp_path):
             },
         )
         erikpgjohansson.solo.soar.mirror.offline_cleanup(
-            sync_dir, download_dir, DIF, tempRemovalDir=removal_dir,
+            sync_dir, download_dir, DIF, removal_dir=removal_dir,
             removeRemovalDir=True,
         )
         tests.assert_FS(
