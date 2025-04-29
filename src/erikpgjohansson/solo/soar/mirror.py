@@ -118,11 +118,11 @@ PROPOSAL: Use configuration file (JSON) to set system/setup-dependent values.
     NOTE: Can not completely abolish irfu_mirror_shell. (Can abolish
           mtest_mirror_shell though).
     PRO: No hardcoded values in git repo.
-    CON: Can not specify generic datasets_include_func/datasetsSubsetFunc in
-         configuration file! "Must" always have code for datasets_include_func
+    CON: Can not specify generic datasetsSubsetFunc in
+         configuration file! "Must" always have code for datasets_subset_func
          for the official IRFU SOAR mirror!
         CON-PROPOSAL: Invent syntax/storable data structure which covers the
-            official mirror's datasets_include_func.
+            official mirror's datasets_subset_func.
             CON: Less general.
             PRO: Might be ~easy.
             PROPOSAL: List of entries, where each entry contains fields for
@@ -405,7 +405,7 @@ def offline_cleanup(
 
 
 @codetiming.Timer('_calculate_reference_DST', logger=None)
-def _calculate_reference_DST(dst, datasetsSubsetFunc):
+def _calculate_reference_DST(dst, datasetsSubsetFunc: typing.Callable):
     ''''''
     '''
     PROPOSAL: Return logical indices, not DST.
@@ -432,7 +432,7 @@ def _calculate_reference_DST(dst, datasetsSubsetFunc):
 
 @codetiming.Timer('_calculate_sync_dir_update', logger=None)
 def _calculate_sync_dir_update(
-    dst_ref, dst_local, datasetsSubsetFunc,
+    dst_ref, dst_local, datasetsSubsetFunc: typing.Callable,
     b_delete_outside_subset: bool,
     nMaxNetDatasetsToRemove: typing.Union[int, float],
 ):
@@ -724,17 +724,17 @@ def _find_DST_difference(
 
 @codetiming.Timer('_find_DST_subset', logger=None)
 def _find_DST_subset(
-    datasetIncludeFunc: typing.Callable,
+    datasetsSubsetFunc: typing.Callable,
     dst: erikpgjohansson.solo.soar.dst.DatasetsTable,
 ):
     '''
-    Returns indices to datasets that are permitted by datasetIncludeFunc.
-    Basically just iterates over datasetIncludeFunc.
+    Returns indices to datasets that are permitted by datasetsSubsetFunc.
+    Basically just iterates over datasetsSubsetFunc.
 
 
     Parameters
     ----------
-    datasetIncludeFunc : Function handle.
+    datasetsSubsetFunc : Function handle.
         Checks whether a given dataset should be included.
 
 
@@ -758,7 +758,7 @@ def _find_DST_subset(
 
     na_b_subset = np.zeros(na_instrument.shape, dtype=bool)
     for i in range(na_instrument.size):
-        na_b_subset[i] = datasetIncludeFunc(
+        na_b_subset[i] = datasetsSubsetFunc(
             instrument=na_instrument[i],
             level     =na_level[i],
             beginTime =na_begin_time[i],

@@ -19,7 +19,7 @@ PROPOSAL: Move code outside of package.
     PRO: Is non-generic code for concrete configurations.
     PROPOSAL: Refactor into using configuration file instead of custom python
               scripts.
-        PROBLEM: The "datasets_include_func" can not be turned into a
+        PROBLEM: The "datasets_subset_func" can not be turned into a
                  config file if one wants it to be completely generic.
         PROBLEM: Can not specify timestamped removal directories.
     PROPOSAL: Use single-file python scripts for each configuration.

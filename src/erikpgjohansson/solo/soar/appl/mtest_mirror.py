@@ -25,7 +25,7 @@ NOTE: Hard-coded local directory.
 '''
 
 
-def datasets_include_func(instrument, level, beginTime, dsid):
+def datasets_subset_func(instrument, level, beginTime, dsid):
     '''
 Function which determines whether a specific dataset is included/excluded in
 the sync.
@@ -86,7 +86,7 @@ def sync():
     erikpgjohansson.solo.soar.mirror.sync(
         syncDir                 = os.path.join(ROOT_DIR, 'mirror'),
         tempDownloadDir         = os.path.join(ROOT_DIR, 'download'),
-        datasetsSubsetFunc      = datasets_include_func,
+        datasetsSubsetFunc      = datasets_subset_func,
         deleteOutsideSubset     = True,
         nMaxNetDatasetsToRemove = 25,
         tempRemovalDir          = removal_dir,

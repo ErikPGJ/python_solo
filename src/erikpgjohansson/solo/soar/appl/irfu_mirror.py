@@ -18,7 +18,7 @@ import os
 PROPOSAL: sync() arguments for paths.'''
 
 
-def datasets_include_func(instrument, level, beginTime, dsid):
+def datasets_subset_func(instrument, level, beginTime, dsid):
     '''
 Function that determines whether a specific dataset is included/excluded in
 the sync.
@@ -94,7 +94,7 @@ def sync():
         tempDownloadDir           = TEMP_DOWNLOAD_DIR,
         tempRemovalDir            = removal_dir,
         removeRemovalDir          = False,   # TEMP?
-        datasetsSubsetFunc        = datasets_include_func,
+        datasetsSubsetFunc        = datasets_subset_func,
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,
     )
