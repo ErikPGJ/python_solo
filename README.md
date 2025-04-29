@@ -21,5 +21,8 @@ and is not very well tested as a distribution package. Still, it is reasonably
 well-structured and might be useful, in part or in full. It has been partially
 cleaned up afterwards.
 
+Backwards-incompatible changes may be made to the code. The code is not
+strictly versioned.
+
 The source code comments sometimes contain large sections with the author's
 thoughts on potential future changes. These can be ignored.

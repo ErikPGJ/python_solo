@@ -68,7 +68,7 @@ be confused with SDT.
 
 DT : Instance of class `datetime.datetime`.
 
-DT64 : numpy array data type `numpy.datetim64`.
+DT64 : numpy data type `numpy.datetim64`.
 
 DTDN : Dataset Type Directory Name. Standardized (sub)directory name used
 for SolO L2 & L3 DSIDs in IDDT and RDDT. String constant which is a function of

@@ -24,10 +24,30 @@ import sys
 '''
 NOTE: SOAR may remove datasets, i.e. state that a previously latest dataset
       version is no longer the latest dataset without supplying a later
-      version.
+      version. This behaviour is rare but has happened and must therefore be
+      supported.
+
+PROPOSAL: Better naming for specifid dataset subsets.
+    Reference DST : Appears to be subset+LV of SOAR datasets.
+    SOAR missing  : Reference datasets not found locally.
+        PROPOSAL: Rename ~local_missing.
+PROPOSAL: Abbreviations/names for specific dataset subsets.
+    PROPOSAL: Something for online SOAR datasets
+        PROPOSAL: Include "online" since "SOAR dataset" could imply a
+                  local dataset from SOAR.
+            OLS = OnLine SOAR
+    PROPOSAL: "Local" is opposite of "online SOAR datasets". Needs no
+              abbreviation.
+    PROPOSAL: Something for the subset of datasets that should be
+        SSS = Synced SOAR Subset
+        SSS = ~Synced SubSet
+        TODO-DEC: Only latest version datasets? Only subset of item IDs?
+    AV = All Versions
+    LV = Latest Version(s) only
+    LVD = Latest Version Datasets
 
 PROBLEM: How handle that a download may take more time than the time between
-    cron jobs?
+         cron jobs?
     PROPOSAL: Set an (approximate) max download time. Abort downloads after
               that and just move the downloaded files after that.
         NOTE: Even if the actual SOAR sync slightly overlaps with the next SOAR
@@ -38,16 +58,6 @@ PROBLEM: How handle that a download may take more time than the time between
                  exceed the time limit.
                 CON: Works badly for very few downloaded files within time
                      limit, e.g. the first one.
-
-PROPOSAL: Verify that downloaded file is the intended one (filename incl.
-    version, size).
-
-PROPOSAL: Do not sync all data items together. Split up syncing into multiple
-          syncs for various subsets of data items.
-    PRO: Good to split up long downloads (~days).
-    NOTE: Must ensure that algorithm only REMOVES datasets from chosen subset
-        (and not from entire set, which could lead to removing all datasets
-        outside the subset)
 
 PROPOSAL: Basic syncing algorithm:
     Derive DST for datasets on disk.
@@ -72,35 +82,22 @@ PROPOSAL: Basic syncing algorithm:
         Check: Number of net removals is "not too large".
     ...
 
-PROPOSAL: Use timestamped directory under download directory.
-    PRO: Easier to just disable moving datasets from it.
-        CON: On brain/spis, downloads/ is under the directory being synced.
-             If there are remaining datasets there, then they will be
-             identified as being local datasets that are part of the mirror.
+PROPOSAL: Verify that downloaded file is the intended one (filename incl.
+          version, size).
+    PROPOSAL: Implement in the downloading code (SOAR interface code,
+              erikpgjohansson.solo.soar.dwld), not the mirroring/syncing code.
 
-PROPOSAL: erikpgjohansson.solo.soar.dst.log_DST() returns string that can be
-          indented by caller.
+PROPOSAL: Remove download directory. Always download directly to destination.
+    PRO: Simplifies restarting sync after interruptions.
+        PRO: Reduces (but does not eliminated) the need for offline_cleanup().
+    PROPOSAL: Always download dataset in temporary directory, and then move it
+              to destination when it is known that it has completed.
+        PROPOSAL: Implement in the downloading code (SOAR interface code,
+                  erikpgjohansson.solo.soar.dwld), not the mirroring/syncing
+                  code.
 
-PROPOSAL: Better naming for specifid dataset subsets.
-    Reference DST : Appears to be subset+LV of SOAR datasets.
-    SOAR missing  : Reference datasets not found locally.
-        PROPOSAL: Rename ~local_missing.
-PROPOSAL: Abbreviations/names for specific dataset subsets.
-    PROPOSAL: Something for online SOAR datasets
-        PROPOSAL: Include "online" since "SOAR dataset" could imply a
-                  local dataset from SOAR.
-            OLS = OnLine SOAR
-    PROPOSAL: "Local" is opposite of "online SOAR datasets". Needs no
-              abbreviation.
-    PROPOSAL: Something for the subset of datasets that should be
-        SSS = Synced SOAR Subset
-        SSS = ~Synced SubSet
-        TODO-DEC: Only latest version datasets? Only subset of item IDs?
-    AV = All Versions
-    LV = Latest Version(s) only
-    LVD = Latest Version Datasets
-
-PROPOSAL: Always use removal directory.
+PROPOSAL: Always use removal directory (remove optionality).
+    PRO: Simplification.
 PROPOSAL: Download exact version of dataset, not the latest version.
     PRO: More robust in case SOAR updates the datasets (increments version)
          between
@@ -114,23 +111,6 @@ PROPOSAL: Download exact version of dataset, not the latest version.
              and is thus not dependent on exact filenames.
 
 PROPOSAL: Make code robust w.r.t. network error, file not present at SOAR.
-
-PROPOSAL: Use configuration file (JSON) to set system/setup-dependent values.
-          Abolish wrappers irfu_mirror (probably), mtest_mirror.
-    NOTE: Can not completely abolish irfu_mirror_shell. (Can abolish
-          mtest_mirror_shell though).
-    PRO: No hardcoded values in git repo.
-    CON: Can not specify generic datasetsSubsetFunc in
-         configuration file! "Must" always have code for datasets_subset_func
-         for the official IRFU SOAR mirror!
-        CON-PROPOSAL: Invent syntax/storable data structure which covers the
-            official mirror's datasets_subset_func.
-            CON: Less general.
-            PRO: Might be ~easy.
-            PROPOSAL: List of entries, where each entry contains fields for
-                instrument, level, etc. Field=null <=> wildcard (accept any
-                value).
-            PROPOSAL: List of explicit DSIDs.
 
 PROPOSAL: Replace datasetsSubsetFunc with class.
     CON: Only one function replaced by one method.
@@ -152,7 +132,7 @@ def sync(
     sodl: dwld.SoarDownloader = dwld.SoarDownloaderImpl(),
 ):
     '''
-    Sync local directory with subset of online SOAR datasets.
+    Sync local directory with a specified subset of online SOAR datasets.
 
     NOTE/BUG: Does not correct the locations of misplaced datasets.
 
@@ -206,7 +186,8 @@ def sync(
           will be moved too.
     BUG: Can not handle multiple identical datasets.
 
-    ~BUG: Not sure about behaviour for datasets (mistakenly) not recognized by
+    ~BUG: Not sure about the behaviour for datasets (mistakenly) not being
+        recognized by
         erikpgjohansson.solo.metadata.DatasetFilename.parse_filename() among
         the SOAR datasets.
             NOTE: Should only happen if datasetsSubsetFunc() uses time.
