@@ -37,6 +37,4 @@ dependencies = [
     'codetiming',
     'numpy>=2.0.2',
  ]
-# SOAR mirroring runs with Python 3.12.4 on brain. /2025-04-29
-# Runs on irony with Python 3.9.2.  /2025-04-29
-requires-python = '>=3.9'
+requires-python = '>=3.12'
