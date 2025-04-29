@@ -23,7 +23,7 @@ PROPOSAL: Include optional (manually triggered) test which actually mirrors
 def test_sync(tmp_path):
     dp = tests.DirProducer(tmp_path)
 
-    def DIF_everything(instrument, level, beginTime, dsid):
+    def DIF_everything(instrument, level, begin_dt64, dsid):
         return True
 
     def test0():
@@ -87,7 +87,7 @@ def test_sync(tmp_path):
         )
 
     def test1():
-        def DIF(instrument, level, beginTime, dsid):
+        def DIF(instrument, level, begin_dt64, dsid):
             return instrument != 'EUI'
 
         L2_MAG_V02 = [
@@ -221,7 +221,7 @@ def test_offline_cleanup(tmp_path):
     dp = tests.DirProducer(tmp_path)
     # TODO: Check misplaced files.
 
-    def DIF(instrument, level, beginTime, dsid):
+    def DIF(instrument, level, begin_dt64, dsid):
         return True
 
     def test0():

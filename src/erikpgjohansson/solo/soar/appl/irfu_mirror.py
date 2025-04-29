@@ -18,7 +18,7 @@ import os
 PROPOSAL: sync() arguments for paths.'''
 
 
-def datasets_subset_func(instrument, level, beginTime, dsid):
+def datasets_subset_func(instrument, level, begin_dt64, dsid):
     '''
 Function that determines whether a specific dataset is included/excluded in
 the sync.
@@ -38,7 +38,7 @@ Returns
 include: bool
     Whether datasets should be included or not.
 '''
-    # NOTE: Include all time periods. ==> Do not check beginTime (for now).
+    # NOTE: Include all time periods. ==> Do not check begin_dt64 (for now).
 
     if dsid in ('SOLO_LL02_SWA-PAS-MOM', 'SOLO_LL02_MAG'):
         return True

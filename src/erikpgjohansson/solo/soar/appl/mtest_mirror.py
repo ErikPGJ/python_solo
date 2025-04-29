@@ -25,7 +25,7 @@ NOTE: Hard-coded local directory.
 '''
 
 
-def datasets_subset_func(instrument, level, beginTime, dsid):
+def datasets_subset_func(instrument, level, begin_dt64, dsid):
     '''
 Function which determines whether a specific dataset is included/excluded in
 the sync.
@@ -53,7 +53,7 @@ include: bool
 
     # LS_LEVELS = ['LL02', 'L1', 'L2']
     LS_LEVELS = ['L1']
-    if START_TIME_DT64 <= beginTime < STOP_TIME_DT64:
+    if START_TIME_DT64 <= begin_dt64 < STOP_TIME_DT64:
         if (instrument == 'EPD') and (level in LS_LEVELS):
             return True
         # if (instrument == 'MAG') and (level in LS_LEVELS):

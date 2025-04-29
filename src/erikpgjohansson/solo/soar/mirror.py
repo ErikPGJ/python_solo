@@ -747,7 +747,7 @@ def _find_DST_subset(
     '''
     na_instrument = dst['instrument']
     na_level      = dst['processing_level']
-    na_begin_time = dst['begin_time_FN']
+    na_dt64_begin = dst['begin_time_FN']
 
     na_dsid = np.array(
         tuple(
@@ -761,7 +761,7 @@ def _find_DST_subset(
         na_b_subset[i] = datasetsSubsetFunc(
             instrument=na_instrument[i],
             level     =na_level[i],
-            beginTime =na_begin_time[i],
+            begin_dt64=na_dt64_begin[i],
             dsid      =na_dsid[i],
         )
 
