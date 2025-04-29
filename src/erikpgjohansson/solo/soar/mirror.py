@@ -774,7 +774,7 @@ def _find_DST_subset(
             instrument=na_instrument[i],
             level     =na_level[i],
             begin_dt64=na_dt64_begin[i],
-            dsid      =na_dsid[i],
+            dsid      =str(na_dsid[i]),
         )
 
     return na_b_subset
