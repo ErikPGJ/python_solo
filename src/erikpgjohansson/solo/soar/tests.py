@@ -3,8 +3,9 @@ Help code for automatic tests.
 '''
 
 
-import erikpgjohansson.solo.soar.dwld
 import erikpgjohansson.solo.soar.const as const
+import erikpgjohansson.solo.soar.dwld
+import erikpgjohansson.solo.soar.mirror
 import os
 import time
 
@@ -212,6 +213,13 @@ def JSON_SDT_filename(instrument):
     can be located using the same file name.
     '''
     return f'{instrument}_v_public_files.json'
+
+
+class DatasetsSubsetEverything(
+    erikpgjohansson.solo.soar.mirror.DatasetsSubset,
+):
+    def dataset_in_subset(self, instrument, level, begin_dt64, dsid):
+        return True
 
 
 class DirProducer:
