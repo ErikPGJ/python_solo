@@ -1,5 +1,11 @@
 '''
 Help code for automatic tests.
+
+DATA STRUCTURE FOR REPRESENTING A DIRECTORY TREE
+================================================
+Some functions use a simple data structure for representing directory trees
+and is suitable for hardcoding. It includes files within the tree (excluding
+file content, but including file sizes).
 '''
 
 
@@ -16,9 +22,6 @@ PROPOSAL: Change way of representing FS objects.
         PRO: More concise when having few files in deep subdirectories.
         PRO: Easier to compare paths.
         CON: May have to linebreak paths.
-
-PROPOSAL: Recursive function for comparing dict representations of FS.
-    assert act_dc_objs == exp_dc_objs
 '''
 
 
@@ -244,12 +247,11 @@ def create_file(path, size):
 
 
 def setup_FS(root_dir, dc_objs):
-    '''Create specified directory tree of (nonsense) files and directories.
+    '''Create the specified directory tree of (nonsense) files and directories.
     FS = File System.
 
     Note: Function fully validates the input arguments.
     '''
-
     assert type(dc_objs) is dict
 
     # NOTE: Permits pre-existing directory.
@@ -257,6 +259,7 @@ def setup_FS(root_dir, dc_objs):
 
     for obj_name, obj_content in dc_objs.items():
         assert type(obj_name) is str
+
         if type(obj_content) is int:
             create_file(os.path.join(root_dir, obj_name), obj_content)
         elif type(obj_content) is dict:
@@ -281,7 +284,7 @@ def assert_FS(root_dir, exp_dc_objs):
             elif de.is_dir():
                 dc_fs[obj_name] = get_FS(os.path.join(root_dir, obj_name))
             else:
-                raise Exception('')
+                raise Exception('Can not handle the object found.')
 
         return dc_fs
 

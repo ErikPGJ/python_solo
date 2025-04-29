@@ -575,14 +575,15 @@ def _convert_JSON_SDT_to_DST(json_sdt):
     dc_na['begin_time']  = jsd.get_column_string_to_DT64_NA('begin_time')
     dc_na['archived_on'] = jsd.get_column_string_to_DT64_NA('archived_on')
 
-    for sdt_column_name in [
+    LS_COLUMN_NAME_OBJECT = [
         'data_type', 'file_name', 'instrument', 'item_id', 'processing_level',
-    ]:
+    ]
+    for sdt_column_name in LS_COLUMN_NAME_OBJECT:
         assert sdt_column_name not in dc_na
         dc_na[sdt_column_name] = jsd.get_column_NA(sdt_column_name, object)
 
     # Modify "processing_level" to handle a special case.
-    na_b = dc_na['processing_level'] == None   # noqa: E711
+    na_b = (dc_na['processing_level']) == None   # noqa: E711
     dc_na['processing_level'][na_b] = NO_PROCESSING_LEVEL_NAME
 
     # =================================

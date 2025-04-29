@@ -89,6 +89,8 @@ PROPOSAL: Verify that downloaded file is the intended one (filename incl.
               erikpgjohansson.solo.soar.dwld), not the mirroring/syncing code.
 
 PROPOSAL: Remove download directory. Always download directly to destination.
+    CON: Must in that case also simultaneously remove older version(s) of
+         the same dataset!
     PRO: Simplifies restarting sync after interruptions.
         PRO: Reduces (but does not eliminated) the need for offline_cleanup().
     PROPOSAL: Always download dataset in temporary directory, and then move it
@@ -154,7 +156,9 @@ class DatasetsSubset(abc.ABC):
         raise NotImplementedError()
 
 
-@codetiming.Timer('sync', logger=None)
+# NOTE: @codetiming.Timer() does not seem to work for this function. Could
+# be due to it itself calls codetiming to read values.
+# @codetiming.Timer('sync', logger=None)
 def sync(
     sync_dir, temp_download_dir, dsss: DatasetsSubset,
     delete_outside_subset=False,
@@ -507,9 +511,9 @@ def _calculate_sync_dir_update(
             ' Will NOT delete datasets outside the specified subset.',
         )
 
-    # ==============================================================#
+    # ===============================================================
     # Find (1) datasets to download, and (2) local datasets to delete
-    # ==============================================================#
+    # ===============================================================
     na_b_soar_missing, na_b_local_excess = _find_file_name_size_difference(
         dst_ref['file_name'], dst_local['file_name'],
         dst_ref['file_size'], dst_local['file_size'],

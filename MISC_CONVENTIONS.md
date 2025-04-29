@@ -120,10 +120,10 @@ Note: IDDT must support SOAR datasets, and thus paths for LL and L1 datasets.
 IRFU, IRF-U : Institutet för Rymdfysik, Uppsala department (Swedish Institute
 of Space Physics).
 
-Item ID, item_id : SOAR uses this term in SOAR's datasets tables. Subset of SolO
-dataset file name in SolO's filenaming convention.
-Type of return value from SOAR when requesting table of datasets.
-Essentially DSID + time interval in official filename.
+Item ID, item_id : SOAR uses this term in SOAR's datasets tables. Is a
+substring in SolO dataset file names in SolO's filenaming convention.
+Is a type of return value from SOAR when requesting table of datasets.
+Is essentially DSID + time interval in official filename.
 
 - Ex: `solo_L2_rpw-lfr-surv-cwf-e_20221006_V01.cdf` is a dataset (file) with
   item ID = `solo_L2_rpw-lfr-surv-cwf-e_20221006`.

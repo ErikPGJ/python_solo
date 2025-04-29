@@ -235,7 +235,7 @@ def log_DST(dst: DatasetsTable, title: str):
 
     bytes_tot = dst['file_size'].sum()
     n_datasets = dst['file_size'].size
-    gb_tot = bytes_tot / 2**30
+    gibibytes_tot = bytes_tot / 2**30
 
     set_instr = set(dst['instrument'])
     set_level = set(dst['processing_level'])
@@ -253,7 +253,7 @@ def log_DST(dst: DatasetsTable, title: str):
     L.info(title)
     L.info('-'*len(title))
     L.info(f'Number of datasets:       {n_datasets:d} datasets')
-    L.info(f'Total amount of data:     {gb_tot:.2f} [GiB]')
+    L.info(f'Total amount of data:     {gibibytes_tot:.2f} [GiB]')
     L.info(f'Unique instruments:       {ssl(sorted(set_instr))}')
     L.info(f'Unique processing levels: {ssl(sorted(set_level))}')
     L.info('begin_time_FN:')

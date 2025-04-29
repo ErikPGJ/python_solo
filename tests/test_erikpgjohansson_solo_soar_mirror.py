@@ -1,9 +1,4 @@
 '''
-DATA STRUCTURE FOR REPRESENTING A DIRECTORY TREE
-================================================
-Tests use a simple data structure for representing directory trees that is
-suitable for hardcoding. It includes files within it (excluding file
-content, but including file sizes).
 '''
 
 
