@@ -514,12 +514,23 @@ def _calculate_sync_dir_update(
     # ===============================================================
     # Find (1) datasets to download, and (2) local datasets to delete
     # ===============================================================
+    '''
+    IMPLEMENTATION NOTE: so_soar_irfu_mirror_sync.brain.2025-04-29T15.35.49.log
+    seems strangely slow (production run on brain) around here. Added extra
+    logging and codetime calls due to that.
+    2025-04-29 15:45:23,040 INFO     NOTE: Syncing against all local datasets (in specified directory). Will potentially DELETE datasets outside the specified subset.   # noqa: E501
+    2025-04-29 15:59:56,239 INFO     ================================================================================   # noqa: E501
+    2025-04-29 15:59:56,239 INFO     Online SOAR datasets that need to be downloaded   # noqa: E501
+    '''
+    L.debug('Finding datasets to download and remove.')
     na_b_soar_missing, na_b_local_excess = _find_file_name_size_difference(
         dst_ref['file_name'], dst_local['file_name'],
         dst_ref['file_size'], dst_local['file_size'],
     )
 
+    L.debug('Extracting datasets from DST to download.')
     dst_soar_missing = dst_ref.index(na_b_soar_missing)
+    L.debug('Extracting datasets from DST to remove locally.')
     dst_local_excess = dst_local.index(na_b_local_excess)
 
     erikpgjohansson.solo.soar.dst.log_DST(
@@ -666,6 +677,7 @@ def _remove_files(ls_paths_remove, removal_dir, remove_removal_dir):
     return str(stdoutBytes, 'utf-8')
 
 
+@codetiming.Timer('_find_file_name_size_difference', logger=None)
 def _find_file_name_size_difference(
     na_file_name1: np.ndarray, na_file_name2: np.ndarray,
     na_file_size1: np.ndarray, na_file_size2: np.ndarray,

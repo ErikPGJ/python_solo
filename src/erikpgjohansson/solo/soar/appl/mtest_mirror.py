@@ -75,7 +75,7 @@ def sync():
         filename=os.path.join(
             ROOT_DIR, f'mtest_mirror_sync.{timestamp_str}.log',
         ),
-        level=logging.INFO,
+        level=logging.DEBUG,
         format='{asctime} {levelname:<8} {message}',
         style='{',
     )

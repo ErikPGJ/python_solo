@@ -94,6 +94,7 @@ class DatasetsTable:
         # Set self._dc_na
         self._dc_na[key] = na
 
+    @codetiming.Timer('DST.index', logger=None)
     def index(self, na_bi: np.ndarray):
         '''
         Create new DST using the same keys and subset of arrays, defined by
@@ -204,6 +205,7 @@ def derive_DST_from_dir(root_dir):
     return dst
 
 
+@codetiming.Timer('log_DST', logger=None)
 def log_DST(dst: DatasetsTable, title: str):
     '''
     Log the content of a table of datasets. Assumes that it contains certain
