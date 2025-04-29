@@ -90,7 +90,7 @@ def sync():
     )
 
     erikpgjohansson.solo.soar.mirror.sync(
-        syncDir                   = SYNC_DIR,
+        sync_dir                  = SYNC_DIR,
         tempDownloadDir           = TEMP_DOWNLOAD_DIR,
         tempRemovalDir            = removal_dir,
         removeRemovalDir          = False,   # TEMP?

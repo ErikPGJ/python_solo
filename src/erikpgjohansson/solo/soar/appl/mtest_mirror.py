@@ -90,7 +90,7 @@ def sync():
     )
 
     erikpgjohansson.solo.soar.mirror.sync(
-        syncDir                 = os.path.join(ROOT_DIR, 'mirror'),
+        sync_dir                = os.path.join(ROOT_DIR, 'mirror'),
         tempDownloadDir         = os.path.join(ROOT_DIR, 'download'),
         datasetsSubsetFunc      = datasets_subset_func,
         deleteOutsideSubset     = True,

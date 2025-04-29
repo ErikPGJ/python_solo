@@ -144,7 +144,7 @@ PROPOSAL: Replace datasetsSubsetFunc with class.
 
 @codetiming.Timer('sync', logger=None)
 def sync(
-    syncDir, tempDownloadDir, datasetsSubsetFunc: typing.Callable,
+    sync_dir, tempDownloadDir, datasetsSubsetFunc: typing.Callable,
     deleteOutsideSubset=False,
     nMaxNetDatasetsToRemove=10,
     tempRemovalDir=None,
@@ -159,7 +159,7 @@ def sync(
 
     Parameters
     ----------
-    syncDir : String. Path.
+    sync_dir : String. Path.
     tempDownloadDir : String. Path.
         Must be empty on datasets. Otherwise those will be moved too.
     datasetsSubsetFunc : Function (instrument=str, level=str, ...) --> bool
@@ -263,7 +263,7 @@ def sync(
         # ASSERTIONS
         # ==========
         assert isinstance(sodl, dwld.SoarDownloader)
-        erikpgjohansson.solo.asserts.is_dir(syncDir)
+        erikpgjohansson.solo.asserts.is_dir(sync_dir)
         erikpgjohansson.solo.asserts.is_dir(tempDownloadDir)
         assert callable(datasetsSubsetFunc)
         assert type(nMaxNetDatasetsToRemove) in [int, float]
@@ -281,7 +281,7 @@ def sync(
         # included so that they can be removed (or kept in the rare but
         # possible case of SOAR down-versioning datasets).
         L.info('Producing table of pre-existing local datasets.')
-        dst_local = erikpgjohansson.solo.soar.dst.derive_DST_from_dir(syncDir)
+        dst_local = erikpgjohansson.solo.soar.dst.derive_DST_from_dir(sync_dir)
         erikpgjohansson.solo.soar.dst.log_DST(
             dst_local, 'Pre-existing local datasets that should be synced',
         )
@@ -328,7 +328,7 @@ def sync(
             sodl=sodl,
             dst_soar_missing=dst_soar_missing,
             dst_local_excess=dst_local_excess,
-            syncDir=syncDir,
+            sync_dir=sync_dir,
             tempDownloadDir=tempDownloadDir,
             tempRemovalDir=tempRemovalDir,
             removeRemovalDir=removeRemovalDir,
@@ -342,7 +342,7 @@ def sync(
 
 
 def offline_cleanup(
-    syncDir, tempDownloadDir, datasetsSubsetFunc,
+    sync_dir, tempDownloadDir, datasetsSubsetFunc,
     b_delete_outside_subset=False,
     tempRemovalDir=None,
     removeRemovalDir=False,
@@ -368,18 +368,18 @@ def offline_cleanup(
         ' the correct locations.',
     )
     erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
-        'move', syncDir, syncDir,
+        'move', sync_dir, sync_dir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
 
     L.info('Moving datasets from download directory to sync directory.')
     erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
-        'move', tempDownloadDir, syncDir,
+        'move', tempDownloadDir, sync_dir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
 
     L.info('Producing table of pre-existing local datasets.')
-    dst_local = erikpgjohansson.solo.soar.dst.derive_DST_from_dir(syncDir)
+    dst_local = erikpgjohansson.solo.soar.dst.derive_DST_from_dir(sync_dir)
 
     dst_ref = _calculate_reference_DST(dst_local, datasetsSubsetFunc)
     dst_ref_missing, dst_local_excess = _calculate_sync_dir_update(
@@ -540,7 +540,7 @@ def _calculate_sync_dir_update(
 
 def _execute_sync_dir_SOAR_update(
     sodl: dwld.SoarDownloader,
-    dst_soar_missing, dst_local_excess, syncDir, tempDownloadDir,
+    dst_soar_missing, dst_local_excess, sync_dir, tempDownloadDir,
     tempRemovalDir, removeRemovalDir,
 ):
     '''Execute a pre-calculated syncing of local directory by downloading
@@ -609,7 +609,7 @@ def _execute_sync_dir_SOAR_update(
         ' selected directory structure (if there are any).',
     )
     erikpgjohansson.solo.iddt.copy_move_datasets_to_IRFU_dir_tree(
-        'move', tempDownloadDir, syncDir,
+        'move', tempDownloadDir, sync_dir,
         dirCreationPermissions=const.CREATE_DIR_PERMISSIONS,
     )
 
