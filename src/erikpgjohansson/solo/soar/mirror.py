@@ -148,7 +148,7 @@ def sync(
     deleteOutsideSubset=False,
     nMaxNetDatasetsToRemove=10,
     removal_dir=None,
-    removeRemovalDir=False,
+    remove_removal_dir=False,
     sodl: dwld.SoarDownloader = dwld.SoarDownloaderImpl(),
 ):
     '''
@@ -179,9 +179,9 @@ def sync(
     removal_dir
         None or path to "removal directory" to which datasets are moved before
         the directory itself is itself optionally removed (depends on argument
-        "removeRemovalDir").
+        "remove_removal_dir").
         Removal directory may preexist. Is created if not.
-    removeRemovalDir
+    remove_removal_dir
         Bool. If using a removal directory, then whether to actually remove the
         removal directory or keep it.
     sodl
@@ -331,7 +331,7 @@ def sync(
             sync_dir=sync_dir,
             temp_download_dir=temp_download_dir,
             removal_dir=removal_dir,
-            removeRemovalDir=removeRemovalDir,
+            remove_removal_dir=remove_removal_dir,
         )
 
         utils.log_codetiming()   # DEBUG
@@ -345,7 +345,7 @@ def offline_cleanup(
     sync_dir, temp_download_dir, datasetsSubsetFunc,
     b_delete_outside_subset=False,
     removal_dir=None,
-    removeRemovalDir=False,
+    remove_removal_dir=False,
 ):
     '''
     Given a temporary download directory and a local sync directory, both of
@@ -402,7 +402,7 @@ def offline_cleanup(
     L.info(f'Removing {n_datasets} local datasets')
     ls_files_remove = dst_local_excess['file_path'].tolist()
     stdout_str = _remove_files(
-        ls_files_remove, removal_dir, removeRemovalDir,
+        ls_files_remove, removal_dir, remove_removal_dir,
     )
     L.info(stdout_str)
 
@@ -541,7 +541,7 @@ def _calculate_sync_dir_update(
 def _execute_sync_dir_SOAR_update(
     sodl: dwld.SoarDownloader,
     dst_soar_missing, dst_local_excess, sync_dir, temp_download_dir,
-    removal_dir, removeRemovalDir,
+    removal_dir, remove_removal_dir,
 ):
     '''Execute a pre-calculated syncing of local directory by downloading
     specified datasets and removing specified local datasets.
@@ -597,7 +597,7 @@ def _execute_sync_dir_SOAR_update(
     L.info(f'Removing {n_datasets} local datasets')
     ls_files_remove = dst_local_excess['file_path'].tolist()
     stdout_str = _remove_files(
-        ls_files_remove, removal_dir, removeRemovalDir,
+        ls_files_remove, removal_dir, remove_removal_dir,
     )
     L.info(stdout_str)
 

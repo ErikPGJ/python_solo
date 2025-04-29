@@ -93,7 +93,7 @@ def sync():
         sync_dir                  = SYNC_DIR,
         temp_download_dir         = TEMP_DOWNLOAD_DIR,
         removal_dir               = removal_dir,
-        removeRemovalDir          = False,   # TEMP?
+        remove_removal_dir        = False,   # TEMP?
         datasetsSubsetFunc        = datasets_subset_func,
         deleteOutsideSubset       = True,
         nMaxNetDatasetsToRemove   = 25,
